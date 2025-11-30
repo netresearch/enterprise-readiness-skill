@@ -3,10 +3,11 @@ name: enterprise-readiness
 description: "Assess and enhance software projects for enterprise-grade security, quality, and automation. This skill should be used when evaluating projects for production readiness, implementing supply chain security (SLSA, signing, SBOMs), hardening CI/CD pipelines, or establishing quality gates. Aligned with OpenSSF Scorecard, Best Practices Badge (all levels), SLSA Framework, and S2C2F. Triggers on keywords: enterprise, production ready, security hardening, supply chain security, SLSA, OpenSSF Scorecard, release automation, security assessment, silver badge, gold badge."
 ---
 
-# Enterprise Readiness Assessment v3.0
+# Enterprise Readiness Assessment v3.1
 
 A comprehensive framework for assessing and improving software projects to meet enterprise-grade
-standards for security, quality, and automation. Aligned with major OpenSSF programs.
+standards for security, quality, and automation. Includes automation scripts, document templates,
+and implementation guides. Aligned with major OpenSSF programs.
 
 ## OpenSSF Framework Alignment
 
@@ -287,15 +288,52 @@ jobs:
 9. **Solo Maintainer**: Some Silver/Gold criteria require justification (bus factor, 2-person review)
 10. **Self-Approval**: GitHub doesn't allow self-approval - affects review requirements
 
+## Bundled Resources
+
+This skill includes automation scripts, templates, and detailed guides for implementing
+enterprise readiness requirements.
+
+### Automation Scripts (`scripts/`)
+
+| Script | Purpose | Usage |
+|--------|---------|-------|
+| `verify-badge-criteria.sh` | Automated OpenSSF Badge verification | `./scripts/verify-badge-criteria.sh [--level passing\|silver\|gold]` |
+| `check-coverage-threshold.sh` | Test coverage validation | `./scripts/check-coverage-threshold.sh [threshold] [coverage-file]` |
+| `add-spdx-headers.sh` | Add SPDX license headers (Gold) | `./scripts/add-spdx-headers.sh [directory] [license-id]` |
+
+### Document Templates (`assets/templates/`)
+
+| Template | Purpose | OpenSSF Level |
+|----------|---------|---------------|
+| `GOVERNANCE.md` | Project governance, roles, decisions | Silver |
+| `ARCHITECTURE.md` | Technical architecture documentation | Silver |
+| `CODE_OF_CONDUCT.md` | Contributor Covenant v2.1 | Passing |
+
+### Workflow Templates (`assets/workflows/`)
+
+| Workflow | Purpose | OpenSSF Level |
+|----------|---------|---------------|
+| `dco-check.yml` | DCO sign-off enforcement | Silver |
+
+### Implementation Guides (`references/`)
+
+| Guide | Purpose | Key Topics |
+|-------|---------|------------|
+| `dco-implementation.md` | DCO setup and enforcement | Git config, CI integration, PR templates |
+| `signed-releases.md` | Artifact and tag signing | Cosign keyless, GPG, SLSA provenance |
+| `reproducible-builds.md` | Deterministic builds | Go/Rust/Python patterns, verification |
+
 ## Extensibility
 
 This skill uses a modular architecture. Additional platform and language modules
 can be added to `references/` following the same checklist structure:
 
-**Available Modules:**
+**Scoring Modules:**
 - `references/general.md` - Universal checks (60 points)
 - `references/github.md` - GitHub-specific (40 points)
 - `references/go.md` - Go-specific (20 points)
+
+**Badge Criteria Modules:**
 - `references/openssf-badge-silver.md` - Silver level criteria (55 items)
 - `references/openssf-badge-gold.md` - Gold level criteria (24 items)
 

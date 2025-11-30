@@ -102,12 +102,26 @@ Score = (Points_Earned / Max_Points_Applicable) × 100
 ```
 enterprise-readiness/
 ├── SKILL.md                              # Main skill with workflow and patterns
+├── scripts/
+│   ├── verify-badge-criteria.sh          # Automated OpenSSF Badge verification
+│   ├── check-coverage-threshold.sh       # Test coverage validation
+│   └── add-spdx-headers.sh               # SPDX license headers (Gold)
+├── assets/
+│   ├── templates/
+│   │   ├── GOVERNANCE.md                 # Governance document template
+│   │   ├── ARCHITECTURE.md               # Architecture doc template
+│   │   └── CODE_OF_CONDUCT.md            # Contributor Covenant v2.1
+│   └── workflows/
+│       └── dco-check.yml                 # DCO enforcement workflow
 └── references/
     ├── general.md                        # Universal checks (60 points)
     ├── github.md                         # GitHub-specific checks (40 points)
     ├── go.md                             # Go-specific checks (20 points)
     ├── openssf-badge-silver.md           # Silver level criteria (55 items)
-    └── openssf-badge-gold.md             # Gold level criteria (24 items)
+    ├── openssf-badge-gold.md             # Gold level criteria (24 items)
+    ├── dco-implementation.md             # DCO setup guide
+    ├── signed-releases.md                # Cosign/GPG signing guide
+    └── reproducible-builds.md            # Reproducible build guide
 ```
 
 ## Extensibility
@@ -191,4 +205,4 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
-**Version 3.0** - Complete OpenSSF Best Practices Badge coverage (Passing/Silver/Gold)
+**Version 3.1** - Added automation scripts, document templates, workflow templates, and implementation guides
