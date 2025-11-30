@@ -220,4 +220,4 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
-**Version 3.3.1** - Added bus factor analysis, SPDX verification, reproducible builds, branch coverage scripts; security audit and badge exceptions templates; solo maintainer, dynamic analysis, and branch coverage guides for complete Gold level support. Fixed shell script portability (bash 4+ dependency removed), subshell exit handling, and improved argument parsing.
+**Version 3.3.0** - Added bus factor analysis, SPDX verification, reproducible builds, branch coverage scripts; security audit and badge exceptions templates; solo maintainer, dynamic analysis, and branch coverage guides for complete Gold level support. Fixed shell script portability (bash 4+ dependency removed), subshell exit handling, and improved argument parsing.

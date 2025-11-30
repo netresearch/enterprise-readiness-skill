@@ -3,7 +3,7 @@ name: enterprise-readiness
 description: "Assess and enhance software projects for enterprise-grade security, quality, and automation. This skill should be used when evaluating projects for production readiness, implementing supply chain security (SLSA, signing, SBOMs), hardening CI/CD pipelines, or establishing quality gates. Aligned with OpenSSF Scorecard, Best Practices Badge (all levels), SLSA Framework, and S2C2F. Triggers on keywords: enterprise, production ready, security hardening, supply chain security, SLSA, OpenSSF Scorecard, release automation, security assessment, silver badge, gold badge."
 ---
 
-# Enterprise Readiness Assessment v3.3.1
+# Enterprise Readiness Assessment v3.3.0
 
 A comprehensive framework for assessing and improving software projects to meet enterprise-grade
 standards for security, quality, and automation. Includes automation scripts, document templates,
