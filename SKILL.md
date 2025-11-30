@@ -3,17 +3,17 @@ name: enterprise-readiness
 description: "Assess and enhance software projects for enterprise-grade security, quality, and automation. This skill should be used when evaluating projects for production readiness, implementing supply chain security (SLSA, signing, SBOMs), hardening CI/CD pipelines, or establishing quality gates. Aligned with OpenSSF Scorecard, Best Practices Badge (all levels), SLSA Framework, and S2C2F. Triggers on keywords: enterprise, production ready, security hardening, supply chain security, SLSA, OpenSSF Scorecard, release automation, security assessment, silver badge, gold badge."
 ---
 
-# Enterprise Readiness Assessment v3.3.0
+# Enterprise Readiness Assessment v3.4.0
 
 A comprehensive framework for assessing and improving software projects to meet enterprise-grade
 standards for security, quality, and automation. Includes automation scripts, document templates,
 and implementation guides. Aligned with major OpenSSF programs.
 
-**v3.3 Highlights:**
-- New scripts: bus factor analysis, SPDX verification, reproducible builds, branch coverage
-- New templates: security audit, badge exceptions documentation
-- New guides: solo maintainer, dynamic analysis, branch coverage
-- Complete Gold level coverage with solo maintainer considerations
+**v3.4 Highlights:**
+- New scripts: signed tag verification, PR review requirements, TLS 1.2+ enforcement
+- Complete Silver/Gold badge criteria automation coverage
+- Previous: bus factor, SPDX, reproducible builds, branch coverage scripts
+- Previous: security audit, badge exceptions templates; solo maintainer guides
 
 ## OpenSSF Framework Alignment
 
@@ -310,6 +310,9 @@ enterprise readiness requirements.
 | `verify-spdx-headers.sh` | Verify SPDX headers exist (Gold) | `./scripts/verify-spdx-headers.sh [--fix] [directory]` |
 | `analyze-bus-factor.sh` | Bus factor analysis (Silver/Gold) | `./scripts/analyze-bus-factor.sh [--days 365] [--threshold 2]` |
 | `verify-reproducible-build.sh` | Reproducible build check (Gold) | `./scripts/verify-reproducible-build.sh [build-cmd] [output]` |
+| `verify-signed-tags.sh` | Git tag signature verification (Silver) | `./scripts/verify-signed-tags.sh [tag] [--check-all]` |
+| `verify-review-requirements.sh` | PR review requirements check (Silver/Gold) | `./scripts/verify-review-requirements.sh [--level silver\|gold]` |
+| `check-tls-minimum.sh` | TLS 1.2+ enforcement check (Silver) | `./scripts/check-tls-minimum.sh [directory]` |
 
 ### Document Templates (`assets/templates/`)
 

@@ -109,7 +109,10 @@ enterprise-readiness/
 │   ├── add-spdx-headers.sh               # Add SPDX license headers (Gold)
 │   ├── verify-spdx-headers.sh            # Verify SPDX headers exist (Gold)
 │   ├── analyze-bus-factor.sh             # Bus factor analysis (Silver/Gold)
-│   └── verify-reproducible-build.sh      # Reproducible build check (Gold)
+│   ├── verify-reproducible-build.sh      # Reproducible build check (Gold)
+│   ├── verify-signed-tags.sh             # Git tag signature verification (Silver)
+│   ├── verify-review-requirements.sh     # PR review requirements check (Silver/Gold)
+│   └── check-tls-minimum.sh              # TLS 1.2+ enforcement check (Silver)
 ├── assets/
 │   ├── templates/
 │   │   ├── GOVERNANCE.md                 # Governance document template
@@ -220,4 +223,4 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
-**Version 3.3.0** - Added bus factor analysis, SPDX verification, reproducible builds, branch coverage scripts; security audit and badge exceptions templates; solo maintainer, dynamic analysis, and branch coverage guides for complete Gold level support. Fixed shell script portability (bash 4+ dependency removed), subshell exit handling, and improved argument parsing.
+**Version 3.4.0** - Added signed tag verification, PR review requirements check, and TLS 1.2+ enforcement scripts for complete Silver/Gold badge criteria coverage. Previous: v3.3.0 added bus factor analysis, SPDX verification, reproducible builds, branch coverage scripts; security audit and badge exceptions templates; solo maintainer, dynamic analysis, and branch coverage guides. Fixed shell script portability.
