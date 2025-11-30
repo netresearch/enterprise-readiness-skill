@@ -29,8 +29,8 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
-pass() { echo -e "${GREEN}✓${NC} $1"; ((SCORE++)); ((MAX_SCORE++)); }
-fail() { echo -e "${RED}✗${NC} $1"; ((MAX_SCORE++)); }
+pass() { echo -e "${GREEN}✓${NC} $1"; SCORE=$((SCORE+1)); MAX_SCORE=$((MAX_SCORE+1)); }
+fail() { echo -e "${RED}✗${NC} $1"; MAX_SCORE=$((MAX_SCORE+1)); }
 skip() { echo -e "${YELLOW}○${NC} $1 (N/A)"; }
 
 echo "=== Basics ==="

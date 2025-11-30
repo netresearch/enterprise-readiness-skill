@@ -24,7 +24,7 @@ add_go_header() {
             echo "// Copyright (c) $YEAR $COPYRIGHT"
             echo ""
             cat "$file"
-        } > "$temp_file" && mv "$temp_file" "$file" || rm -f "$temp_file"
+        } > "$temp_file" && cat "$temp_file" > "$file" && rm -f "$temp_file" || rm -f "$temp_file"
         echo "Added header to: $file"
     fi
 }
@@ -43,14 +43,14 @@ add_python_header() {
                 echo "# Copyright (c) $YEAR $COPYRIGHT"
                 echo ""
                 tail -n +2 "$file"
-            } > "$temp_file" && mv "$temp_file" "$file" || rm -f "$temp_file"
+            } > "$temp_file" && cat "$temp_file" > "$file" && rm -f "$temp_file" || rm -f "$temp_file"
         else
             {
                 echo "# SPDX-License-Identifier: $LICENSE"
                 echo "# Copyright (c) $YEAR $COPYRIGHT"
                 echo ""
                 cat "$file"
-            } > "$temp_file" && mv "$temp_file" "$file" || rm -f "$temp_file"
+            } > "$temp_file" && cat "$temp_file" > "$file" && rm -f "$temp_file" || rm -f "$temp_file"
         fi
         echo "Added header to: $file"
     fi
@@ -67,7 +67,7 @@ add_js_header() {
             echo "// Copyright (c) $YEAR $COPYRIGHT"
             echo ""
             cat "$file"
-        } > "$temp_file" && mv "$temp_file" "$file" || rm -f "$temp_file"
+        } > "$temp_file" && cat "$temp_file" > "$file" && rm -f "$temp_file" || rm -f "$temp_file"
         echo "Added header to: $file"
     fi
 }

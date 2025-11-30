@@ -110,7 +110,8 @@ enterprise-readiness/
 │   ├── templates/
 │   │   ├── GOVERNANCE.md                 # Governance document template
 │   │   ├── ARCHITECTURE.md               # Architecture doc template
-│   │   └── CODE_OF_CONDUCT.md            # Contributor Covenant v2.1
+│   │   ├── CODE_OF_CONDUCT.md            # Contributor Covenant v2.1
+│   │   └── ROADMAP.md                    # One-year roadmap template (Silver)
 │   └── workflows/
 │       └── dco-check.yml                 # DCO enforcement workflow
 └── references/
@@ -121,7 +122,12 @@ enterprise-readiness/
     ├── openssf-badge-gold.md             # Gold level criteria (24 items)
     ├── dco-implementation.md             # DCO setup guide
     ├── signed-releases.md                # Cosign/GPG signing guide
-    └── reproducible-builds.md            # Reproducible build guide
+    ├── reproducible-builds.md            # Reproducible build guide
+    ├── quick-start-guide.md              # Quick start documentation guide
+    ├── badge-display.md                  # Badge display and verification
+    ├── 2fa-enforcement.md                # Two-factor authentication guide
+    ├── security-hardening.md             # TLS 1.2+, headers, hardening
+    └── test-invocation.md                # Test invocation and coverage
 ```
 
 ## Extensibility
@@ -205,4 +211,4 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
-**Version 3.1** - Added automation scripts, document templates, workflow templates, and implementation guides
+**Version 3.2** - Added ROADMAP template, quick-start guide, badge display, 2FA enforcement, security hardening, and test invocation guides for complete Silver/Gold coverage

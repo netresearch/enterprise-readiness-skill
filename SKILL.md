@@ -3,7 +3,7 @@ name: enterprise-readiness
 description: "Assess and enhance software projects for enterprise-grade security, quality, and automation. This skill should be used when evaluating projects for production readiness, implementing supply chain security (SLSA, signing, SBOMs), hardening CI/CD pipelines, or establishing quality gates. Aligned with OpenSSF Scorecard, Best Practices Badge (all levels), SLSA Framework, and S2C2F. Triggers on keywords: enterprise, production ready, security hardening, supply chain security, SLSA, OpenSSF Scorecard, release automation, security assessment, silver badge, gold badge."
 ---
 
-# Enterprise Readiness Assessment v3.1
+# Enterprise Readiness Assessment v3.2
 
 A comprehensive framework for assessing and improving software projects to meet enterprise-grade
 standards for security, quality, and automation. Includes automation scripts, document templates,
@@ -308,6 +308,7 @@ enterprise readiness requirements.
 | `GOVERNANCE.md` | Project governance, roles, decisions | Silver |
 | `ARCHITECTURE.md` | Technical architecture documentation | Silver |
 | `CODE_OF_CONDUCT.md` | Contributor Covenant v2.1 | Passing |
+| `ROADMAP.md` | One-year project roadmap | Silver |
 
 ### Workflow Templates (`assets/workflows/`)
 
@@ -322,6 +323,11 @@ enterprise readiness requirements.
 | `dco-implementation.md` | DCO setup and enforcement | Git config, CI integration, PR templates |
 | `signed-releases.md` | Artifact and tag signing | Cosign keyless, GPG, SLSA provenance |
 | `reproducible-builds.md` | Deterministic builds | Go/Rust/Python patterns, verification |
+| `quick-start-guide.md` | Quick start documentation | Installation, first run, templates |
+| `badge-display.md` | Badge display and verification | README badges, progress tracking |
+| `2fa-enforcement.md` | Two-factor authentication | GitHub org 2FA, secure methods |
+| `security-hardening.md` | Security hardening | TLS 1.2+, headers, input validation |
+| `test-invocation.md` | Test invocation and coverage | Standard commands, CI, thresholds |
 
 ## Extensibility
 

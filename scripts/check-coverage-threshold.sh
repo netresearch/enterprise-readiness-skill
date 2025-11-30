@@ -31,8 +31,8 @@ elif grep -q "TOTAL" "$COVERAGE_FILE"; then
     COVERAGE=$(grep "TOTAL" "$COVERAGE_FILE" | awk '{print $NF}' | tr -d '%')
     echo "Format: Python coverage report"
 else
-    # Try to extract any percentage (POSIX-compatible)
-    COVERAGE=$(grep -E '[0-9]+\.?[0-9]*%' "$COVERAGE_FILE" | tail -1 | sed 's/.*\([0-9][0-9]*\.[0-9]*\)%.*/\1/' | sed 's/.*\([0-9][0-9]*\)%.*/\1/')
+    # Try to extract any percentage (POSIX-compatible, works on macOS and Linux)
+    COVERAGE=$(grep -E '[0-9]+\.?[0-9]*%' "$COVERAGE_FILE" 2>/dev/null | tail -1 | sed 's/.*[^0-9]\([0-9][0-9]*\.[0-9]*\)%.*/\1/' | sed 's/.*[^0-9]\([0-9][0-9]*\)%.*/\1/' | head -1)
     echo "Format: Generic"
 fi
 
@@ -44,8 +44,8 @@ fi
 echo "Coverage: ${COVERAGE}%"
 echo ""
 
-# Compare using awk for floating point (more portable than bc)
-if awk "BEGIN {exit !($COVERAGE >= $THRESHOLD)}" 2>/dev/null; then
+# Compare using awk for floating point (POSIX-compatible, no bc dependency)
+if awk -v cov="$COVERAGE" -v thresh="$THRESHOLD" 'BEGIN {exit !(cov >= thresh)}' 2>/dev/null; then
     echo "✓ Coverage ${COVERAGE}% meets threshold ${THRESHOLD}%"
     exit 0
 else

@@ -63,7 +63,6 @@ addlicense -c "Project Authors" -l mit .
 | repo_distributed | "Is the repository distributed?" | Check VCS type | Use Git (distributed by design) |
 | require_2FA | "Is 2FA required for collaborators?" | Check GitHub org settings | Enable 2FA requirement for org |
 | secure_2FA | "Is 2FA using secure methods?" | Check for hardware keys | Prefer FIDO2/WebAuthn over TOTP |
-| small_tasks | "Does the project have small tasks?" | Check issue labels | Create "good first issue" tagged issues |
 
 **GitHub 2FA Enforcement:**
 ```
