@@ -5,10 +5,22 @@ A [Claude Code](https://claude.ai/claude-code) skill for assessing and enhancing
 ## Overview
 
 This skill provides a comprehensive framework with:
+- **Complete OpenSSF Badge Coverage** - Passing, Silver, and Gold level criteria
 - **Dynamic Scoring System** - Fair assessment across different tech stacks
-- **40+ Security & Quality Checks** - Covering supply chain, testing, and automation
+- **120+ Security & Quality Checks** - Covering supply chain, testing, governance, and automation
 - **Implementation Patterns** - Ready-to-use code for SLSA, Cosign, GitHub hardening
-- **Extensible Architecture** - General → Platform → Language modular design
+- **Extensible Architecture** - General → Platform → Language → Badge Level modular design
+
+## OpenSSF Framework Alignment
+
+| Framework | Coverage |
+|-----------|----------|
+| OpenSSF Scorecard | 18/20 checks (~90%) |
+| Best Practices Badge - Passing | 68/68 criteria (100%) |
+| Best Practices Badge - Silver | 55 criteria documented |
+| Best Practices Badge - Gold | 24 criteria documented |
+| SLSA Framework | Full L1-L3 |
+| S2C2F | 6/8 practices (~75%) |
 
 ## Installation
 
@@ -32,6 +44,7 @@ The skill triggers automatically on keywords like:
 - "supply chain security"
 - "SLSA"
 - "OpenSSF Scorecard"
+- "silver badge" / "gold badge"
 
 ### Example Prompts
 
@@ -40,18 +53,33 @@ The skill triggers automatically on keywords like:
 "How can I make this repository production ready?"
 "Implement SLSA Level 3 provenance for this project"
 "Harden the GitHub Actions workflows"
+"What do I need for OpenSSF Silver badge?"
+"Help me achieve Gold level certification"
 ```
 
 ## Assessment Categories
 
+### Core Assessment (120 points)
+
 | Category | Points | Description |
 |----------|--------|-------------|
-| Supply Chain Security | 20 | Provenance, signing, SBOMs, checksums, secret scanning |
-| Quality Gates | 15 | Coverage thresholds, static analysis, security scanning |
-| Testing Layers | 15 | Unit, integration, fuzz, E2E tests |
-| **Total General** | **50** | Universal checks for any platform/language |
-| GitHub Hardening | 30 | Harden runner, pinned actions, permissions, Dependabot |
-| Go Best Practices | 20 | Static builds, golangci-lint, govulncheck, race detection |
+| Governance & Policy | 10 | Security policy, licensing, maintenance, SLAs |
+| Supply Chain Security | 15 | Provenance, signing, SBOMs, checksums |
+| Dependency Consumption | 10 | Vulnerability scanning, license compliance |
+| Quality Gates | 10 | Coverage thresholds, static analysis |
+| Testing Layers | 10 | Unit, integration, fuzz, E2E tests |
+| Documentation | 5 | README, CONTRIBUTING, API docs |
+| **Total General** | **60** | Universal checks for any platform/language |
+| GitHub Hardening | 40 | Harden runner, pinned actions, permissions |
+| Go Best Practices | 20 | Static builds, golangci-lint, govulncheck |
+
+### Badge Level Criteria
+
+| Level | Criteria | Focus |
+|-------|----------|-------|
+| Passing | 68 | Technical basics, security policy |
+| Silver | +55 | Governance, documentation, 80% coverage |
+| Gold | +24 | Organizational maturity, 90% coverage, audits |
 
 ## Scoring
 
@@ -73,11 +101,13 @@ Score = (Points_Earned / Max_Points_Applicable) × 100
 
 ```
 enterprise-readiness/
-├── SKILL.md              # Main skill with workflow and patterns
+├── SKILL.md                              # Main skill with workflow and patterns
 └── references/
-    ├── general.md        # Universal checks (50 points)
-    ├── github.md         # GitHub-specific checks (30 points)
-    └── go.md             # Go-specific checks (20 points)
+    ├── general.md                        # Universal checks (60 points)
+    ├── github.md                         # GitHub-specific checks (40 points)
+    ├── go.md                             # Go-specific checks (20 points)
+    ├── openssf-badge-silver.md           # Silver level criteria (55 items)
+    └── openssf-badge-gold.md             # Gold level criteria (24 items)
 ```
 
 ## Extensibility
@@ -128,13 +158,22 @@ jobs:
       - uses: actions/checkout@SHA  # Pin to SHA, not tag
 ```
 
+### Badge Level Quick Reference
+
+**Passing:** SECURITY.md, LICENSE, CI/CD, static analysis
+**Silver:** DCO, GOVERNANCE.md, ARCHITECTURE.md, 80% coverage, signed releases
+**Gold:** 90% coverage, 2-person review, security audit, reproducible builds
+
 ## Sources
 
 This skill was developed based on:
 - [SLSA Framework](https://slsa.dev/) - Supply chain security levels
 - [OpenSSF Scorecard](https://securityscorecards.dev/) - Security health metrics
+- [OpenSSF Best Practices Badge](https://www.bestpractices.dev/) - Project maturity certification
 - [Sigstore/Cosign](https://docs.sigstore.dev/) - Keyless signing
 - [step-security/harden-runner](https://github.com/step-security/harden-runner) - Workflow hardening
+- [Contributor Covenant](https://www.contributor-covenant.org/) - Code of conduct
+- [Developer Certificate of Origin](https://developercertificate.org/) - DCO
 - Real-world implementation experience from the [ofelia](https://github.com/netresearch/ofelia) project
 
 ## Contributing
@@ -144,7 +183,12 @@ Contributions are welcome! Please feel free to submit PRs for:
 - Additional language modules (Python, TypeScript, Rust, Java)
 - New security checks and patterns
 - Documentation improvements
+- Badge criteria updates
 
 ## License
 
 MIT License - See [LICENSE](LICENSE) for details.
+
+---
+
+**Version 3.0** - Complete OpenSSF Best Practices Badge coverage (Passing/Silver/Gold)

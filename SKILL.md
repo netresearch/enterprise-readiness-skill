@@ -1,33 +1,36 @@
 ---
 name: enterprise-readiness
-description: "Assess and enhance software projects for enterprise-grade security, quality, and automation. This skill should be used when evaluating projects for production readiness, implementing supply chain security (SLSA, signing, SBOMs), hardening CI/CD pipelines, or establishing quality gates. Aligned with OpenSSF Scorecard, Best Practices Badge, SLSA Framework, and S2C2F. Triggers on keywords: enterprise, production ready, security hardening, supply chain security, SLSA, OpenSSF Scorecard, release automation, security assessment."
+description: "Assess and enhance software projects for enterprise-grade security, quality, and automation. This skill should be used when evaluating projects for production readiness, implementing supply chain security (SLSA, signing, SBOMs), hardening CI/CD pipelines, or establishing quality gates. Aligned with OpenSSF Scorecard, Best Practices Badge (all levels), SLSA Framework, and S2C2F. Triggers on keywords: enterprise, production ready, security hardening, supply chain security, SLSA, OpenSSF Scorecard, release automation, security assessment, silver badge, gold badge."
 ---
 
-# Enterprise Readiness Assessment v2.0
+# Enterprise Readiness Assessment v3.0
 
 A comprehensive framework for assessing and improving software projects to meet enterprise-grade
 standards for security, quality, and automation. Aligned with major OpenSSF programs.
 
 ## OpenSSF Framework Alignment
 
-This skill provides coverage across four major OpenSSF frameworks:
+This skill provides complete coverage across four major OpenSSF frameworks:
 
 | Framework | Focus | Coverage |
 |-----------|-------|----------|
 | [OpenSSF Scorecard](https://securityscorecards.dev/) | Automated security health metrics | 18/20 checks (~90%) |
-| [Best Practices Badge](https://www.bestpractices.dev/) | Project maturity assessment | ~70% of Passing criteria |
+| [Best Practices Badge - Passing](https://www.bestpractices.dev/) | Project maturity (basic) | 68/68 criteria (100%) |
+| [Best Practices Badge - Silver](https://www.bestpractices.dev/) | Project maturity (advanced) | 55 criteria documented |
+| [Best Practices Badge - Gold](https://www.bestpractices.dev/) | Project maturity (highest) | 24 criteria documented |
 | [SLSA Framework](https://slsa.dev/) | Supply chain integrity levels | Full L1-L3 tracking |
 | [S2C2F](https://github.com/ossf/s2c2f) | Secure dependency consumption | 6/8 practices (~75%) |
 
 ## Purpose
 
-Systematically evaluate and enhance projects across five dimensions:
+Systematically evaluate and enhance projects across six dimensions:
 
 1. **Governance & Policy** - Security policies, SLAs, maintenance, licensing
 2. **Supply Chain Security** - Provenance, signing, SBOMs, binary hygiene
 3. **Dependency Consumption** - Ingestion controls, vulnerability scanning, license compliance
 4. **Quality Gates** - Testing, coverage, static analysis, secret scanning
 5. **Platform Hardening** - CI/CD security, workflow injection prevention, code review
+6. **Badge Level Progression** - Passing → Silver → Gold certification path
 
 ## Assessment Workflow
 
@@ -38,6 +41,7 @@ Systematically evaluate and enhance projects across five dimensions:
 3. Scan existing CI/CD configuration files
 4. Check for security tooling presence (SBOM, signing, scanning)
 5. Review repository security settings
+6. Check current OpenSSF Best Practices Badge level
 
 ### Phase 2: Scoring
 
@@ -50,13 +54,32 @@ Load appropriate reference files based on discovered stack:
 - `references/general.md` - Always apply (60 points, universal checks)
 - `references/github.md` - For GitHub-hosted projects (40 points)
 - `references/go.md` - For Go projects (20 points)
+- `references/openssf-badge-silver.md` - For Silver level certification (55 criteria)
+- `references/openssf-badge-gold.md` - For Gold level certification (24 criteria)
 
 **Scoring Example**:
 - GitHub + Go project: Max = 60 + 40 + 20 = 120 points
 - GitHub + Python project: Max = 60 + 40 = 100 points (no Go checks)
 - GitLab + Go project: Max = 60 + 20 = 80 points (no GitHub checks)
 
-### Phase 3: Gap Analysis
+### Phase 3: Badge Level Assessment
+
+For OpenSSF Best Practices Badge progression:
+
+| Level | Requirements | Reference |
+|-------|--------------|-----------|
+| Passing | 68 criteria, mostly technical | `references/general.md` |
+| Silver | 55 additional criteria, governance focus | `references/openssf-badge-silver.md` |
+| Gold | 24 additional criteria, organizational maturity | `references/openssf-badge-gold.md` |
+
+**Coverage Threshold Progression:**
+| Level | Statement Coverage | Branch Coverage |
+|-------|-------------------|-----------------|
+| Basic/Passing | 60% minimum | N/A |
+| Silver | 80% minimum | N/A |
+| Gold | 90% minimum | 80% minimum |
+
+### Phase 4: Gap Analysis
 
 1. List missing security controls with severity:
    - **Critical Blockers** - Must fix immediately (script injection, no branch protection)
@@ -66,15 +89,21 @@ Load appropriate reference files based on discovered stack:
 
 2. Map findings to OpenSSF Scorecard checks for context
 
-3. Prioritize by impact and implementation effort
+3. For badge progression, identify:
+   - Currently met criteria
+   - Missing criteria with implementation difficulty
+   - N/A criteria with justification
 
-### Phase 4: Implementation
+4. Prioritize by impact and implementation effort
+
+### Phase 5: Implementation
 
 For each identified gap:
 1. Provide specific code/configuration from this skill's patterns
 2. Reference implementation patterns from the assessed project
 3. Verify implementation works
 4. Re-score after changes
+5. Update badge status on bestpractices.dev
 
 ## Scoring Interpretation
 
@@ -98,6 +127,7 @@ Generate a structured report:
 - **Platform**: GitHub/GitLab/etc.
 - **Language(s)**: Go/Python/etc.
 - **OpenSSF Scorecard Alignment**: X/20 checks passing
+- **Best Practices Badge**: Passing/Silver/Gold or X% toward next level
 
 ## Critical Blockers (Stop-Ship)
 [Items requiring immediate attention - script injection, exposed secrets, etc.]
@@ -120,7 +150,7 @@ Generate a structured report:
 [Coverage, static analysis, secret scanning]
 
 ### Testing Layers (X/10 points)
-[Unit, integration, security testing]
+[Unit, integration, fuzz, E2E tests]
 
 ### Platform-Specific (X/Y points)
 [GitHub/GitLab specific findings]
@@ -134,6 +164,13 @@ Generate a structured report:
 | Dangerous-Workflow | ✅/❌ | ... |
 | Code-Review | ✅/❌ | ... |
 | ... | ... | ... |
+
+## Best Practices Badge Progress
+| Level | Status | Criteria Met |
+|-------|--------|--------------|
+| Passing | ✅ | 68/68 (100%) |
+| Silver | 🔄 | X/55 (Y%) |
+| Gold | ⏳ | X/24 (Y%) |
 
 ## Improvement Roadmap
 [Prioritized action items with implementation guidance]
@@ -208,6 +245,35 @@ jobs:
     fi
 ```
 
+## Badge Level Quick Reference
+
+### Passing Level Requirements (68 criteria)
+- Security policy (SECURITY.md)
+- License file
+- Public issue tracker
+- CI/CD with testing
+- Static analysis
+- Vulnerability handling process
+
+### Silver Level Requirements (55 additional criteria)
+- DCO enforcement
+- Governance documentation
+- Architecture documentation
+- 80% test coverage
+- Signed releases AND tags
+- TLS 1.2+ enforcement
+- Integration testing
+- Code review enforcement
+
+### Gold Level Requirements (24 additional criteria)
+- 90% statement coverage
+- 80% branch coverage
+- Two-person review
+- Security audit completed
+- Reproducible builds
+- SPDX headers on all files
+- Multiple unassociated contributors
+
 ## Common Pitfalls (Lessons Learned)
 
 1. **Script Injection**: Never use `${{ github.event.* }}` directly in `run:` blocks
@@ -218,6 +284,8 @@ jobs:
 6. **Action Pinning**: SHA pins prevent supply chain attacks but need Dependabot for updates
 7. **pull_request_target**: Dangerous trigger - never checkout PR code with it
 8. **Binary Artifacts**: Generated binaries in source repos are unverifiable
+9. **Solo Maintainer**: Some Silver/Gold criteria require justification (bus factor, 2-person review)
+10. **Self-Approval**: GitHub doesn't allow self-approval - affects review requirements
 
 ## Extensibility
 
@@ -228,6 +296,8 @@ can be added to `references/` following the same checklist structure:
 - `references/general.md` - Universal checks (60 points)
 - `references/github.md` - GitHub-specific (40 points)
 - `references/go.md` - Go-specific (20 points)
+- `references/openssf-badge-silver.md` - Silver level criteria (55 items)
+- `references/openssf-badge-gold.md` - Gold level criteria (24 items)
 
 **Future Platform Modules:**
 - `references/gitlab.md`
@@ -244,8 +314,10 @@ can be added to `references/` following the same checklist structure:
 
 - [SLSA Framework](https://slsa.dev/) - Supply chain security levels
 - [OpenSSF Scorecard](https://securityscorecards.dev/) - Security health metrics
-- [OpenSSF Best Practices Badge](https://www.bestpractices.dev/) - Project maturity
+- [OpenSSF Best Practices Badge](https://www.bestpractices.dev/) - Project maturity (Passing/Silver/Gold)
 - [S2C2F Framework](https://github.com/ossf/s2c2f) - Secure consumption
 - [Sigstore/Cosign](https://docs.sigstore.dev/) - Keyless signing
 - [step-security/harden-runner](https://github.com/step-security/harden-runner) - Workflow hardening
 - [slsa-github-generator](https://github.com/slsa-framework/slsa-github-generator) - SLSA builders
+- [Contributor Covenant](https://www.contributor-covenant.org/) - Code of conduct
+- [Developer Certificate of Origin](https://developercertificate.org/) - DCO
