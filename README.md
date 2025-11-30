@@ -104,14 +104,20 @@ enterprise-readiness/
 ├── SKILL.md                              # Main skill with workflow and patterns
 ├── scripts/
 │   ├── verify-badge-criteria.sh          # Automated OpenSSF Badge verification
-│   ├── check-coverage-threshold.sh       # Test coverage validation
-│   └── add-spdx-headers.sh               # SPDX license headers (Gold)
+│   ├── check-coverage-threshold.sh       # Statement coverage validation
+│   ├── check-branch-coverage.sh          # Branch coverage analysis (Gold)
+│   ├── add-spdx-headers.sh               # Add SPDX license headers (Gold)
+│   ├── verify-spdx-headers.sh            # Verify SPDX headers exist (Gold)
+│   ├── analyze-bus-factor.sh             # Bus factor analysis (Silver/Gold)
+│   └── verify-reproducible-build.sh      # Reproducible build check (Gold)
 ├── assets/
 │   ├── templates/
 │   │   ├── GOVERNANCE.md                 # Governance document template
 │   │   ├── ARCHITECTURE.md               # Architecture doc template
 │   │   ├── CODE_OF_CONDUCT.md            # Contributor Covenant v2.1
-│   │   └── ROADMAP.md                    # One-year roadmap template (Silver)
+│   │   ├── ROADMAP.md                    # One-year roadmap template (Silver)
+│   │   ├── SECURITY_AUDIT.md             # Security self-audit template (Gold)
+│   │   └── BADGE_EXCEPTIONS.md           # N/A criteria justifications (Gold)
 │   └── workflows/
 │       └── dco-check.yml                 # DCO enforcement workflow
 └── references/
@@ -127,7 +133,10 @@ enterprise-readiness/
     ├── badge-display.md                  # Badge display and verification
     ├── 2fa-enforcement.md                # Two-factor authentication guide
     ├── security-hardening.md             # TLS 1.2+, headers, hardening
-    └── test-invocation.md                # Test invocation and coverage
+    ├── test-invocation.md                # Test invocation and coverage
+    ├── solo-maintainer-guide.md          # Solo maintainer guidance (NEW)
+    ├── dynamic-analysis.md               # Fuzzing, race detection (NEW)
+    └── branch-coverage.md                # Branch coverage tools (NEW)
 ```
 
 ## Extensibility
@@ -211,4 +220,4 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
-**Version 3.2** - Added ROADMAP template, quick-start guide, badge display, 2FA enforcement, security hardening, and test invocation guides for complete Silver/Gold coverage
+**Version 3.3.1** - Added bus factor analysis, SPDX verification, reproducible builds, branch coverage scripts; security audit and badge exceptions templates; solo maintainer, dynamic analysis, and branch coverage guides for complete Gold level support. Fixed shell script portability (bash 4+ dependency removed), subshell exit handling, and improved argument parsing.

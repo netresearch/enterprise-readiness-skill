@@ -3,11 +3,17 @@ name: enterprise-readiness
 description: "Assess and enhance software projects for enterprise-grade security, quality, and automation. This skill should be used when evaluating projects for production readiness, implementing supply chain security (SLSA, signing, SBOMs), hardening CI/CD pipelines, or establishing quality gates. Aligned with OpenSSF Scorecard, Best Practices Badge (all levels), SLSA Framework, and S2C2F. Triggers on keywords: enterprise, production ready, security hardening, supply chain security, SLSA, OpenSSF Scorecard, release automation, security assessment, silver badge, gold badge."
 ---
 
-# Enterprise Readiness Assessment v3.2
+# Enterprise Readiness Assessment v3.3.1
 
 A comprehensive framework for assessing and improving software projects to meet enterprise-grade
 standards for security, quality, and automation. Includes automation scripts, document templates,
 and implementation guides. Aligned with major OpenSSF programs.
+
+**v3.3 Highlights:**
+- New scripts: bus factor analysis, SPDX verification, reproducible builds, branch coverage
+- New templates: security audit, badge exceptions documentation
+- New guides: solo maintainer, dynamic analysis, branch coverage
+- Complete Gold level coverage with solo maintainer considerations
 
 ## OpenSSF Framework Alignment
 
@@ -298,8 +304,12 @@ enterprise readiness requirements.
 | Script | Purpose | Usage |
 |--------|---------|-------|
 | `verify-badge-criteria.sh` | Automated OpenSSF Badge verification | `./scripts/verify-badge-criteria.sh [--level passing\|silver\|gold]` |
-| `check-coverage-threshold.sh` | Test coverage validation | `./scripts/check-coverage-threshold.sh [threshold] [coverage-file]` |
-| `add-spdx-headers.sh` | Add SPDX license headers (Gold) | `./scripts/add-spdx-headers.sh [directory] [license-id]` |
+| `check-coverage-threshold.sh` | Statement coverage validation | `./scripts/check-coverage-threshold.sh [threshold] [coverage-file]` |
+| `check-branch-coverage.sh` | Branch coverage analysis (Gold) | `./scripts/check-branch-coverage.sh [--threshold 80]` |
+| `add-spdx-headers.sh` | Add SPDX license headers (Gold) | `./scripts/add-spdx-headers.sh [license] [copyright]` |
+| `verify-spdx-headers.sh` | Verify SPDX headers exist (Gold) | `./scripts/verify-spdx-headers.sh [--fix] [directory]` |
+| `analyze-bus-factor.sh` | Bus factor analysis (Silver/Gold) | `./scripts/analyze-bus-factor.sh [--days 365] [--threshold 2]` |
+| `verify-reproducible-build.sh` | Reproducible build check (Gold) | `./scripts/verify-reproducible-build.sh [build-cmd] [output]` |
 
 ### Document Templates (`assets/templates/`)
 
@@ -309,6 +319,8 @@ enterprise readiness requirements.
 | `ARCHITECTURE.md` | Technical architecture documentation | Silver |
 | `CODE_OF_CONDUCT.md` | Contributor Covenant v2.1 | Passing |
 | `ROADMAP.md` | One-year project roadmap | Silver |
+| `SECURITY_AUDIT.md` | Security self-audit template | Gold |
+| `BADGE_EXCEPTIONS.md` | N/A criteria justifications | Gold |
 
 ### Workflow Templates (`assets/workflows/`)
 
@@ -328,6 +340,9 @@ enterprise readiness requirements.
 | `2fa-enforcement.md` | Two-factor authentication | GitHub org 2FA, secure methods |
 | `security-hardening.md` | Security hardening | TLS 1.2+, headers, input validation |
 | `test-invocation.md` | Test invocation and coverage | Standard commands, CI, thresholds |
+| `solo-maintainer-guide.md` | Solo maintainer guidance | N/A criteria, compensating controls |
+| `dynamic-analysis.md` | Dynamic analysis techniques | Fuzzing, race detection, sanitizers |
+| `branch-coverage.md` | Branch coverage analysis | Tools, strategies, 80% threshold |
 
 ## Extensibility
 
