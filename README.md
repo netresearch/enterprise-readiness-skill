@@ -221,6 +221,10 @@ Contributions are welcome! Please feel free to submit PRs for:
 
 MIT License - See [LICENSE](LICENSE) for details.
 
+## Credits
+
+Developed and maintained by [Netresearch DTT GmbH](https://www.netresearch.de/).
+
 ---
 
-**Version 3.4.0** - Added signed tag verification, PR review requirements check, and TLS 1.2+ enforcement scripts for complete Silver/Gold badge criteria coverage. Previous: v3.3.0 added bus factor analysis, SPDX verification, reproducible builds, branch coverage scripts; security audit and badge exceptions templates; solo maintainer, dynamic analysis, and branch coverage guides. Fixed shell script portability.
+**Made with ❤️ for Open Source by [Netresearch](https://www.netresearch.de/)**
