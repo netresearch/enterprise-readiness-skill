@@ -211,6 +211,117 @@ cargo +nightly fuzz run my_target
 
 ---
 
+## PHP Dynamic Analysis
+
+### Fuzz Testing with nikic/php-fuzzer
+
+Coverage-guided fuzzer for PHP library and parser testing:
+
+**Installation:**
+```bash
+composer require --dev nikic/php-fuzzer:^0.0.11
+```
+
+**Creating a fuzz target:**
+```php
+<?php
+// Tests/Fuzz/MyParserTarget.php
+declare(strict_types=1);
+
+use MyVendor\MyPackage\Parser;
+
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+/** @var PhpFuzzer\Config $config */
+$parser = new Parser();
+
+$config->setTarget(function (string $input) use ($parser): void {
+    // Function should not crash on any input
+    $parser->parse($input);
+});
+
+// Prevent memory exhaustion
+$config->setMaxLen(65536);
+```
+
+**Running fuzz tests:**
+```bash
+# Create seed corpus directory
+mkdir -p Tests/Fuzz/corpus/my-parser
+
+# Add seed inputs (valid and edge-case inputs)
+echo '<valid>input</valid>' > Tests/Fuzz/corpus/my-parser/valid.txt
+echo '' > Tests/Fuzz/corpus/my-parser/empty.txt
+
+# Run fuzzer (corpus is positional argument, not --corpus option)
+.Build/bin/php-fuzzer fuzz Tests/Fuzz/MyParserTarget.php \
+    Tests/Fuzz/corpus/my-parser \
+    --max-runs 10000
+```
+
+**CI integration (optional - weekly schedule):**
+```yaml
+- name: Fuzz tests
+  run: |
+    composer ci:fuzz
+  continue-on-error: true  # Don't block on fuzz findings
+```
+
+### Mutation Testing with Infection
+
+Verifies test suite quality by introducing code mutations:
+
+**Installation:**
+```bash
+composer require --dev infection/infection:^0.27
+```
+
+**Configuration (infection.json5):**
+```json5
+{
+    "$schema": "https://raw.githubusercontent.com/infection/infection/master/resources/schema.json",
+    "source": {
+        "directories": ["src"]
+    },
+    "minMsi": 60,
+    "minCoveredMsi": 80,
+    "testFramework": "phpunit"
+}
+```
+
+**Running mutation tests:**
+```bash
+# Run with coverage from PHPUnit
+./vendor/bin/phpunit --coverage-xml=build/coverage-xml
+./vendor/bin/infection --threads=4 --coverage=build/coverage-xml
+
+# Quick run (only covered code)
+./vendor/bin/infection --threads=4 --only-covered
+```
+
+**CI integration:**
+```yaml
+- name: Mutation tests
+  run: |
+    ./vendor/bin/infection \
+      --threads=4 \
+      --min-msi=60 \
+      --min-covered-msi=80 \
+      --only-covered
+```
+
+### Memory and Error Detection
+
+```bash
+# Run with memory limit validation
+php -d memory_limit=256M vendor/bin/phpunit
+
+# Enable assertions (php.ini or runtime)
+php -d zend.assertions=1 -d assert.exception=1 vendor/bin/phpunit
+```
+
+---
+
 ## JavaScript/TypeScript Dynamic Analysis
 
 ### Jest with Coverage
@@ -392,3 +503,5 @@ go tool cover -func=fuzz.out
 - [OSS-Fuzz](https://google.github.io/oss-fuzz/)
 - [AFL++ Fuzzer](https://github.com/AFLplusplus/AFLplusplus)
 - [Atheris Python Fuzzer](https://github.com/google/atheris)
+- [nikic/php-fuzzer](https://github.com/nikic/PHP-Fuzzer) - PHP coverage-guided fuzzer
+- [Infection PHP](https://infection.github.io/) - PHP mutation testing
