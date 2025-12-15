@@ -293,6 +293,9 @@ jobs:
 8. **Binary Artifacts**: Generated binaries in source repos are unverifiable
 9. **Solo Maintainer**: Some Silver/Gold criteria require justification (bus factor, 2-person review)
 10. **Self-Approval**: GitHub doesn't allow self-approval - affects review requirements
+11. **API Transient Errors**: GitHub API returns 502/503/504 during high load - add retry logic (see `references/github.md`)
+12. **Auto-merge --auto Flag**: Requires branch protection rules - use direct merge for unprotected repos
+13. **Merge Queue GraphQL**: `mergeMethod` is NOT valid for `enqueuePullRequest` - merge method is set by queue config
 
 ## Bundled Resources
 
