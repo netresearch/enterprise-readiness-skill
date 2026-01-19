@@ -31,6 +31,14 @@ description: "Assess and enhance software projects for enterprise-grade security
 | `references/openssf-badge-silver.md` | Pursuing Silver badge |
 | `references/openssf-badge-gold.md` | Pursuing Gold badge |
 
+## Quality & Process References (Language-Agnostic)
+
+| Reference | When to Load |
+|-----------|--------------|
+| `references/code-review.md` | Code review, PR quality checks |
+| `references/documentation.md` | ADRs, API docs, migration guides, changelogs |
+| `references/ci-patterns.md` | CI/CD pipelines, Git hooks, quality gates |
+
 ## Implementation Guides
 
 | Guide | Purpose |
@@ -86,6 +94,17 @@ Copy workflows to `.github/workflows/` and pin action versions with SHA hashes.
 | 70-79 | C | Development Ready |
 | 60-69 | D | Basic |
 | <60 | F | Not Ready |
+
+## Code Review Quick Checklist
+
+Before approving PRs, verify (see `references/code-review.md` for details):
+
+- [ ] **One resource per test** - No duplicate instances
+- [ ] **State mutation complete** - Tracking fields updated after operations
+- [ ] **Defensive enum handling** - `Valid()` method, `default` case, tested
+- [ ] **Documentation accurate** - Claims match benchmarks, trade-offs noted
+- [ ] **Platform code marked** - Limitations documented, alternatives provided
+- [ ] **Defensive code tested** - Error paths and edge cases covered
 
 ## Critical Rules
 
