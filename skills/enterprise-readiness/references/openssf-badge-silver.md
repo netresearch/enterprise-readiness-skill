@@ -19,7 +19,7 @@ Complete checklist for Silver level certification aligned with
 |-----------|---------------|---------------|----------------|
 | dco | "Does the project require a Developer Certificate of Origin (DCO)?" | Check CONTRIBUTING.md for DCO requirement | Add DCO sign-off requirement to CONTRIBUTING.md |
 | governance | "Is there a documented governance model?" | Check GOVERNANCE.md exists | Create GOVERNANCE.md with decision-making process |
-| code_of_conduct | "Does the project have a code of conduct?" | Check CODE_OF_CONDUCT.md exists | Adopt Contributor Covenant v2.1 |
+| code_of_conduct | "Does the project have a code of conduct?" | Check CODE_OF_CONDUCT.md exists | Adopt Contributor Covenant v3.0 |
 | roles_responsibilities | "Are roles and responsibilities documented?" | Check GOVERNANCE.md for role definitions | Document maintainer, contributor, security team roles |
 | access_continuity | "Is there access continuity (bus factor > 1)?" | Check for multiple maintainers with write access | Add backup maintainers with repository access |
 | bus_factor | "Is the bus factor >= 2?" | Check contributor statistics | Ensure 2+ people understand critical code |
