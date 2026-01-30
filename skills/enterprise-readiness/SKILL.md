@@ -16,6 +16,92 @@ description: "Assess and enhance software projects for enterprise-grade security
 - Writing ADRs, changelogs, or migration guides
 - Configuring Git hooks or CI pipelines
 
+---
+
+## MANDATORY Requirements
+
+**CRITICAL: The following are NOT optional. Every project MUST have ALL of these. Do not skip any.**
+
+### README Badges (MANDATORY)
+
+Every project README.md MUST display these badges at the top, in this order:
+
+```markdown
+<!-- Row 1: CI/Quality -->
+[![CI](https://github.com/ORG/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/ORG/REPO/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/ORG/REPO/graph/badge.svg)](https://codecov.io/gh/ORG/REPO)
+
+<!-- Row 2: Security (MANDATORY) -->
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/ORG/REPO/badge)](https://securityscorecards.dev/viewer/?uri=github.com/ORG/REPO)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/PROJECT_ID/badge)](https://www.bestpractices.dev/projects/PROJECT_ID)
+```
+
+| Badge | URL Pattern | MANDATORY |
+|-------|-------------|-----------|
+| CI Status | `github.com/ORG/REPO/actions/workflows/ci.yml/badge.svg` | **YES** |
+| Codecov | `codecov.io/gh/ORG/REPO/graph/badge.svg` | **YES** |
+| OpenSSF Scorecard | `api.securityscorecards.dev/projects/github.com/ORG/REPO/badge` | **YES** |
+| OpenSSF Best Practices | `www.bestpractices.dev/projects/PROJECT_ID/badge` | **YES** |
+
+### CI/CD Workflows (MANDATORY)
+
+Every GitHub project MUST have these workflows in `.github/workflows/`:
+
+| Workflow | File | Purpose | MANDATORY |
+|----------|------|---------|-----------|
+| CI | `ci.yml` | Build, test, lint | **YES** |
+| CodeQL | `codeql.yml` | Security scanning | **YES** |
+| Scorecard | `scorecard.yml` | OpenSSF Scorecard | **YES** |
+| Dependency Review | `dependency-review.yml` | PR CVE check | **YES** |
+
+### CI Must Include (MANDATORY)
+
+| Requirement | Implementation | MANDATORY |
+|-------------|----------------|-----------|
+| Coverage upload | `codecov/codecov-action` after tests | **YES** |
+| Security audit | `composer audit` / `npm audit` / `govulncheck` | **YES** |
+| SHA-pinned actions | All actions use full SHA with version comment | **YES** |
+
+### OpenSSF Registration (MANDATORY)
+
+1. **Register at bestpractices.dev**: https://www.bestpractices.dev/en/projects/new
+2. **Note the Project ID** assigned after registration
+3. **Add badge to README** with correct PROJECT_ID
+4. **Run Scorecard workflow** to generate initial score
+
+### Codecov Setup (MANDATORY)
+
+1. **Enable Codecov** for the repository at codecov.io
+2. **Add coverage generation** to CI test step:
+   ```yaml
+   - name: Tests with coverage
+     run: phpunit --coverage-clover coverage.xml
+   ```
+3. **Add Codecov upload** step:
+   ```yaml
+   - uses: codecov/codecov-action@SHA # vX.Y.Z
+     with:
+       files: coverage.xml
+   ```
+
+### Verification Checklist
+
+Before marking enterprise-readiness complete, verify ALL:
+
+- [ ] README has CI badge linking to workflow
+- [ ] README has Codecov badge (not "unknown")
+- [ ] README has OpenSSF Scorecard badge (correct URL with `api.securityscorecards.dev`)
+- [ ] README has OpenSSF Best Practices badge (correct PROJECT_ID, not placeholder)
+- [ ] `.github/workflows/ci.yml` exists and uploads coverage
+- [ ] `.github/workflows/codeql.yml` exists
+- [ ] `.github/workflows/scorecard.yml` exists
+- [ ] Codecov shows actual coverage percentage
+- [ ] Scorecard shows actual score
+
+**If any badge shows "unknown", "invalid", or placeholder ID - FIX IT. Do not proceed.**
+
+---
+
 ## Assessment Workflow
 
 1. **Discovery**: Identify platform (GitHub/GitLab), languages, existing CI/CD

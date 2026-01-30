@@ -1,12 +1,29 @@
 # OpenSSF Badge Display Guide
 
+## MANDATORY Badge Requirements
+
+**ALL badges in this document are MANDATORY, not optional.**
+
+Every project MUST have these badges displayed in README.md:
+
+| Badge | MANDATORY | Action if Missing |
+|-------|-----------|-------------------|
+| CI Status | **YES** | Add workflow badge |
+| Codecov | **YES** | Enable codecov, upload coverage in CI |
+| OpenSSF Scorecard | **YES** | Add scorecard.yml workflow |
+| OpenSSF Best Practices | **YES** | Register at bestpractices.dev, get PROJECT_ID |
+
+**"Unknown" or placeholder badges are NOT acceptable. Fix them immediately.**
+
+---
+
 > OpenSSF Silver Badge requirement: `documentation_achievements`
 >
-> Projects must display their OpenSSF Best Practices Badge prominently in the README.
+> Projects MUST display their OpenSSF Best Practices Badge prominently in the README.
 
 ## Badge URLs
 
-### Get Your Badge
+### Get Your Badge (MANDATORY STEPS)
 
 1. Register at https://www.bestpractices.dev/
 2. Complete criteria for your target level
