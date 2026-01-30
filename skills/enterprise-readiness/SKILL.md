@@ -255,7 +255,7 @@ When handling signed commits with rebase-only merge, load `references/ci-pattern
 Templates in `assets/templates/`:
 - `GOVERNANCE.md` - Project governance (Silver)
 - `ARCHITECTURE.md` - Technical docs (Silver)
-- `CODE_OF_CONDUCT.md` - Contributor Covenant
+- `CODE_OF_CONDUCT.md` - Contributor Covenant v3.0
 - `SECURITY_AUDIT.md` - Security audit (Gold)
 - `BADGE_EXCEPTIONS.md` - N/A justifications
 
