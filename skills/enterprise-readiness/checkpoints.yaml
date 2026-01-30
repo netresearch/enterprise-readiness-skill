@@ -1,0 +1,138 @@
+# Example checkpoints.yaml for enterprise-readiness skill
+# Copy this to your skill repo root as checkpoints.yaml
+
+version: 1
+skill_id: enterprise-readiness
+
+mechanical:
+  # === SECURITY WORKFLOW CHECKS ===
+  - id: ER-01
+    type: file_exists
+    target: .github/workflows/security.yml
+    severity: error
+    desc: "Security workflow must exist"
+
+  - id: ER-02
+    type: contains
+    target: .github/workflows/security.yml
+    pattern: "composer audit"
+    severity: error
+    desc: "Security workflow should run composer audit"
+
+  - id: ER-03
+    type: regex
+    target: .github/workflows/security.yml
+    pattern: "sbom|cyclonedx|syft"
+    severity: warning
+    desc: "Security workflow should generate SBOM"
+
+  # === BADGE CHECKS ===
+  - id: ER-04
+    type: contains
+    target: README.md
+    pattern: "securityscorecards.dev"
+    severity: warning
+    desc: "README should have OpenSSF Scorecard badge"
+
+  - id: ER-05
+    type: contains
+    target: README.md
+    pattern: "bestpractices.coreinfrastructure.org"
+    severity: warning
+    desc: "README should have OpenSSF Best Practices badge"
+
+  - id: ER-06
+    type: contains
+    target: README.md
+    pattern: "slsa.dev"
+    severity: info
+    desc: "README should have SLSA badge (if SLSA provenance enabled)"
+
+  # === DEPENDENCY MANAGEMENT ===
+  - id: ER-07
+    type: file_exists
+    target: .github/dependabot.yml
+    severity: warning
+    desc: "Dependabot should be configured"
+
+  - id: ER-08
+    type: contains
+    target: .github/dependabot.yml
+    pattern: 'package-ecosystem: "composer"'
+    severity: warning
+    desc: "Dependabot should monitor composer dependencies"
+
+  - id: ER-09
+    type: contains
+    target: .github/dependabot.yml
+    pattern: 'package-ecosystem: "github-actions"'
+    severity: warning
+    desc: "Dependabot should monitor GitHub Actions"
+
+  # === ACTION PINNING ===
+  - id: ER-10
+    type: regex
+    target: .github/workflows/*.yml
+    pattern: "uses: [^@]+@[a-f0-9]{40}"
+    severity: error
+    desc: "GitHub Actions must be pinned to SHA (not tags)"
+
+  # === WORKFLOW PERMISSIONS ===
+  - id: ER-11
+    type: contains
+    target: .github/workflows/ci.yml
+    pattern: "permissions:"
+    severity: warning
+    desc: "CI workflow should declare explicit permissions"
+
+  - id: ER-12
+    type: regex
+    target: .github/workflows/ci.yml
+    pattern: "contents:\\s*read"
+    severity: warning
+    desc: "CI workflow should use minimal permissions (contents: read)"
+
+  # === COVERAGE ===
+  - id: ER-13
+    type: contains
+    target: .github/workflows/ci.yml
+    pattern: "codecov"
+    severity: warning
+    desc: "CI should upload coverage to Codecov"
+
+  - id: ER-14
+    type: file_exists
+    target: codecov.yml
+    severity: info
+    desc: "Codecov config should exist for coverage thresholds"
+
+  # === SLSA PROVENANCE ===
+  - id: ER-15
+    type: regex
+    target: .github/workflows/*.yml
+    pattern: "slsa-github-generator"
+    severity: info
+    desc: "Should use SLSA GitHub generator for provenance"
+
+llm_reviews:
+  # === SIGNED COMMITS ===
+  - id: ER-16
+    domain: security
+    prompt: |
+      Check if the repository requires signed commits:
+      1. Look for branch protection settings mentioning signatures
+      2. Check if .github/workflows mention commit signing
+      3. Check CONTRIBUTING.md for signing requirements
+    severity: warning
+    desc: "Repository should require signed commits"
+
+  # === SLSA PROVENANCE REVIEW ===
+  - id: ER-17
+    domain: security
+    prompt: |
+      Verify SLSA provenance setup if present:
+      1. Check for slsa-github-generator workflow
+      2. Verify base64-subjects format is correct (sha256sum output, not JSON)
+      3. Check for compile-generator: true if needed
+    severity: info
+    desc: "SLSA provenance should be correctly configured"
