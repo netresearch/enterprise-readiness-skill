@@ -28,23 +28,23 @@ mechanical:
 
   # === BADGE CHECKS ===
   - id: ER-04
-    type: contains
+    type: regex
     target: README.md
-    pattern: "securityscorecards.dev"
+    pattern: "scorecard\\.dev|api\\.scorecard\\.dev"
     severity: warning
     desc: "README should have OpenSSF Scorecard badge"
 
   - id: ER-05
     type: contains
     target: README.md
-    pattern: "bestpractices.coreinfrastructure.org"
+    pattern: "bestpractices.dev"
     severity: warning
     desc: "README should have OpenSSF Best Practices badge"
 
   - id: ER-06
-    type: contains
+    type: regex
     target: README.md
-    pattern: "slsa.dev"
+    pattern: "slsa\\.dev|slsa-github-generator"
     severity: info
     desc: "README should have SLSA badge (if SLSA provenance enabled)"
 
