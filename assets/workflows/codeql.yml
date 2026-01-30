@@ -1,10 +1,17 @@
 # CodeQL Security Analysis
 # https://codeql.github.com/
 #
-# Performs semantic code analysis to find security vulnerabilities.
-# Results appear in GitHub Security tab.
+# MANDATORY: Use this custom workflow instead of GitHub's Default Setup.
+# Default Setup is ClickOps - not auditable, not templatable, causes drift.
 #
-# Update 'languages' for non-Go projects: javascript, python, java, csharp, cpp, ruby
+# Before adding this file, disable Default Setup if enabled:
+#   gh api -X PATCH repos/OWNER/REPO/code-scanning/default-setup -f state="not-configured"
+#
+# Languages to scan:
+# - actions: ALWAYS include (scans workflow files for security issues)
+# - javascript: Include if repo has .js/.ts/.jsx/.tsx files
+# - python, java, go, ruby, csharp, cpp, swift: Include if applicable
+# - php: NOT SUPPORTED by CodeQL (use PHPStan/Psalm/Semgrep instead)
 
 name: CodeQL
 
@@ -17,36 +24,45 @@ on:
     - cron: '0 6 * * 1'  # Weekly on Monday at 6 AM UTC
   workflow_dispatch:
 
-permissions: read-all
+permissions:
+  contents: read
+  security-events: write
+  actions: read
 
 jobs:
   analyze:
-    name: Analyze
+    name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # CUSTOMIZE: Add languages present in your repo
+        # ALWAYS keep 'actions' - it scans workflow files for security
+        language: [actions]
+        # For JS/TS projects: [actions, javascript]
+        # For Python projects: [actions, python]
+        # For Go projects: [actions, go]
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@v2
+        uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@b20883b0cd1f46c72ae0ba6d1090936928f9fa30 # v4.32.0
         with:
-          languages: go
+          languages: ${{ matrix.language }}
           queries: security-and-quality
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+        uses: github/codeql-action/autobuild@b20883b0cd1f46c72ae0ba6d1090936928f9fa30 # v4.32.0
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@b20883b0cd1f46c72ae0ba6d1090936928f9fa30 # v4.32.0
         with:
-          category: "/language:go"
+          category: "/language:${{ matrix.language }}"

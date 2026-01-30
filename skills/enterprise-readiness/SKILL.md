@@ -54,6 +54,29 @@ Every GitHub project MUST have these workflows in `.github/workflows/`:
 | Scorecard | `scorecard.yml` | OpenSSF Scorecard | **YES** |
 | Dependency Review | `dependency-review.yml` | PR CVE check | **YES** |
 
+### CodeQL Setup (MANDATORY)
+
+**CRITICAL: Use custom `codeql.yml` workflow. NEVER use GitHub Default Setup (ClickOps).**
+
+1. **Check if Default Setup is enabled:**
+   ```bash
+   gh api repos/OWNER/REPO/code-scanning/default-setup
+   ```
+
+2. **If enabled, DISABLE it first:**
+   ```bash
+   gh api -X PATCH repos/OWNER/REPO/code-scanning/default-setup -f state="not-configured"
+   ```
+
+3. **Add custom workflow** from `assets/workflows/codeql.yml`
+
+4. **Configure languages:**
+   - `actions` - **ALWAYS include** (scans workflow files)
+   - `javascript` - Include if JS/TS files exist
+   - `php` - **NOT supported** by CodeQL (use PHPStan instead)
+
+See `references/codeql.md` for full details.
+
 ### CI Must Include (MANDATORY)
 
 | Requirement | Implementation | MANDATORY |
