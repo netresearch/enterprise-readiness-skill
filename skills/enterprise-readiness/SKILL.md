@@ -86,9 +86,36 @@ Every GitHub project MUST have these workflows in `.github/workflows/`:
    ```yaml
    - uses: codecov/codecov-action@SHA # vX.Y.Z
      with:
+       token: ${{ secrets.CODECOV_TOKEN }}  # MANDATORY - see below
        files: .Build/coverage/unit.xml,.Build/coverage/integration.xml,.Build/coverage/e2e.xml,coverage/lcov.info
        fail_ci_if_error: false
    ```
+
+### CODECOV_TOKEN (MANDATORY)
+
+**Never rely on tokenless uploads.** They fail for protected branches and are unreliable.
+
+| Requirement | Implementation | Why |
+|-------------|----------------|-----|
+| Token in secrets | Add `CODECOV_TOKEN` to repo or org secrets | Authentication |
+| Token in workflow | `token: ${{ secrets.CODECOV_TOKEN }}` | Required for protected branches |
+| Org-level secret | Preferred for consistency across repos | Single point of management |
+
+**Failure without token:**
+```
+Upload failed: {"message":"Token required because branch is protected"}
+```
+
+**Get token from:** https://app.codecov.io/gh/ORG/REPO/settings
+
+**Add as org secret (recommended):**
+```bash
+# Organization-level (covers all repos)
+gh secret set CODECOV_TOKEN --org netresearch --visibility all
+
+# Or repository-level
+gh secret set CODECOV_TOKEN --repo OWNER/REPO
+```
 
 ### JavaScript Coverage (MANDATORY for projects with JS/TS)
 
