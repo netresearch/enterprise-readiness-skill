@@ -1,6 +1,6 @@
 {
   "name": "enterprise-readiness",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "Assess and enhance software projects for enterprise-grade security, quality, and automation",
   "repository": "https://github.com/netresearch/enterprise-readiness-skill",
   "license": "MIT",
