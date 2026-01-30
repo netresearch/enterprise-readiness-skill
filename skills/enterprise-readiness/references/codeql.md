@@ -83,15 +83,16 @@ on:
   schedule:
     - cron: '0 6 * * 1'  # Weekly Monday 6 AM UTC
 
-permissions:
-  contents: read
-  security-events: write
-  actions: read
+permissions: {}
 
 jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
 
     steps:
       - name: Harden Runner
@@ -127,15 +128,16 @@ on:
   schedule:
     - cron: '0 6 * * 1'
 
-permissions:
-  contents: read
-  security-events: write
-  actions: read
+permissions: {}
 
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
 
     strategy:
       fail-fast: false
