@@ -22,7 +22,7 @@ mechanical:
   - id: ER-03
     type: regex
     target: .github/workflows/security.yml
-    pattern: "sbom|cyclonedx|syft"
+    pattern: 'sbom|cyclonedx|syft'
     severity: warning
     desc: "Security workflow should generate SBOM"
 
@@ -30,7 +30,7 @@ mechanical:
   - id: ER-04
     type: regex
     target: README.md
-    pattern: "scorecard\\.dev|api\\.scorecard\\.dev"
+    pattern: 'scorecard\.dev|api\.scorecard\.dev'
     severity: warning
     desc: "README should have OpenSSF Scorecard badge"
 
@@ -44,7 +44,7 @@ mechanical:
   - id: ER-06
     type: regex
     target: README.md
-    pattern: "slsa\\.dev|slsa-github-generator"
+    pattern: 'slsa\.dev|slsa-github-generator'
     severity: info
     desc: "README should have SLSA badge (if SLSA provenance enabled)"
 
@@ -73,7 +73,7 @@ mechanical:
   - id: ER-10
     type: regex
     target: .github/workflows/*.yml
-    pattern: "uses: [^@]+@[a-f0-9]{40}"
+    pattern: 'uses: [^@]+@[a-f0-9]{40}'
     severity: error
     desc: "GitHub Actions must be pinned to SHA (not tags)"
 
@@ -88,7 +88,7 @@ mechanical:
   - id: ER-12
     type: regex
     target: .github/workflows/ci.yml
-    pattern: "contents:\\s*read"
+    pattern: 'contents:\s*read'
     severity: warning
     desc: "CI workflow should use minimal permissions (contents: read)"
 
@@ -110,7 +110,7 @@ mechanical:
   - id: ER-15
     type: regex
     target: .github/workflows/*.yml
-    pattern: "slsa-github-generator"
+    pattern: 'slsa-github-generator'
     severity: info
     desc: "Should use SLSA GitHub generator for provenance"
 
