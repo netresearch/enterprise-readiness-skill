@@ -193,6 +193,63 @@ jobs:
 | High | 80% | 70% | Critical systems |
 | Enterprise | 90% | 80% | Financial, medical |
 
+### Multi-Suite Coverage (MANDATORY)
+
+Coverage must be collected from ALL test suites, not just unit tests:
+
+```yaml
+# PHP: Collect coverage from each test suite
+- name: Unit Tests
+  run: php -d pcov.enabled=1 .Build/bin/phpunit -c Build/phpunit/UnitTests.xml --coverage-clover .Build/coverage/unit.xml
+
+- name: Integration Tests
+  run: php -d pcov.enabled=1 .Build/bin/phpunit -c Build/phpunit/IntegrationTests.xml --coverage-clover .Build/coverage/integration.xml
+
+- name: E2E Tests
+  run: php -d pcov.enabled=1 .Build/bin/phpunit -c Build/phpunit/E2ETests.xml --coverage-clover .Build/coverage/e2e.xml
+
+# Upload ALL coverage files
+- uses: codecov/codecov-action@SHA # vX.Y.Z
+  with:
+    files: .Build/coverage/unit.xml,.Build/coverage/integration.xml,.Build/coverage/e2e.xml
+```
+
+### Polyglot Coverage (PHP + JavaScript)
+
+Projects with both PHP and JavaScript MUST collect coverage from both:
+
+```yaml
+# PHP Tests
+- name: PHP Tests with Coverage
+  run: |
+    php -d pcov.enabled=1 .Build/bin/phpunit -c Build/phpunit/UnitTests.xml --coverage-clover .Build/coverage/unit.xml
+    php -d pcov.enabled=1 .Build/bin/phpunit -c Build/phpunit/IntegrationTests.xml --coverage-clover .Build/coverage/integration.xml
+
+# JavaScript Tests (vitest/jest)
+- uses: actions/setup-node@SHA # vX.Y.Z
+  with:
+    node-version: '22'
+
+- run: npm install
+
+- name: JavaScript Tests with Coverage
+  run: npm run test:coverage  # Must output coverage/lcov.info
+
+# Upload ALL coverage
+- uses: codecov/codecov-action@SHA # vX.Y.Z
+  with:
+    files: .Build/coverage/unit.xml,.Build/coverage/integration.xml,coverage/lcov.info
+```
+
+**vitest.config.js MUST include lcov reporter:**
+```javascript
+coverage: {
+    provider: 'v8',
+    reporter: ['text', 'json', 'html', 'lcov'],  // lcov REQUIRED
+    reportsDirectory: 'coverage',
+}
+```
+
 ### Enforcing Coverage
 
 ```yaml

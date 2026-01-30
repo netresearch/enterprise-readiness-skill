@@ -72,17 +72,47 @@ Every GitHub project MUST have these workflows in `.github/workflows/`:
 ### Codecov Setup (MANDATORY)
 
 1. **Enable Codecov** for the repository at codecov.io
-2. **Add coverage generation** to CI test step:
-   ```yaml
-   - name: Tests with coverage
-     run: phpunit --coverage-clover coverage.xml
-   ```
-3. **Add Codecov upload** step:
+2. **Collect coverage from ALL test suites** (not just unit tests):
+
+| Test Suite | Coverage Command | Output File | MANDATORY |
+|------------|------------------|-------------|-----------|
+| Unit | `phpunit -c UnitTests.xml --coverage-clover` | `.Build/coverage/unit.xml` | **YES** |
+| Integration | `phpunit -c IntegrationTests.xml --coverage-clover` | `.Build/coverage/integration.xml` | **YES** |
+| E2E | `phpunit -c E2ETests.xml --coverage-clover` | `.Build/coverage/e2e.xml` | **YES** |
+| Functional | `phpunit -c FunctionalTests.xml --coverage-clover` | `.Build/coverage/functional.xml` | **YES** |
+| JavaScript | `npm run test:coverage` | `coverage/lcov.info` | **YES** (if JS exists) |
+
+3. **Upload ALL coverage files** to Codecov:
    ```yaml
    - uses: codecov/codecov-action@SHA # vX.Y.Z
      with:
-       files: coverage.xml
+       files: .Build/coverage/unit.xml,.Build/coverage/integration.xml,.Build/coverage/e2e.xml,coverage/lcov.info
+       fail_ci_if_error: false
    ```
+
+### JavaScript Coverage (MANDATORY for projects with JS/TS)
+
+When a project contains JavaScript or TypeScript files:
+
+1. **vitest.config.js** MUST include lcov reporter for Codecov:
+   ```javascript
+   coverage: {
+       provider: 'v8',
+       reporter: ['text', 'json', 'html', 'lcov'],  // lcov REQUIRED for Codecov
+       reportsDirectory: 'coverage',
+   }
+   ```
+
+2. **CI workflow** MUST include JavaScript test job:
+   ```yaml
+   - uses: actions/setup-node@SHA # vX.Y.Z
+     with:
+       node-version: '22'
+   - run: npm install
+   - run: npm run test:coverage
+   ```
+
+3. **Codecov upload** MUST include `coverage/lcov.info`
 
 ### Verification Checklist
 
