@@ -62,6 +62,74 @@ Every GitHub project MUST have these workflows in `.github/workflows/`:
 | Security audit | `composer audit` / `npm audit` / `govulncheck` | **YES** |
 | SHA-pinned actions | All actions use full SHA with version comment | **YES** |
 
+### Supply Chain Security (MANDATORY for Releases)
+
+**Supply chain security controls MUST block releases when violated.**
+
+| Control | Implementation | Blocks Release? |
+|---------|----------------|-----------------|
+| SLSA Provenance | `slsa-github-generator` workflow | **YES** - no release without attestation |
+| Signed Tags | `git tag -s` before `gh release create` | **YES** - unsigned tags rejected |
+| SBOM Generation | `anchore/sbom-action` or `cyclonedx` | **YES** - SBOM required for compliance |
+| Dependency Audit | `composer audit` / `npm audit` fails CI | **YES** - CVEs block merge |
+
+#### Release Workflow Order (MANDATORY)
+
+Supply chain artifacts MUST be generated in this order:
+
+```
+1. CI passes (tests, lint, security audit)
+     ↓
+2. Create SIGNED tag locally: git tag -s vX.Y.Z
+     ↓
+3. Push signed tag: git push origin vX.Y.Z
+     ↓
+4. Create release on existing tag: gh release create vX.Y.Z
+     ↓
+5. SLSA provenance workflow triggers (workflow_run)
+     ↓
+6. Provenance attestation uploaded to release
+     ↓
+7. SBOM generated and uploaded
+```
+
+**NEVER** use `gh release create` without a pre-existing signed tag - this creates unsigned tags.
+
+#### CI Integration for Supply Chain
+
+Add to `.github/workflows/release.yml`:
+
+```yaml
+# Pre-release checks (block release if failed)
+- name: Security Audit
+  run: |
+    composer audit --format=plain || exit 1
+    npm audit --audit-level=high || exit 1
+
+# SBOM generation
+- name: Generate SBOM
+  uses: anchore/sbom-action@v0
+  with:
+    artifact-name: sbom.spdx.json
+    output-file: sbom.spdx.json
+
+- name: Upload SBOM to release
+  run: gh release upload ${{ github.ref_name }} sbom.spdx.json
+  env:
+    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+#### Verification of Supply Chain Artifacts
+
+Before announcing a release, verify:
+
+- [ ] Release tag is GPG/SSH signed: `git tag -v vX.Y.Z`
+- [ ] SLSA provenance exists: `multiple.intoto.jsonl` in release assets
+- [ ] SBOM exists: `sbom.spdx.json` or `sbom.cyclonedx.json` in release assets
+- [ ] No HIGH/CRITICAL CVEs: `composer audit` / `npm audit` clean
+
+See `references/slsa-provenance.md` for detailed SLSA implementation guide.
+
 ### OpenSSF Registration (MANDATORY)
 
 1. **Register at bestpractices.dev**: https://www.bestpractices.dev/en/projects/new
@@ -166,6 +234,122 @@ Before marking enterprise-readiness complete, verify ALL:
 3. **Badge Assessment**: Check OpenSSF criteria status
 4. **Gap Analysis**: List missing controls by severity
 5. **Implementation**: Apply fixes using scripts and templates
+6. **Verification**: Re-score and compare (see Post-Implementation Verification)
+
+---
+
+## Post-Implementation Verification
+
+**MANDATORY:** After implementing improvements, re-assess the project to verify gains.
+
+### Re-Scoring Workflow
+
+1. **Record baseline score** before making changes (save output)
+2. **Implement improvements** following gap analysis priorities
+3. **Re-run full assessment** using same criteria
+4. **Compare scores** and document delta
+
+### Verification Checklist
+
+| Check | Before | After | Delta |
+|-------|--------|-------|-------|
+| OpenSSF Scorecard | _/10 | _/10 | +_ |
+| Best Practices Badge | Level | Level | Upgrade? |
+| Coverage % | _% | _% | +_% |
+| Enterprise Score | _/100 | _/100 | +_ |
+
+### Expected Outcomes
+
+| Implementation | Expected Score Impact |
+|----------------|----------------------|
+| Add CI/CD workflows | +10-15 pts |
+| Enable Codecov | +5-10 pts |
+| Add CodeQL/Scorecard | +10-15 pts |
+| SLSA provenance | +5-10 pts |
+| Documentation (SECURITY.md, etc.) | +5-10 pts |
+
+### Verification Commands
+
+```bash
+# OpenSSF Scorecard (re-run after changes merged to default branch)
+scorecard --repo=github.com/ORG/REPO --format=json
+
+# Coverage (after CI runs)
+# Check Codecov dashboard or badge
+
+# Best Practices (update at bestpractices.dev after implementing)
+# Re-answer questions that are now satisfied
+```
+
+**If score did not improve as expected**, investigate:
+- Did CI workflows run successfully?
+- Are badges pointing to correct repository?
+- Did changes merge to default branch (required for Scorecard)?
+
+---
+
+## Continuous Improvement
+
+Enterprise readiness is not a one-time achievement. Maintain scores over time.
+
+### Scheduled Re-Assessment
+
+| Frequency | Scope | Trigger |
+|-----------|-------|---------|
+| **Weekly** | Badge status check | Automated (CI) |
+| **Monthly** | Scorecard re-run | Scheduled workflow |
+| **Quarterly** | Full enterprise assessment | Manual or milestone |
+| **Per-release** | Supply chain verification | Release workflow |
+
+### Automated Monitoring
+
+Add badge health check to CI:
+
+```yaml
+# .github/workflows/badge-health.yml
+name: Badge Health Check
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly Monday 6am
+  workflow_dispatch:
+
+jobs:
+  check-badges:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Codecov
+        run: |
+          BADGE_URL="https://codecov.io/gh/${{ github.repository }}/graph/badge.svg"
+          curl -sL "$BADGE_URL" | grep -q "unknown" && echo "::warning::Codecov badge shows unknown" || true
+
+      - name: Check Scorecard
+        run: |
+          SCORE=$(curl -s "https://api.securityscorecards.dev/projects/github.com/${{ github.repository }}" | jq -r '.score // "N/A"')
+          echo "Current Scorecard: $SCORE/10"
+          if [ "$SCORE" != "N/A" ] && [ "$(echo "$SCORE < 7" | bc -l)" = "1" ]; then
+            echo "::warning::Scorecard dropped below 7.0"
+          fi
+```
+
+### Regression Detection
+
+Watch for these warning signs:
+
+| Signal | Detection | Response |
+|--------|-----------|----------|
+| Scorecard drop > 1pt | Weekly check | Investigate changed checks |
+| Badge shows "unknown" | CI check | Verify token/configuration |
+| CVE in dependency | Dependabot/Renovate | Priority update PR |
+| Failed security scan | CI workflow | Block release until fixed |
+| Coverage drop > 5% | PR check | Require coverage recovery |
+
+### Dependency Update Cadence
+
+| Update Type | Frequency | Automation |
+|-------------|-----------|------------|
+| Security patches | Immediate | Auto-merge if tests pass |
+| Minor updates | Weekly | Renovate/Dependabot PR |
+| Major updates | Monthly review | Manual approval required |
 
 ## Dependency CVE Workflow
 
