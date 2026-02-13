@@ -126,17 +126,28 @@ uses: actions/checkout@v4
 ### Minimal Permissions (3 points)
 | Criteria | Points | How to Check |
 |----------|--------|--------------|
-| `permissions: read-all` or explicit permissions at workflow level | 2 | Check workflow top-level permissions |
+| Top-level `permissions: {}` (deny-all) on every workflow | 2 | Check workflow top-level permissions |
 | Per-job permission escalation only | 1 | Check job-level permissions are minimal |
 
-**Implementation**:
+**Implementation** (proven pattern — scores 10/10 on Token-Permissions):
 ```yaml
-permissions: read-all  # Or explicit minimal permissions
+# BEST: deny-all at top, grant per-job (scores 10/10)
+permissions: {}
 
 jobs:
   build:
     permissions:
       contents: write  # Only what's needed for this job
+```
+
+**Why `permissions: {}` not `read-all`**: `read-all` still grants read access to all scopes (actions, checks, contents, deployments, issues, packages, etc.). The `{}` pattern denies everything by default, then each job declares only what it needs. Real-world comparison across 6 Netresearch TYPO3 extensions shows repos using `permissions: {}` score 10/10 on Token-Permissions while those using `read-all` or no top-level permissions score 0/10.
+
+**Apply to ALL workflows**, not just `ci.yml`:
+```bash
+# Check which workflows lack top-level permissions: {}
+for f in .github/workflows/*.yml; do
+  head -20 "$f" | grep -q "permissions: {}" || echo "❌ $f missing permissions: {}"
+done
 ```
 
 ---
@@ -253,6 +264,78 @@ with:
 | SAST | Security Features (CodeQL) | ✅ Covered |
 | Token-Permissions | Workflow Hardening | ✅ Covered |
 | Webhooks | (Not yet covered) | ⚠️ Future |
+
+---
+
+## OpenSSF Scorecard Optimization Guide
+
+Based on real-world data from 6 Netresearch TYPO3 extensions (scores 6.3–7.3), these are the most impactful improvements ranked by effort-to-reward.
+
+### Quick Wins (high impact, low effort)
+
+| Check | 0→10 Fix | Effort |
+|-------|----------|--------|
+| **Token-Permissions** | Add `permissions: {}` to top of ALL workflows + per-job scoping | 30 min |
+| **Security-Policy** | Add `SECURITY.md` with vulnerability reporting instructions | 10 min |
+| **Dependency-Update-Tool** | Add `.github/dependabot.yml` | 5 min |
+| **License** | Add `LICENSE` file | 5 min |
+
+### Medium Effort (significant impact)
+
+| Check | Fix | Effort |
+|-------|-----|--------|
+| **Branch-Protection** | Enable: require PR, require review, dismiss stale, conversation resolution | 15 min |
+| **SAST** | Add `codeql.yml` with scheduled weekly scans + all relevant languages | 15 min |
+| **Pinned-Dependencies** | Pin all actions to SHA with `# vX.Y.Z` comments, use Dependabot for updates | 30 min |
+| **CII-Best-Practices** | Register at bestpractices.dev and answer questionnaire | 1-2 hrs |
+| **Code-Review** | Merge ALL changes via reviewed PRs (no direct pushes to main) | Ongoing |
+
+### Checks That Cannot Reach 10/10
+
+| Check | Why | Best Achievable |
+|-------|-----|-----------------|
+| **Fuzzing** | Scorecard only recognizes OSS-Fuzz or ClusterFuzzLite, not PHPUnit fuzz suites | 0 (even with fuzz tests) |
+| **Packaging** | Requires publishing to GitHub Packages (not Packagist/TER) | -1 for PHP projects |
+| **Signed-Releases** | Requires SLSA provenance with `slsa-github-generator` + signed tags | 2-5 (achievable) |
+| **Contributors** | Based on number of distinct contributors — cannot be forced | Varies |
+| **Maintained** | Based on recent commit activity — penalizes stable projects | Varies |
+
+### Token-Permissions: The Biggest Win
+
+The difference between 0/10 and 10/10 on Token-Permissions is a single line at the top of each workflow. This check has the highest weight-to-effort ratio.
+
+**Pattern** (must be on ALL `.github/workflows/*.yml`):
+```yaml
+name: CI
+
+on: [push, pull_request]
+
+permissions: {}  # <-- This line scores 10/10
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read  # Only what this job needs
+    steps:
+      - uses: actions/checkout@SHA # vX.Y.Z
+```
+
+**Common mistake**: Adding `permissions` to only `ci.yml` but forgetting `codeql.yml`, `scorecard.yml`, `dependency-review.yml`, and other workflows. Scorecard checks ALL workflow files.
+
+### Code-Review: Requires Process Discipline
+
+Scorecard checks whether recent commits on the default branch came through reviewed PRs. Direct pushes to main score 0/10.
+
+**Requirements for 10/10:**
+- All changes merged via pull request
+- Each PR has at least one approving review
+- No direct commits to default branch (even for trivial changes)
+- Solo maintainers: use auto-approval workflow for self-PRs (see github-project-skill)
+
+### CII-Best-Practices: Manual Registration Required
+
+Register at https://www.bestpractices.dev/en/projects/new and answer the questionnaire. Projects with CI, tests, SECURITY.md, and Dependabot already meet most Passing criteria.
 
 ---
 
