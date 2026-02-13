@@ -216,6 +216,18 @@ func TestHandleInvalidState(t *testing.T) {
 
 ## Review Process Quality
 
+### Required Conversation Resolution (Branch Protection)
+
+Enable `required_conversation_resolution` in branch protection to **enforce** that all review threads are resolved before merging. Without this, review feedback can be silently ignored — especially problematic when automated reviewers (e.g., GitHub Copilot) leave actionable comments.
+
+```bash
+# Check if enabled
+gh api repos/{owner}/{repo}/branches/main/protection \
+  --jq 'if .required_conversation_resolution.enabled then "✅ Enabled" else "❌ NOT enabled" end'
+```
+
+See `references/github.md` → "Review Enforcement" for full setup instructions.
+
 ### PR Review Thread Resolution
 
 When addressing review feedback:
