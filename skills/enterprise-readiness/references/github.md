@@ -41,7 +41,7 @@ making it dangerous when combined with checkout of PR code from forks.
 
 ---
 
-## Code Review Requirements (6 points)
+## Code Review Requirements (7 points)
 
 *This section addresses the OpenSSF Scorecard "Code-Review" check (High risk)*
 
@@ -52,11 +52,14 @@ making it dangerous when combined with checkout of PR code from forks.
 | Require pull request before merging | 1 | Check branch protection rules |
 | Dismiss stale reviews on new commits | 1 | Check branch protection settings |
 
-### Review Enforcement (3 points)
+### Review Enforcement (4 points)
 | Criteria | Points | How to Check |
 |----------|--------|--------------|
 | Require at least 1 approving review | 2 | Check required reviewers setting |
 | Code owners review required | 1 | Check `require_code_owner_reviews` setting |
+| Require conversation resolution before merge | 1 | Check `required_conversation_resolution` setting |
+
+**Why conversation resolution matters**: Without this setting, review feedback can be silently ignored — a PR with unresolved threads can be merged, defeating the purpose of code review. This is especially important when automated reviewers (e.g., GitHub Copilot) leave actionable comments.
 
 **Implementation**:
 ```bash
@@ -65,9 +68,27 @@ gh api repos/{owner}/{repo}/branches/main/protection \
   --jq '{
     enforce_admins: .enforce_admins.enabled,
     required_reviews: .required_pull_request_reviews.required_approving_review_count,
-    dismiss_stale: .required_pull_request_reviews.dismiss_stale_reviews
+    dismiss_stale: .required_pull_request_reviews.dismiss_stale_reviews,
+    conversation_resolution: .required_conversation_resolution.enabled
   }'
+
+# Quick check: is conversation resolution enabled?
+gh api repos/{owner}/{repo}/branches/main/protection \
+  --jq 'if .required_conversation_resolution.enabled then "✅ Conversation resolution required" else "❌ NOT required - enable it" end'
 ```
+
+**Enable conversation resolution** (include in full branch protection PUT):
+```bash
+gh api repos/{owner}/{repo}/branches/main/protection -X PUT \
+  --input - << 'EOF'
+{
+  ...existing settings...,
+  "required_conversation_resolution": true
+}
+EOF
+```
+
+Or via GitHub UI: Settings → Branches → Edit → Check **"Require conversation resolution before merging"**
 
 ---
 
@@ -210,12 +231,12 @@ with:
 
 ---
 
-## Total: 40 points
+## Total: 41 points
 
 **Scoring Thresholds**:
-- 36-40: Excellent GitHub security posture
-- 28-35: Good, minor improvements needed
-- 20-27: Fair, significant gaps
+- 37-41: Excellent GitHub security posture
+- 29-36: Good, minor improvements needed
+- 21-28: Fair, significant gaps
 - Below 20: Poor, major improvements required
 
 ---
