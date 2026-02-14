@@ -236,7 +236,7 @@ Proven playbook to raise OpenSSF Scorecard from ~6.8 to ~9.0. Applied successful
 | Check | Quick Fix | Impact |
 |-------|-----------|--------|
 | Token-Permissions | Move all `write` perms from workflow-level to job-level | 0→10 |
-| Branch-Protection | Set `required_approving_review_count: 1` + auto-approve | 0→10 |
+| Branch-Protection | Set `required_approving_review_count: 1` + auto-approve + protect release branches | 0→8 |
 | Code-Review | Automatic after Branch-Protection fix | 5→10 |
 | Security-Policy | Private vulnerability reporting + coordinated disclosure | 4→10 |
 | Pinned-Dependencies | SHA-pin all actions (except SLSA generator — see below) | 8→10 |
@@ -266,12 +266,13 @@ permissions:
 
 Common violators: `pr-quality.yml`, `release-labeler.yml`, `create-release.yml`.
 
-### Branch-Protection (0→10) for Solo Maintainers
+### Branch-Protection (0→8) for Solo Maintainers
 
 Solo-dev projects need `required_approving_review_count >= 1` but can't wait for human reviewers. Solution: auto-approve workflow + ruleset.
 
+**Default branch ruleset:**
+
 ```bash
-# Update ruleset to require 1 approval
 gh api repos/OWNER/REPO/rulesets/RULESET_ID -X PUT --input - <<'EOF'
 {
   "rules": [{
@@ -279,6 +280,8 @@ gh api repos/OWNER/REPO/rulesets/RULESET_ID -X PUT --input - <<'EOF'
     "parameters": {
       "required_approving_review_count": 1,
       "dismiss_stale_reviews_on_push": true,
+      "require_code_owner_review": false,
+      "require_last_push_approval": true,
       "required_review_thread_resolution": true
     }
   }]
@@ -286,7 +289,54 @@ gh api repos/OWNER/REPO/rulesets/RULESET_ID -X PUT --input - <<'EOF'
 EOF
 ```
 
+**Release branch ruleset** (e.g., `TYPO3_*`, `release/*`):
+
+```bash
+gh api repos/OWNER/REPO/rulesets -X POST --input - <<'EOF'
+{
+  "name": "release-branches",
+  "enforcement": "active",
+  "target": "branch",
+  "conditions": {"ref_name": {"include": ["refs/heads/TYPO3_*"], "exclude": []}},
+  "rules": [
+    {"type": "deletion"},
+    {"type": "non_fast_forward"},
+    {"type": "pull_request", "parameters": {
+      "required_approving_review_count": 1,
+      "dismiss_stale_reviews_on_push": true,
+      "require_code_owner_review": false,
+      "require_last_push_approval": true,
+      "required_review_thread_resolution": true,
+      "allowed_merge_methods": ["merge"]
+    }},
+    {"type": "required_status_checks", "parameters": {
+      "required_status_checks": [{"context": "Build ✓", "integration_id": 15368}],
+      "strict_required_status_checks_policy": true
+    }}
+  ]
+}
+EOF
+```
+
+Also enable `enforce_admins` via legacy API (scorecard reads this separately from rulesets):
+
+```bash
+gh api repos/OWNER/REPO/branches/main/protection/enforce_admins -X POST
+```
+
 Pair with `pr-quality.yml` auto-approve workflow (see `github-project` skill) that approves non-fork PRs via `github-actions[bot]`.
+
+**Codeowner review incompatibility:** `require_code_owner_review: true` is **incompatible** with bot auto-approve workflows. `github-actions[bot]` (GITHUB_TOKEN) is not a codeowner — its APPROVED review does not satisfy the codeowner requirement, permanently blocking all PRs. Verified on [t3x-rte_ckeditor_image#629](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/629). Keep this `false` when using auto-approve.
+
+**Unresolved review threads:** `required_review_thread_resolution: true` will block merge if automated reviewers (Gemini Code Assist, Copilot) leave unresolved threads. Resolve via:
+
+```bash
+gh api graphql -f query='mutation { resolveReviewThread(input: {threadId: "PRRT_xxx"}) { thread { isResolved } } }'
+```
+
+**Remaining scorecard warnings (unfixable for solo maintainer):**
+- `required approving review count is 1` — scorecard wants >= 2, impractical without human reviewers
+- `codeowners review is not required` — incompatible with bot auto-approve (see above)
 
 ### Security-Policy (4→10)
 
