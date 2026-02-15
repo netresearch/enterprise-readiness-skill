@@ -57,17 +57,17 @@ Supply chain security controls MUST block releases when violated.
 
 ```
 1. CI passes (tests, lint, security audit)
-     |
+     ↓
 2. Create SIGNED tag locally: git tag -s vX.Y.Z
-     |
+     ↓
 3. Push signed tag: git push origin vX.Y.Z
-     |
+     ↓
 4. Create release on existing tag: gh release create vX.Y.Z
-     |
+     ↓
 5. SLSA provenance workflow triggers (workflow_run)
-     |
+     ↓
 6. Provenance attestation uploaded to release
-     |
+     ↓
 7. SBOM generated and uploaded
 ```
 

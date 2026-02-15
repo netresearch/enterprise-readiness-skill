@@ -154,4 +154,4 @@ Accept this as an unavoidable Pinned-Dependencies gap (score stays at 8, not 10)
 |-------|----------|
 | Fuzzing (0) | OSS-Fuzz doesn't support PHP/TYPO3; ROI too low |
 | Packaging (-1) | TER publishing isn't detected as a packaging workflow |
-| Signed-Releases (-1) | Detection issue -- SLSA provenance exists but isn't recognized |
+| Signed-Releases (-1) | Detection issue — SLSA provenance exists but isn't recognized |
