@@ -221,3 +221,13 @@ Best Practices Badge, and S2C2F frameworks.
 | Enforce It | Quality Gates | ✅ Covered |
 | Rebuild It | (Platform-specific) | ⚠️ Partial |
 | Fix It + Upstream | (Out of scope) | ❌ N/A |
+
+| OSPS Baseline Category | This Skill Section | Status |
+|------------------------|-------------------|--------|
+| Access Control (AC) | Governance & Policy, Supply Chain | ✅ Covered |
+| Build & Release (BR) | Supply Chain Security | ✅ Covered |
+| Documentation (DO) | Documentation & Governance | ✅ Covered |
+| Governance (GV) | Governance & Policy | ✅ Covered |
+| Legal (LE) | Governance & Policy (License) | ✅ Covered |
+| Quality Assurance (QA) | Quality Gates, Testing | ✅ Covered |
+| Vulnerability Mgmt (VM) | Governance & Policy, Dependency Consumption | ✅ Covered |

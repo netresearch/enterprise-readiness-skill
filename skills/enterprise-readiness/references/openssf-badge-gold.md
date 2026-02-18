@@ -99,6 +99,19 @@ gh api repos/{owner}/{repo}/branches/main/protection \
 |-----------|---------------|---------------|----------------|
 | build_reproducible | "Is the build reproducible?" | Build twice, compare checksums | Achieve bit-for-bit reproducible builds |
 
+**N/A for Source-Distributed Libraries:**
+
+Projects distributed as source code (not compiled binaries) may mark this criterion as **N/A**:
+
+| Project Type | Status | Justification |
+|-------------|--------|---------------|
+| PHP Composer packages | N/A | Source code distributed via Composer. No compiled artifact. Reproducibility is the consuming application's responsibility via `composer.lock`. |
+| Python PyPI packages | N/A | Source distribution or wheels built from source. Reproducibility via `requirements.txt` / `pip freeze`. |
+| npm packages | N/A | Source distributed via npm registry. Reproducibility via `package-lock.json`. |
+| Go binaries | Must Meet | Compiled binaries require reproducible builds. |
+| Rust binaries | Must Meet | Compiled binaries require reproducible builds. |
+| Docker images | Must Meet | Container images require reproducible builds. |
+
 **Reproducible Builds (Go):**
 ```bash
 # Build with all reproducibility flags
@@ -274,6 +287,21 @@ Compensating controls:
 - Open to contributions from any organization
 - No organizational restrictions on contribution
 ```
+
+---
+
+## URL-Required Justifications
+
+**CRITICAL**: Many Gold criteria require `https://` URLs in the justification text.
+Without URLs, criteria show "Warning: URL required, but no URL found" even when status is "Met".
+
+Gold criteria that commonly need URLs:
+- `bus_factor` — link to contributors graph
+- `contributors_unassociated` — link to Contributors.md or contributor profiles
+- `hardened_site` — link to project repository
+- `hardening` — link to CI workflow demonstrating hardening measures
+
+**Rule**: Always include at least one `https://` URL in every justification.
 
 ---
 

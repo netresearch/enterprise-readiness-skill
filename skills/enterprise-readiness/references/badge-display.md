@@ -12,6 +12,7 @@ Every project MUST have these badges displayed in README.md:
 | Codecov | **YES** | Enable codecov, upload coverage in CI |
 | OpenSSF Scorecard | **YES** | Add scorecard.yml workflow |
 | OpenSSF Best Practices | **YES** | Register at bestpractices.dev, get PROJECT_ID |
+| OpenSSF Baseline | **YES** | Same project ID, separate badge URL (`/baseline`) |
 
 **"Unknown" or placeholder badges are NOT acceptable. Fix them immediately.**
 
@@ -54,6 +55,14 @@ Every project MUST have these badges displayed in README.md:
 | Silver | ![silver](https://www.bestpractices.dev/assets/silver-c6d8c2a8e0e57be8b1530aa4d6f54a7e.svg) | Advanced governance & security |
 | Gold | ![gold](https://www.bestpractices.dev/assets/gold-0a66c44c15c80c17a0a82cf8ac0f3a9e.svg) | Highest maturity level |
 
+**OSPS Baseline Badge** (Levels 1/2/3 — separate badge, same project):
+
+```markdown
+[![OpenSSF Baseline](https://www.bestpractices.dev/projects/PROJECT_ID/baseline)](https://www.bestpractices.dev/projects/PROJECT_ID)
+```
+
+The Baseline badge shows the achieved OSPS security level (1, 2, or 3). Both badges should be displayed together.
+
 ## README Badge Section
 
 ### Recommended Placement
@@ -62,6 +71,7 @@ Every project MUST have these badges displayed in README.md:
 # Project Name
 
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/ID/badge)](https://www.bestpractices.dev/projects/ID)
+[![OpenSSF Baseline](https://www.bestpractices.dev/projects/ID/baseline)](https://www.bestpractices.dev/projects/ID)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/ORG/REPO/badge)](https://securityscorecards.dev/viewer/?uri=github.com/ORG/REPO)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ORG/REPO)](https://goreportcard.com/report/github.com/ORG/REPO)
 [![License](https://img.shields.io/github/license/ORG/REPO)](LICENSE)
@@ -74,6 +84,7 @@ Project description here...
 ```markdown
 <!-- Recommended badge order: Security → Quality → Build → License -->
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/ID/badge)](https://www.bestpractices.dev/projects/ID)
+[![OpenSSF Baseline](https://www.bestpractices.dev/projects/ID/baseline)](https://www.bestpractices.dev/projects/ID)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/ORG/REPO/badge)](https://securityscorecards.dev/viewer/?uri=github.com/ORG/REPO)
 [![Security Audit](https://img.shields.io/badge/security-audited-green)](SECURITY.md)
 [![codecov](https://codecov.io/gh/ORG/REPO/branch/main/graph/badge.svg)](https://codecov.io/gh/ORG/REPO)
@@ -128,7 +139,9 @@ jobs:
 
       - name: Check OpenSSF Badge Status
         run: |
-          STATUS=$(curl -s "https://www.bestpractices.dev/projects/YOUR_ID.json" | jq -r '.badge_level')
+          # Use cache-buster to avoid stale responses
+          DATA=$(curl -s "https://www.bestpractices.dev/projects/YOUR_ID.json?_=$(date +%s)")
+          STATUS=$(echo "$DATA" | jq -r '.badge_level')
           echo "Current badge level: $STATUS"
           if [ "$STATUS" = "passing" ] || [ "$STATUS" = "silver" ] || [ "$STATUS" = "gold" ]; then
             echo "✅ Badge status valid"
@@ -207,6 +220,7 @@ For projects working toward a badge level:
 ## Resources
 
 - [OpenSSF Best Practices Badge](https://www.bestpractices.dev/)
+- [OSPS Baseline Standard](https://baseline.openssf.org/)
 - [OpenSSF Scorecard](https://securityscorecards.dev/)
 - [Shields.io Custom Badges](https://shields.io/)
 - [SLSA Badge Generator](https://slsa.dev/get-started)

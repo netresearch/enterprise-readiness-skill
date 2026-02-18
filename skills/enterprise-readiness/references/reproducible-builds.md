@@ -16,6 +16,25 @@ A build is reproducible when:
 | Silver | `build_repeatable` | Build is repeatable/deterministic |
 | Gold | `build_reproducible` | Build is fully reproducible |
 
+### N/A for Source-Distributed Projects
+
+Projects that distribute **source code only** (no compiled binary artifacts) may mark
+`build_reproducible` as **N/A** with proper justification:
+
+| Language/Ecosystem | Distributed As | Status |
+|-------------------|---------------|--------|
+| PHP (Composer) | Source code | N/A — reproducibility via `composer.lock` is the application's responsibility |
+| Python (PyPI sdist) | Source tarball | N/A — reproducibility via `requirements.txt` / lockfile |
+| npm (source packages) | Source code | N/A — reproducibility via `package-lock.json` |
+| Go (binaries) | Compiled binary | **Must Meet** |
+| Rust (binaries) | Compiled binary | **Must Meet** |
+| Docker (images) | Container image | **Must Meet** |
+
+**Example N/A justification:**
+> N/A: This is a PHP library/extension distributed as source code via Composer.
+> There is no compiled build artifact. The source is reproducible by its git commit SHA.
+> Build reproducibility is the responsibility of the consuming application via composer.lock.
+
 ## Implementation by Language
 
 ### Go
