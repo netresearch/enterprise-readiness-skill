@@ -18,10 +18,16 @@ A Python script can automate badge data submission using session cookies:
 Usage:
     BADGE_COOKIE='...' python3 submit-badge.py [--dry-run] [--level LEVEL]
 """
-import json, os, re, sys, time, urllib.parse, urllib.request
+import json
+import os
+import re
+import sys
+import time
+import urllib.parse
+import urllib.request
 
 COOKIE_NAME = '_BadgeApp_session'
-PROJECT_ID = 11718  # Your project ID
+PROJECT_ID = 12345  # Replace with your project ID
 BASE_URL = 'https://www.bestpractices.dev/'
 
 AUTH_TOKEN_PATTERN = re.compile(
