@@ -160,7 +160,7 @@ curl -s "https://www.bestpractices.dev/projects/PROJECT_ID.json" | \
 
 # Or with cache-busting
 curl -s "https://www.bestpractices.dev/projects/PROJECT_ID.json?_=$(date +%s)" | \
-  jq '.badge_level'
+  jq '{badge_level, osps_baseline_level: .tiered_percentage}'
 ```
 
 ---
