@@ -12,6 +12,7 @@ description: "Use when evaluating projects for production readiness, implementin
 - Hardening CI/CD pipelines
 - Establishing quality gates
 - Pursuing OpenSSF Best Practices Badge (Passing/Silver/Gold)
+- Pursuing OpenSSF OSPS Baseline levels (1/2/3)
 - Reviewing code or PRs for quality
 - Writing ADRs, changelogs, or migration guides
 - Configuring Git hooks or CI pipelines
@@ -26,6 +27,7 @@ description: "Use when evaluating projects for production readiness, implementin
 | Codecov | `codecov.io/gh/ORG/REPO/graph/badge.svg` |
 | OpenSSF Scorecard | `api.securityscorecards.dev/projects/github.com/ORG/REPO/badge` |
 | OpenSSF Best Practices | `www.bestpractices.dev/projects/PROJECT_ID/badge` |
+| OpenSSF Baseline | `www.bestpractices.dev/projects/PROJECT_ID/baseline` |
 
 ### Mandatory Workflows
 
@@ -69,6 +71,8 @@ description: "Use when evaluating projects for production readiness, implementin
 | `references/ci-patterns.md` | CI/CD pipelines, Git hooks |
 | `references/openssf-badge-silver.md` | Silver badge criteria |
 | `references/openssf-badge-gold.md` | Gold badge criteria |
+| `references/openssf-badge-baseline.md` | OSPS Baseline levels 1/2/3 |
+| `references/badge-submission-api.md` | Programmatic badge data submission gotchas |
 | `references/slsa-provenance.md` | SLSA Level 3 implementation |
 | `references/signed-releases.md` | Cosign/GPG signing |
 | `references/solo-maintainer-guide.md` | N/A criteria justification |
@@ -85,6 +89,8 @@ description: "Use when evaluating projects for production readiness, implementin
 - **NEVER** guess action versions -- always fetch from GitHub API
 - **ALWAYS** use SHA pins for actions with version comments
 - **ALWAYS** verify commit hashes against official tags
+- **ALWAYS** include `https://` URLs in badge justification text (platform rejects criteria without URLs)
+- **NEVER** URL-decode session cookies when submitting badge data (breaks authentication silently)
 
 ## Related Skills
 

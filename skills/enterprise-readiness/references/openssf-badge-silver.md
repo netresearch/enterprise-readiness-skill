@@ -273,6 +273,27 @@ git tag -v v1.0.0
 
 ---
 
+## URL-Required Justifications
+
+**CRITICAL**: Many Silver criteria require `https://` URLs in the justification text.
+Without URLs, criteria show "Warning: URL required, but no URL found" even when status is "Met".
+
+Silver criteria that commonly need URLs:
+- `dco` — link to DCO check workflow (`.github/workflows/dco.yml`)
+- `governance` — link to CONTRIBUTING.md or GOVERNANCE.md
+- `roles_responsibilities` — link to CODEOWNERS file
+- `access_continuity` — link to GitHub organization members page
+- `bus_factor` — link to contributors graph
+- `documentation_architecture` — link to architecture docs directory
+- `documentation_achievements` — link to README.md showing badges
+- `vulnerability_report_credit` — link to SECURITY.md credit section
+- `coding_standards` — link to linter config or composer.json
+- `external_dependencies` — link to dependency manifest (composer.json, go.mod, package.json)
+
+**Rule**: Always include at least one `https://` URL in every justification.
+
+---
+
 ## Implementation Priority
 
 ### High Priority (Blocking)

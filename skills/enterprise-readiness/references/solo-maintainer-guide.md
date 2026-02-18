@@ -34,14 +34,29 @@ how to implement compensating controls.
 
 | Criterion | Solo Feasibility | Recommendation |
 |-----------|------------------|----------------|
-| `two_person_review` | ❌ N/A | Document compensating controls |
+| `two_person_review` | ❌ Structural blocker | Requires organizational change; compensating controls may not suffice |
+| `security_review` | ❌ Structural blocker | Requires formal external audit within last 5 years |
 | `contributors_unassociated` | ⚠️ N/A | Open contribution policy |
 | `bus_factor` | ⚠️ N/A | Enhanced succession planning |
 | `require_2FA` | ⚠️ Depends | Enable on personal account |
 | `test_statement_coverage90` | ⚠️ Hard | Significant test investment |
 | `test_branch_coverage80` | ⚠️ Hard | Advanced coverage analysis |
-| `build_reproducible` | ✅ Achievable | Use proper build flags |
+| `build_reproducible` | ✅ or N/A | N/A for source-distributed libraries (PHP, Python, npm). Must meet for compiled binaries (Go, Rust). |
 | `security_review` | ✅ Achievable | Self-audit with methodology |
+
+### OSPS Baseline Level 3
+
+| Criterion | Solo Feasibility | Recommendation |
+|-----------|------------------|----------------|
+| `OSPS-QA-07.01` | ❌ Structural blocker | Same as `two_person_review` — requires two-person review |
+| All other Level 3 | ✅ Achievable | SLSA provenance, signed releases, threat model are all solo-achievable |
+
+**Structural Gold Blockers** (cannot be resolved by a solo maintainer alone):
+1. `two_person_review` — needs a second active human reviewer
+2. `security_review` — needs a formal external security audit
+3. `OSPS-QA-07.01` — same requirement as `two_person_review`
+
+These represent the ceiling for solo maintainer projects (~91% Gold, ~95% Baseline 3).
 
 ---
 
