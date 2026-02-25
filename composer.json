@@ -1,6 +1,9 @@
 {
-  "name": "netresearch/agent-enterprise-readiness",
+  "name": "netresearch/enterprise-readiness-skill",
   "description": "Netresearch AI skill for enterprise security assessment, SLSA compliance and quality automation",
+  "replace": {
+    "netresearch/agent-enterprise-readiness": "self.version"
+  },
   "type": "ai-agent-skill",
   "license": "MIT",
   "authors": [
