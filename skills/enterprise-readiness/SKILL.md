@@ -19,33 +19,9 @@ description: "Use when evaluating projects for production readiness, implementin
 
 ## Quick Reference
 
-### Mandatory Badges
-
-| Badge | URL Pattern |
-|-------|-------------|
-| CI Status | `github.com/ORG/REPO/actions/workflows/ci.yml/badge.svg` |
-| Codecov | `codecov.io/gh/ORG/REPO/graph/badge.svg` |
-| OpenSSF Scorecard | `api.securityscorecards.dev/projects/github.com/ORG/REPO/badge` |
-| OpenSSF Best Practices | `www.bestpractices.dev/projects/PROJECT_ID/badge` |
-| OpenSSF Baseline | `www.bestpractices.dev/projects/PROJECT_ID/baseline` |
-
-### Mandatory Workflows
-
-| Workflow | File | Purpose |
-|----------|------|---------|
-| CI | `ci.yml` | Build, test, lint |
-| CodeQL | `codeql.yml` | Security scanning |
-| Scorecard | `scorecard.yml` | OpenSSF Scorecard |
-| Dependency Review | `dependency-review.yml` | PR CVE check |
-
-## Scorecard Quick Wins
-
-| Check | Quick Fix | Impact |
-|-------|-----------|--------|
-| Token-Permissions | `permissions: {}` at workflow-level, `write` only per-job | 0->10 |
-| Branch-Protection | `required_approving_review_count: 1` + auto-approve | 0->8 |
-| Security-Policy | SECURITY.md + private vulnerability reporting | 4->10 |
-| Pinned-Dependencies | SHA-pin all actions (except SLSA generator) | 8->10 |
+Required badges: CI Status, Codecov, OpenSSF Scorecard, Best Practices, Baseline.
+Required workflows: `ci.yml`, `codeql.yml`, `scorecard.yml`, `dependency-review.yml`.
+See `references/badges-and-workflows.md` for URL patterns and Scorecard quick wins.
 
 ## Assessment Workflow
 
@@ -60,6 +36,7 @@ description: "Use when evaluating projects for production readiness, implementin
 
 | Reference | When to Load |
 |-----------|--------------|
+| `references/badges-and-workflows.md` | Badge URLs, workflow list, Scorecard quick wins |
 | `references/general.md` | Always (universal checks) |
 | `references/github.md` | GitHub-hosted projects |
 | `references/go.md` | Go projects |
