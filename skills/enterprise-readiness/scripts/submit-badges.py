@@ -27,6 +27,7 @@ Verification (use /projects/ NOT /en/projects/ for fresh data):
     curl -s "https://www.bestpractices.dev/projects/ID.json?_=$(date +%s)" | \\
       jq '{badge_level, badge_percentage_0, badge_percentage_1, badge_percentage_2}'
 """
+
 import json
 import os
 import re
@@ -36,15 +37,13 @@ import http.cookiejar
 import urllib.parse
 import urllib.request
 
-COOKIE_NAME = '_BadgeApp_session'
-BASE_URL = 'https://www.bestpractices.dev'
+COOKIE_NAME = "_BadgeApp_session"
+BASE_URL = "https://www.bestpractices.dev"
 
 AUTH_TOKEN_PATTERN = re.compile(
     r'<input type="hidden" name="authenticity_token" value="([^"]+)"'
 )
-CSRF_TOKEN_PATTERN = re.compile(
-    r'<meta name="csrf-token" content="([^"]+)"'
-)
+CSRF_TOKEN_PATTERN = re.compile(r'<meta name="csrf-token" content="([^"]+)"')
 # Handle both attribute orderings: name before value AND value before name
 LOCK_VERSION_PATTERN = re.compile(
     r'(?:name="project\[lock_version\]"[^>]*value="([^"]*)"|'
@@ -53,15 +52,19 @@ LOCK_VERSION_PATTERN = re.compile(
 
 # Fields that are auto-detected and CANNOT be submitted
 AUTO_DETECTED_FIELDS = {
-    'homepage_url_status', 'homepage_url_justification',
-    'report_url_status', 'report_url_justification',
+    "homepage_url_status",
+    "homepage_url_justification",
+    "report_url_status",
+    "report_url_justification",
 }
 
 
 class NoRedirectHandler(urllib.request.HTTPErrorProcessor):
     """Prevents following redirects so we can capture Set-Cookie from 302 responses."""
+
     def http_response(self, request, response):
         return response
+
     https_response = http_response
 
 
@@ -69,13 +72,23 @@ def make_opener(cookie):
     """Create urllib opener with cookie jar and no-redirect handling."""
     cj = http.cookiejar.CookieJar()
     c = http.cookiejar.Cookie(
-        version=0, name=COOKIE_NAME, value=cookie,
-        port=None, port_specified=False,
-        domain='www.bestpractices.dev', domain_specified=True,
+        version=0,
+        name=COOKIE_NAME,
+        value=cookie,
+        port=None,
+        port_specified=False,
+        domain="www.bestpractices.dev",
+        domain_specified=True,
         domain_initial_dot=False,
-        path='/', path_specified=True,
-        secure=True, expires=None, discard=True,
-        comment=None, comment_url=None, rest={}, rfc2109=False,
+        path="/",
+        path_specified=True,
+        secure=True,
+        expires=None,
+        discard=True,
+        comment=None,
+        comment_url=None,
+        rest={},
+        rfc2109=False,
     )
     cj.set_cookie(c)
     return urllib.request.build_opener(
@@ -84,15 +97,15 @@ def make_opener(cookie):
     ), cj
 
 
-def get_edit_page(opener, project_id, level='passing'):
+def get_edit_page(opener, project_id, level="passing"):
     """Fetch the edit page and extract CSRF tokens + lock version.
 
     IMPORTANT: Level is required in the URL path for ALL levels including passing.
     Use /en/projects/{id}/passing/edit, NOT /en/projects/{id}/edit.
     """
-    url = f'{BASE_URL}/en/projects/{project_id}/{level}/edit'
+    url = f"{BASE_URL}/en/projects/{project_id}/{level}/edit"
 
-    req = urllib.request.Request(url, method='GET')
+    req = urllib.request.Request(url, method="GET")
     resp = opener.open(req)
     code = resp.getcode()
 
@@ -100,7 +113,7 @@ def get_edit_page(opener, project_id, level='passing'):
         print(f"  WARNING: Got redirect {code} on edit page - cookie may be expired")
         return None, None, None
 
-    html = resp.read().decode('utf-8', errors='replace')
+    html = resp.read().decode("utf-8", errors="replace")
 
     auth_match = AUTH_TOKEN_PATTERN.search(html)
     csrf_match = CSRF_TOKEN_PATTERN.search(html)
@@ -114,50 +127,52 @@ def get_edit_page(opener, project_id, level='passing'):
     return auth_token, csrf_token, lock_version
 
 
-def check_insufficient_criteria(opener, project_id, level='silver'):
+def check_insufficient_criteria(opener, project_id, level="silver"):
     """Check which criteria the platform considers insufficient for the badge.
 
     Uses the _enough img indicators on the edit page.
     Returns list of (criterion_name, alt_text) tuples that are NOT sufficient.
     """
-    url = f'{BASE_URL}/en/projects/{project_id}/{level}/edit'
-    req = urllib.request.Request(url, method='GET')
+    url = f"{BASE_URL}/en/projects/{project_id}/{level}/edit"
+    req = urllib.request.Request(url, method="GET")
     resp = opener.open(req)
 
     if resp.getcode() in (301, 302, 303):
         return []
 
-    html = resp.read().decode('utf-8', errors='replace')
+    html = resp.read().decode("utf-8", errors="replace")
     all_enough = re.findall(r'<img[^>]*id="(\w+)_enough"[^>]*alt="([^"]+)"', html)
-    return [(name, alt) for name, alt in all_enough if 'not' in alt.lower() or 'Not' in alt]
+    return [
+        (name, alt) for name, alt in all_enough if "not" in alt.lower() or "Not" in alt
+    ]
 
 
 def submit_data(opener, project_id, level, data, auth_token, lock_version):
     """Submit badge data via PATCH."""
-    url = f'{BASE_URL}/en/projects/{project_id}/{level}'
+    url = f"{BASE_URL}/en/projects/{project_id}/{level}"
 
     # Build form data
-    form_data = {'_method': 'patch', 'authenticity_token': auth_token}
+    form_data = {"_method": "patch", "authenticity_token": auth_token}
     if lock_version:
-        form_data['project[lock_version]'] = lock_version
+        form_data["project[lock_version]"] = lock_version
 
     for key, value in data.items():
         if key in AUTO_DETECTED_FIELDS:
             continue
-        form_data[f'project[{key}]'] = value
+        form_data[f"project[{key}]"] = value
 
-    encoded = urllib.parse.urlencode(form_data).encode('utf-8')
-    req = urllib.request.Request(url, data=encoded, method='POST')
-    req.add_header('Content-Type', 'application/x-www-form-urlencoded')
+    encoded = urllib.parse.urlencode(form_data).encode("utf-8")
+    req = urllib.request.Request(url, data=encoded, method="POST")
+    req.add_header("Content-Type", "application/x-www-form-urlencoded")
 
     resp = opener.open(req)
     code = resp.getcode()
 
-    body = resp.read().decode('utf-8', errors='replace')
+    body = resp.read().decode("utf-8", errors="replace")
 
     if code in (200,):
-        if 'form contains' in body.lower() and 'error' in body.lower():
-            errors = re.findall(r'<li>(.*?)</li>', body)
+        if "form contains" in body.lower() and "error" in body.lower():
+            errors = re.findall(r"<li>(.*?)</li>", body)
             print(f"  FORM ERRORS: {errors[:5]}")
             return False
         print(f"  Status: {code} (form re-rendered, may have validation issues)")
@@ -172,13 +187,13 @@ def submit_data(opener, project_id, level, data, auth_token, lock_version):
 
 def submit_level(opener, project_id, level, data_file):
     """Submit a single level's badge data."""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Project {project_id} - Level: {level}")
     print(f"Data file: {data_file}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     if not os.path.exists(data_file):
-        print(f"  SKIP: Data file not found")
+        print("  SKIP: Data file not found")
         return False
 
     with open(data_file) as f:
@@ -187,18 +202,18 @@ def submit_level(opener, project_id, level, data_file):
     print(f"  Criteria count: {len(data)}")
 
     # Step 1: Get edit page for CSRF tokens + lock version
-    print(f"  Fetching edit page...")
+    print("  Fetching edit page...")
     auth_token, csrf_token, lock_version = get_edit_page(opener, project_id, level)
 
     if not auth_token:
-        print(f"  ERROR: Could not get auth token - cookie expired?")
+        print("  ERROR: Could not get auth token - cookie expired?")
         return False
 
     print(f"  Auth token: {auth_token[:20]}...")
     print(f"  Lock version: {lock_version}")
 
     if not lock_version:
-        print(f"  WARNING: No lock_version found - submission may silently fail!")
+        print("  WARNING: No lock_version found - submission may silently fail!")
 
     # Step 2: Submit data
     print(f"  Submitting {len(data)} criteria...")
@@ -221,29 +236,31 @@ PROJECTS = {
 
 
 def main():
-    cookie = os.environ.get('BADGE_COOKIE', '')
+    cookie = os.environ.get("BADGE_COOKIE", "")
     if not cookie:
-        cookie_file = '/tmp/badge-cookie.txt'
+        cookie_file = "/tmp/badge-cookie.txt"
         if os.path.exists(cookie_file):
             with open(cookie_file) as f:
                 cookie = f.read().strip()
         if not cookie:
-            print("ERROR: Set BADGE_COOKIE env var or put cookie in /tmp/badge-cookie.txt")
+            print(
+                "ERROR: Set BADGE_COOKIE env var or put cookie in /tmp/badge-cookie.txt"
+            )
             sys.exit(1)
 
     opener, cj = make_opener(cookie)
 
-    if len(sys.argv) >= 2 and sys.argv[1] == '--all':
+    if len(sys.argv) >= 2 and sys.argv[1] == "--all":
         for name, config in PROJECTS.items():
-            for level, data_file in config['levels'].items():
+            for level, data_file in config["levels"].items():
                 if os.path.exists(data_file):
-                    submit_level(opener, config['id'], level, data_file)
+                    submit_level(opener, config["id"], level, data_file)
                     time.sleep(3)  # Rate limiting
-    elif len(sys.argv) >= 2 and sys.argv[1] == '--check':
+    elif len(sys.argv) >= 2 and sys.argv[1] == "--check":
         # Check insufficient criteria for all projects
         for name, config in PROJECTS.items():
-            for level in config['levels']:
-                blockers = check_insufficient_criteria(opener, config['id'], level)
+            for level in config["levels"]:
+                blockers = check_insufficient_criteria(opener, config["id"], level)
                 if blockers:
                     print(f"{name} ({config['id']}) {level}: {len(blockers)} blockers")
                     for n, a in blockers:
@@ -252,16 +269,16 @@ def main():
                     print(f"{name} ({config['id']}) {level}: OK")
     elif len(sys.argv) >= 2:
         project_id = int(sys.argv[1])
-        level = sys.argv[2] if len(sys.argv) > 2 else 'passing'
+        level = sys.argv[2] if len(sys.argv) > 2 else "passing"
         data_file = sys.argv[3] if len(sys.argv) > 3 else None
 
         if data_file:
             submit_level(opener, project_id, level, data_file)
         else:
             for name, config in PROJECTS.items():
-                if config['id'] == project_id:
-                    if level in config['levels']:
-                        submit_level(opener, project_id, level, config['levels'][level])
+                if config["id"] == project_id:
+                    if level in config["levels"]:
+                        submit_level(opener, project_id, level, config["levels"][level])
                     break
     else:
         print("Usage:")
@@ -271,5 +288,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
