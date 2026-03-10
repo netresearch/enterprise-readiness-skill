@@ -69,7 +69,8 @@ The skill triggers on keywords like:
 enterprise-readiness/
 ├── SKILL.md              # AI instructions
 ├── README.md             # This file
-├── LICENSE               # MIT license
+├── LICENSE-MIT           # Code license (MIT)
+├── LICENSE-CC-BY-SA-4.0  # Content license (CC-BY-SA-4.0) license
 ├── composer.json         # PHP distribution
 ├── references/           # OpenSSF criteria documentation
 │   ├── general.md        # Universal checks (60 points)
@@ -94,8 +95,12 @@ Contributions welcome! Please submit PRs for:
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) for details.
+This project uses split licensing:
 
+- **Code** (scripts, workflows, configs): [MIT](LICENSE-MIT)
+- **Content** (skill definitions, documentation, references): [CC-BY-SA-4.0](LICENSE-CC-BY-SA-4.0)
+
+See the individual license files for full terms.
 ## Credits
 
 Developed and maintained by [Netresearch DTT GmbH](https://www.netresearch.de/).

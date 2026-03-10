@@ -1,26 +1,26 @@
 {
-  "name": "netresearch/enterprise-readiness-skill",
-  "description": "Netresearch AI skill for enterprise security assessment, SLSA compliance and quality automation",
-  "replace": {
-    "netresearch/agent-enterprise-readiness": "self.version"
-  },
-  "type": "ai-agent-skill",
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Netresearch DTT GmbH",
-      "homepage": "https://www.netresearch.de/",
-      "role": "Manufacturer"
+    "name": "netresearch/enterprise-readiness-skill",
+    "description": "Netresearch AI skill for enterprise security assessment, SLSA compliance and quality automation",
+    "replace": {
+        "netresearch/agent-enterprise-readiness": "self.version"
+    },
+    "type": "ai-agent-skill",
+    "license": "(MIT AND CC-BY-SA-4.0)",
+    "authors": [
+        {
+            "name": "Netresearch DTT GmbH",
+            "homepage": "https://www.netresearch.de/",
+            "role": "Manufacturer"
+        }
+    ],
+    "require": {
+        "netresearch/composer-agent-skill-plugin": "*"
+    },
+    "extra": {
+        "ai-agent-skill": "skills/enterprise-readiness/SKILL.md"
+    },
+    "support": {
+        "issues": "https://github.com/netresearch/enterprise-readiness-skill/issues",
+        "source": "https://github.com/netresearch/enterprise-readiness-skill"
     }
-  ],
-  "require": {
-    "netresearch/composer-agent-skill-plugin": "*"
-  },
-  "extra": {
-    "ai-agent-skill": "skills/enterprise-readiness/SKILL.md"
-  },
-  "support": {
-    "issues": "https://github.com/netresearch/enterprise-readiness-skill/issues",
-    "source": "https://github.com/netresearch/enterprise-readiness-skill"
-  }
 }
