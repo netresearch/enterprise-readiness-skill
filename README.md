@@ -70,7 +70,7 @@ enterprise-readiness/
 ├── SKILL.md              # AI instructions
 ├── README.md             # This file
 ├── LICENSE-MIT           # Code license (MIT)
-├── LICENSE-CC-BY-SA-4.0  # Content license (CC-BY-SA-4.0) license
+├── LICENSE-CC-BY-SA-4.0  # Content license (CC-BY-SA-4.0)
 ├── composer.json         # PHP distribution
 ├── references/           # OpenSSF criteria documentation
 │   ├── general.md        # Universal checks (60 points)
