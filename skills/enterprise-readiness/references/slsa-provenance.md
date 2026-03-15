@@ -12,7 +12,7 @@ SLSA (Supply-chain Levels for Software Artifacts) Level 3 provides:
 
 ## Approach 1: GitHub Native Attestations (RECOMMENDED)
 
-GitHub's built-in `actions/attest-build-provenance` is the recommended approach as of
+GitHub's built-in `actions/attest-build-provenance` is the recommended approach since
 2025. It is simpler to set up, avoids immutable release conflicts, and stores attestations
 in GitHub's attestation store rather than uploading files to the release.
 
@@ -55,14 +55,18 @@ jobs:
         run: |
           TAG="${{ github.event.release.tag_name }}"
           mkdir -p release-assets
-          gh release download "$TAG" \
-            --repo "${{ github.repository }}" \
-            -D release-assets \
-            --pattern "*.tar.gz" \
-            --pattern "*.zip" || echo "Some assets may not be available"
+          for pattern in "*.tar.gz" "*.zip"; do
+            gh release download "$TAG" \
+              --repo "${{ github.repository }}" \
+              -D release-assets \
+              --pattern "$pattern" 2>/dev/null || {
+                echo "::notice::No assets matching pattern '$pattern' found for $TAG"
+                true
+              }
+          done
 
       - name: Attest release artifacts
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
         with:
           subject-path: 'release-assets/*'
 ```
@@ -176,11 +180,16 @@ jobs:
         run: |
           mkdir -p release-assets
           sleep 5  # Wait for release to be fully available
-          gh release download "${{ steps.version.outputs.version }}" \
-            --repo "${{ github.repository }}" \
-            -D release-assets \
-            --pattern "*.tar.gz" \
-            --pattern "*.zip" || echo "Some assets may not be available"
+          VERSION="${{ steps.version.outputs.version }}"
+          for pattern in "*.tar.gz" "*.zip"; do
+            gh release download "$VERSION" \
+              --repo "${{ github.repository }}" \
+              -D release-assets \
+              --pattern "$pattern" 2>/dev/null || {
+                echo "::notice::No assets matching pattern '$pattern' found for $VERSION"
+                true
+              }
+          done
 
       - name: Generate provenance subjects
         id: subjects
