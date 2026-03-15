@@ -114,6 +114,69 @@ mechanical:
     severity: info
     desc: "Should use SLSA GitHub generator for provenance"
 
+  # === REQUIRED WORKFLOWS ===
+  - id: ER-18
+    type: file_exists
+    target: .github/workflows/ci.yml
+    severity: error
+    desc: "CI workflow (ci.yml) must exist"
+
+  - id: ER-19
+    type: file_exists
+    target: .github/workflows/codeql.yml
+    severity: warning
+    desc: "CodeQL workflow must exist for code scanning"
+
+  - id: ER-20
+    type: file_exists
+    target: .github/workflows/scorecard.yml
+    severity: warning
+    desc: "OpenSSF Scorecard workflow must exist"
+
+  - id: ER-21
+    type: file_exists
+    target: .github/workflows/dependency-review.yml
+    severity: warning
+    desc: "Dependency review workflow must exist"
+
+  # === REQUIRED BADGES ===
+  - id: ER-22
+    type: regex
+    target: README.md
+    pattern: "github.com/.*/actions/workflows"
+    severity: error
+    desc: "README must have CI status badge"
+
+  - id: ER-23
+    type: contains
+    target: README.md
+    pattern: "codecov.io"
+    severity: warning
+    desc: "README must have Codecov badge"
+
+  - id: ER-24
+    type: regex
+    target: README.md
+    pattern: "baseline\\.opensssf\\.org|opensssf\\.org.*baseline"
+    severity: info
+    desc: "README should have OpenSSF Baseline badge"
+
+  # === SCRIPT INJECTION PREVENTION ===
+  - id: ER-25
+    type: regex_not
+    target: .github/workflows/*.yml
+    pattern: 'run:.*\$\{\{\s*github\.event\.'
+    severity: error
+    desc: "Workflows must not interpolate github.event.* in run: blocks (script injection)"
+
+  # === GITHUB ATTESTATION (alternative to SLSA generator) ===
+  - id: ER-26
+    type: regex
+    target: .github/workflows/*.yml
+    pattern: "attest-build-provenance|slsa-github-generator"
+    severity: info
+    desc: "Release workflow should generate provenance attestation"
+
 llm_reviews:
   # === ACTION PINNING (companion to ER-10) ===
   - id: ER-10b
