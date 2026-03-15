@@ -149,7 +149,7 @@ For highest assurance, add SLSA provenance generation.
 
 ```yaml
 - name: Attest release artifacts
-  uses: actions/attest-build-provenance@v2
+  uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
   with:
     subject-path: 'release-assets/*'
 ```
