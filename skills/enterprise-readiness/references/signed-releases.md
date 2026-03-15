@@ -143,7 +143,26 @@ cosign verify-blob \
 
 ## Part 3: SLSA Provenance (Level 3)
 
-For highest assurance, use SLSA provenance generation:
+For highest assurance, add SLSA provenance generation.
+
+### Recommended: GitHub Native Attestations
+
+```yaml
+- name: Attest release artifacts
+  uses: actions/attest-build-provenance@v2
+  with:
+    subject-path: 'release-assets/*'
+```
+
+This stores attestations in GitHub's attestation store (not as release assets),
+avoiding immutable release conflicts. Verify with `gh attestation verify`.
+
+See [slsa-provenance.md](slsa-provenance.md) for the full implementation guide.
+
+### Legacy: slsa-github-generator
+
+> **Note**: Prefer native attestations above. The generator uploads `.intoto.jsonl` to
+> releases, which can conflict with GitHub's immutable release policy (March 2026).
 
 ```yaml
 # Use SLSA GitHub Generator for Go
@@ -181,7 +200,13 @@ cosign verify-blob \
   file
 ```
 
-### Verify SLSA Provenance
+### Verify SLSA Provenance (Native Attestations)
+
+```bash
+gh attestation verify artifact.tar.gz --repo owner/repo
+```
+
+### Verify SLSA Provenance (slsa-github-generator)
 
 ```bash
 slsa-verifier verify-artifact \

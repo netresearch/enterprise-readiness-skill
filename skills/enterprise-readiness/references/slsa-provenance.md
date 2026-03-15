@@ -1,6 +1,6 @@
 # SLSA Level 3 Provenance Implementation Guide
 
-Complete guide for implementing SLSA Level 3 provenance using `slsa-github-generator`.
+Complete guide for implementing SLSA Level 3 provenance.
 
 ## Overview
 
@@ -10,7 +10,120 @@ SLSA (Supply-chain Levels for Software Artifacts) Level 3 provides:
 - Signed attestations via Sigstore
 - Transparency log entries in Rekor
 
-## Basic Workflow Setup
+## Approach 1: GitHub Native Attestations (RECOMMENDED)
+
+GitHub's built-in `actions/attest-build-provenance` is the recommended approach as of
+2025. It is simpler to set up, avoids immutable release conflicts, and stores attestations
+in GitHub's attestation store rather than uploading files to the release.
+
+### Why Prefer Native Attestations
+
+- **No release asset conflicts**: Attestations are stored in GitHub's attestation store,
+  not uploaded to the release. This avoids the immutable release problem entirely.
+- **Simpler workflow**: Single action call, no base64-subjects format to get wrong.
+- **GitHub-native verification**: `gh attestation verify` works out of the box.
+- **SLSA Level 3 compliant**: Meets the same SLSA v1.0 Build Level 3 requirements.
+
+### Basic Workflow Setup
+
+```yaml
+name: SLSA Provenance
+
+on:
+  release:
+    types: [published]
+
+permissions: {}
+
+jobs:
+  provenance:
+    name: Generate SLSA Provenance
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write       # Required for OIDC signing
+      attestations: write   # Required to write attestations
+      contents: read        # Required to read release assets
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
+      - name: Download release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          mkdir -p release-assets
+          gh release download "$TAG" \
+            --repo "${{ github.repository }}" \
+            -D release-assets \
+            --pattern "*.tar.gz" \
+            --pattern "*.zip" || echo "Some assets may not be available"
+
+      - name: Attest release artifacts
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: 'release-assets/*'
+```
+
+### Trigger Options
+
+You can use either `release: published` or `workflow_run`:
+
+```yaml
+# Option A: Direct trigger (simpler, recommended for native attestations)
+on:
+  release:
+    types: [published]
+
+# Option B: After another workflow (if assets are built separately)
+on:
+  workflow_run:
+    workflows: ["Release"]
+    types: [completed]
+```
+
+Unlike slsa-github-generator, native attestations do **not** upload files to the release,
+so there is no race condition with asset uploads — `release: published` is safe.
+
+### Verification
+
+Users can verify provenance using the GitHub CLI:
+
+```bash
+# Verify a downloaded artifact
+gh attestation verify artifact.tar.gz --repo owner/repo
+
+# Verify with explicit OIDC issuer
+gh attestation verify artifact.tar.gz \
+  --repo owner/repo \
+  --signer-workflow owner/repo/.github/workflows/provenance.yml
+```
+
+Attestations are also visible on the repository's attestations page:
+`https://github.com/OWNER/REPO/attestations`
+
+### Migration from slsa-github-generator
+
+To migrate an existing workflow:
+
+1. Replace the two-job setup (subjects + generator) with the single-job native approach
+2. Remove `base64-subjects` generation — no longer needed
+3. Change permissions: replace `contents: write` with `attestations: write` + `contents: read`
+4. Remove `compile-generator` and `private-repository` workarounds
+5. Update verification docs: `slsa-verifier` becomes `gh attestation verify`
+
+## Approach 2: slsa-github-generator (LEGACY)
+
+> **WARNING (March 2026)**: GitHub now treats releases as immutable after the first asset
+> upload. The `slsa-github-generator` uploads `multiple.intoto.jsonl` as a release asset,
+> which can fail with `Cannot upload assets to an immutable release` if the release was
+> already finalized by another workflow. **Prefer Approach 1 (native attestations) for
+> new implementations.** The information below remains valid for existing repos still
+> using the generator.
+
+### Basic Workflow Setup
 
 ```yaml
 name: SLSA Provenance
@@ -102,7 +215,7 @@ jobs:
       private-repository: true
 ```
 
-## Critical Implementation Gotchas
+## Critical Implementation Gotchas (slsa-github-generator)
 
 ### 1. base64-subjects Format (MOST COMMON ERROR)
 
@@ -182,7 +295,7 @@ This ensures:
 - Provenance runs only after successful release
 - Assets are available for download and hashing
 
-## Verification
+## Verification (slsa-github-generator)
 
 Users can verify provenance with `slsa-verifier`:
 
@@ -220,6 +333,7 @@ This release includes SLSA Level 3 provenance. To verify:
 | `Input required: path` | Previous step failed | Check provenance subjects step |
 | No `.intoto.jsonl` uploaded | Generator step failed | Check all above issues |
 | `exit code 27` | Final job aggregation failure | Fix upstream generator errors |
+| `Cannot upload assets to an immutable release` | GitHub immutable releases (March 2026) prevent asset upload after finalization | Switch to Approach 1 (native attestations), or use draft releases that are published after provenance upload |
 
 ## Output Files
 
@@ -256,7 +370,9 @@ Implementing SLSA provenance improves these Scorecard checks:
 ## References
 
 - [SLSA Framework](https://slsa.dev/)
-- [slsa-github-generator](https://github.com/slsa-framework/slsa-github-generator)
+- [GitHub Artifact Attestations](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds)
+- [actions/attest-build-provenance](https://github.com/actions/attest-build-provenance)
+- [slsa-github-generator](https://github.com/slsa-framework/slsa-github-generator) (legacy)
 - [Sigstore](https://www.sigstore.dev/)
 - [Rekor Transparency Log](https://rekor.sigstore.dev/)
 - [slsa-verifier](https://github.com/slsa-framework/slsa-verifier)
