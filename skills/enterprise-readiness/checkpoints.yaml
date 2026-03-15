@@ -13,18 +13,18 @@ mechanical:
     desc: "Security workflow must exist"
 
   - id: ER-02
-    type: contains
+    type: regex
     target: .github/workflows/security.yml
-    pattern: "composer audit"
+    pattern: 'composer.*audit|typo3-ci-workflows'
     severity: error
-    desc: "Security workflow should run composer audit"
+    desc: "Security workflow should run composer audit (or delegate to typo3-ci-workflows)"
 
   - id: ER-03
     type: regex
     target: .github/workflows/security.yml
-    pattern: 'sbom|cyclonedx|syft'
+    pattern: 'sbom|cyclonedx|syft|typo3-ci-workflows'
     severity: warning
-    desc: "Security workflow should generate SBOM"
+    desc: "Security workflow should generate SBOM (or delegate to typo3-ci-workflows)"
 
   # === BADGE CHECKS ===
   - id: ER-04
@@ -94,11 +94,11 @@ mechanical:
 
   # === COVERAGE ===
   - id: ER-13
-    type: contains
+    type: regex
     target: .github/workflows/ci.yml
-    pattern: "codecov"
+    pattern: 'codecov|upload-coverage'
     severity: warning
-    desc: "CI should upload coverage to Codecov"
+    desc: "CI should upload coverage to Codecov (or use upload-coverage input for typo3-ci-workflows)"
 
   - id: ER-14
     type: file_exists
