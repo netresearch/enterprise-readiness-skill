@@ -32,7 +32,10 @@ go install github.com/org/project@latest
 
 ### Option 2: Binary Download
 \`\`\`bash
-curl -sSL https://get.example.com | sh
+# Download installer, inspect it, then execute (never pipe directly to sh)
+curl -sSL https://get.example.com -o install.sh
+less install.sh  # review before running
+bash install.sh
 \`\`\`
 
 ### Option 3: From Source
@@ -222,8 +225,10 @@ jobs:
 
       - name: Extract and run commands
         run: |
-          # Extract code blocks and run them
-          grep -A 10 '```bash' README.md | grep -v '```' | bash -x
+          # Extract code blocks to a file, review, then execute
+          grep -A 10 '```bash' README.md | grep -v '```' > /tmp/extracted-commands.sh
+          cat /tmp/extracted-commands.sh  # log commands for audit
+          bash /tmp/extracted-commands.sh
 ```
 
 ## Badge Criteria Alignment

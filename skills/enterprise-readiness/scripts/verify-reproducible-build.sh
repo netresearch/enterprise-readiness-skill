@@ -1,14 +1,14 @@
 #!/bin/bash
 # verify-reproducible-build.sh - Verify builds are reproducible (bit-for-bit identical)
-# Usage: ./verify-reproducible-build.sh [build-command] [output-binary]
+# Usage: ./verify-reproducible-build.sh [build-type] [output-binary]
 # OpenSSF Badge Criteria: build_reproducible (Gold)
 #
-# SECURITY NOTE: This script uses eval to execute the build command.
-# Only use with trusted build commands. Do not use with untrusted input.
+# SECURITY: Uses an allowlist of known build commands instead of eval.
+# Supported build types: go (default), docker, make, composer, npm
 set -euo pipefail
 
-# Default values for Go projects
-BUILD_CMD="${1:-go build -trimpath -ldflags '-s -w -buildid=' -o binary .}"
+# Build type (not arbitrary command) - validated against allowlist
+BUILD_TYPE="${1:-go}"
 OUTPUT="${2:-binary}"
 
 # Validate that OUTPUT doesn't contain dangerous characters
@@ -16,10 +16,36 @@ if [[ "$OUTPUT" =~ [^a-zA-Z0-9._/-] ]]; then
     echo "Error: Output path contains invalid characters"
     exit 1
 fi
+
+# Execute build command from allowlist - no eval, no arbitrary input
+run_build() {
+    case "$BUILD_TYPE" in
+        go)
+            go build -trimpath -ldflags '-s -w -buildid=' -o "$OUTPUT" .
+            ;;
+        docker)
+            docker build -o "$OUTPUT" .
+            ;;
+        make)
+            make build
+            ;;
+        composer)
+            composer install --no-dev --optimize-autoloader
+            ;;
+        npm)
+            npm run build
+            ;;
+        *)
+            echo "Error: Unknown build type '$BUILD_TYPE'"
+            echo "Supported types: go, docker, make, composer, npm"
+            exit 1
+            ;;
+    esac
+}
 TEMP_DIR=$(mktemp -d)
 
 echo "=== Reproducible Build Verification ==="
-echo "Build command: $BUILD_CMD"
+echo "Build type: $BUILD_TYPE"
 echo "Output file: $OUTPUT"
 echo "Temp directory: $TEMP_DIR"
 echo ""
@@ -44,7 +70,7 @@ compute_hash() {
 
 echo "=== Build 1 ==="
 echo "Building..."
-eval "$BUILD_CMD"
+run_build
 
 if [ ! -f "$OUTPUT" ]; then
     echo "Error: Build output not found: $OUTPUT"
@@ -69,7 +95,7 @@ rm -f "$OUTPUT"
 sleep 1
 
 echo "Building..."
-eval "$BUILD_CMD"
+run_build
 
 if [ ! -f "$OUTPUT" ]; then
     echo "Error: Second build output not found: $OUTPUT"
