@@ -1,0 +1,44 @@
+[
+  {
+    "name": "assess_enterprise_readiness",
+    "prompt": "Assess this project for enterprise readiness and identify gaps",
+    "assertions": [
+      {
+        "type": "content",
+        "pattern": "(OpenSSF|Scorecard|SLSA|SBOM|supply chain)"
+      },
+      {
+        "type": "content",
+        "pattern": "(ci\\.yml|codeql\\.yml|scorecard\\.yml|dependency-review)"
+      }
+    ]
+  },
+  {
+    "name": "setup_slsa_provenance",
+    "prompt": "Set up SLSA provenance for this GitHub repository",
+    "assertions": [
+      {
+        "type": "content",
+        "pattern": "(attest-build-provenance|slsa-github-generator|SLSA Level)"
+      },
+      {
+        "type": "content",
+        "pattern": "(provenance|attestation|signing)"
+      }
+    ]
+  },
+  {
+    "name": "openssf_badge_assessment",
+    "prompt": "Check this project's OpenSSF Best Practices Badge status and what criteria are missing",
+    "assertions": [
+      {
+        "type": "content",
+        "pattern": "(bestpractices\\.coreinfrastructure|OpenSSF|badge)"
+      },
+      {
+        "type": "content",
+        "pattern": "(Passing|Silver|Gold|criteria)"
+      }
+    ]
+  }
+]
