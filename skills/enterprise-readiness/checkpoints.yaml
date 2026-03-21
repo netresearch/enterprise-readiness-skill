@@ -177,6 +177,28 @@ mechanical:
     severity: info
     desc: "Release workflow should generate provenance attestation"
 
+  # === SUPPLY CHAIN SECURITY ===
+  - id: ER-27
+    type: regex
+    target: .github/workflows/*.yml
+    pattern: 'step-security/harden-runner@[a-f0-9]{40}'
+    severity: warning
+    desc: "All workflow jobs should include step-security/harden-runner for egress monitoring (SHA-pinned)"
+
+  - id: ER-28
+    type: regex
+    target: .github/workflows/*.yml
+    pattern: 'uses: [^@]+@[a-f0-9]{40}'
+    severity: critical
+    desc: "All third-party GitHub Actions must be referenced by immutable commit SHA, not tags or branches"
+
+  - id: ER-29
+    type: contains
+    target: .github/dependabot.yml
+    pattern: 'package-ecosystem: "github-actions"'
+    severity: warning
+    desc: "Dependabot must be configured for github-actions package ecosystem to receive SHA update PRs"
+
 llm_reviews:
   # === ACTION PINNING (companion to ER-10) ===
   - id: ER-10b
@@ -199,6 +221,18 @@ llm_reviews:
       3. Check CONTRIBUTING.md for signing requirements
     severity: warning
     desc: "Repository should require signed commits"
+
+  # === HARDEN-RUNNER REVIEW ===
+  - id: ER-27b
+    domain: security
+    prompt: |
+      Verify Harden-Runner configuration in workflow files:
+      1. Every job should have step-security/harden-runner as its FIRST step
+      2. Check egress-policy: prefer 'block' with allowed-endpoints over 'audit'
+      3. Verify harden-runner is SHA-pinned (not tag-referenced)
+      4. If block mode: verify allowed-endpoints are appropriate for the job type
+    severity: warning
+    desc: "Verify Harden-Runner is correctly configured in all workflow jobs with appropriate egress policy"
 
   # === SLSA PROVENANCE REVIEW ===
   - id: ER-17
