@@ -181,23 +181,9 @@ mechanical:
   - id: ER-27
     type: regex
     target: .github/workflows/*.yml
-    pattern: 'step-security/harden-runner@[a-f0-9]{40}'
+    pattern: 'uses:\s*step-security/harden-runner@[a-f0-9]{40}'
     severity: warning
-    desc: "All workflow jobs should include step-security/harden-runner for egress monitoring (SHA-pinned)"
-
-  - id: ER-28
-    type: regex
-    target: .github/workflows/*.yml
-    pattern: 'uses: [^@]+@[a-f0-9]{40}'
-    severity: critical
-    desc: "All third-party GitHub Actions must be referenced by immutable commit SHA, not tags or branches"
-
-  - id: ER-29
-    type: contains
-    target: .github/dependabot.yml
-    pattern: 'package-ecosystem: "github-actions"'
-    severity: warning
-    desc: "Dependabot must be configured for github-actions package ecosystem to receive SHA update PRs"
+    desc: "Workflows should include step-security/harden-runner for egress monitoring, pinned to a commit SHA"
 
 llm_reviews:
   # === ACTION PINNING (companion to ER-10) ===

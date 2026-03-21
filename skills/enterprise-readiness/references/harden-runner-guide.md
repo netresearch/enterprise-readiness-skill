@@ -16,7 +16,7 @@ Logs all outbound connections without blocking anything. Use for:
 
 ```yaml
 - name: Harden-Runner
-  uses: step-security/harden-runner@<sha>
+  uses: step-security/harden-runner@<sha> # vX.Y.Z
   with:
     egress-policy: audit
 ```
@@ -31,7 +31,7 @@ Only allows connections to explicitly listed domains. All other outbound traffic
 
 ```yaml
 - name: Harden-Runner
-  uses: step-security/harden-runner@<sha>
+  uses: step-security/harden-runner@<sha> # vX.Y.Z
   with:
     egress-policy: block
     allowed-endpoints: >
@@ -68,23 +68,26 @@ registry.npmjs.org:443
 ### Docker Builds
 
 ```
-ghcr.io:443
+# Docker Hub
 registry-1.docker.io:443
 auth.docker.io:443
 production.cloudflare.docker.com:443
+
+# GitHub Container Registry
+ghcr.io:443
 ```
 
 ### Trivy Scans
 
 ```
+# GitHub Container Registry (trivy-db download)
 ghcr.io:443
 ```
-
-Trivy downloads its vulnerability database (`trivy-db`) from `ghcr.io`.
 
 ### GitHub Operations
 
 ```
+# GitHub platform
 github.com:443
 api.github.com:443
 uploads.github.com:443
@@ -115,7 +118,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden-Runner
-        uses: step-security/harden-runner@<sha>
+        uses: step-security/harden-runner@<sha> # vX.Y.Z
         with:
           egress-policy: block
           allowed-endpoints: >
@@ -126,7 +129,7 @@ jobs:
             storage.googleapis.com:443
             ghcr.io:443
 
-      - uses: actions/checkout@<sha>
+      - uses: actions/checkout@<sha> # vX.Y.Z
 
       - name: Build
         run: go build ./...
