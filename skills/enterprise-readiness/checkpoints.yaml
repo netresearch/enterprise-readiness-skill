@@ -185,6 +185,14 @@ mechanical:
     severity: warning
     desc: "Workflows should include step-security/harden-runner for egress monitoring, pinned to a commit SHA"
 
+  # === SHA-PINNING VIOLATION DETECTION ===
+  - id: ER-28
+    type: regex_not
+    target: .github/workflows/*.yml
+    pattern: 'uses:\s+[^#\n]+@v\d+(?!\S*[a-f0-9]{40})\s'
+    severity: warning
+    desc: "GitHub Actions must not use tag-only references (@v4, @v6); pin to SHA with version comment (uses: owner/action@<sha> # vX.Y.Z) for supply chain security"
+
 llm_reviews:
   # === ACTION PINNING (companion to ER-10) ===
   - id: ER-10b
