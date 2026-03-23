@@ -10,7 +10,7 @@ Proven playbook to raise OpenSSF Scorecard from ~6.8 to ~9.0. Applied successful
 | Branch-Protection | Set `required_approving_review_count: 1` + auto-approve + protect release branches | 0->8 |
 | Code-Review | Automatic after Branch-Protection fix | 5->10 |
 | Security-Policy | Private vulnerability reporting + coordinated disclosure | 4->10 |
-| Pinned-Dependencies | SHA-pin all actions (except SLSA generator) | 8->10 |
+| Pinned-Dependencies | SHA-pin all actions; use `actions/attest-build-provenance` instead of `slsa-github-generator` | 8->10 |
 | Fuzzing | Not practical for PHP/TYPO3 -- skip | 0 (accept) |
 | CII-Best-Practices | Complete questionnaire at bestpractices.dev | 2->6+ |
 
@@ -51,14 +51,16 @@ gh api repos/OWNER/REPO/rulesets/RULESET_ID -X PUT --input - <<'EOF'
     "parameters": {
       "required_approving_review_count": 1,
       "dismiss_stale_reviews_on_push": true,
-      "require_code_owner_review": false,
-      "require_last_push_approval": true,
+      "require_code_owner_review": true,
+      "require_last_push_approval": false,
       "required_review_thread_resolution": true
     }
   }]
 }
 EOF
 ```
+
+> **`require_last_push_approval` MUST be `false` with merge queues.** The merge queue creates a new merge commit (a new "push") which dismisses the existing approval. The auto-approve bot cannot re-approve within the merge queue context, permanently blocking PRs. Verified on [netresearch/ofelia#543](https://github.com/netresearch/ofelia/pull/543).
 
 **Release branch ruleset** (e.g., `TYPO3_*`, `release/*`):
 
@@ -75,8 +77,8 @@ gh api repos/OWNER/REPO/rulesets -X POST --input - <<'EOF'
     {"type": "pull_request", "parameters": {
       "required_approving_review_count": 1,
       "dismiss_stale_reviews_on_push": true,
-      "require_code_owner_review": false,
-      "require_last_push_approval": true,
+      "require_code_owner_review": true,
+      "require_last_push_approval": false,
       "required_review_thread_resolution": true,
       "allowed_merge_methods": ["merge"]
     }},
@@ -97,7 +99,9 @@ gh api repos/OWNER/REPO/branches/main/protection/enforce_admins -X POST
 
 Pair with `pr-quality.yml` auto-approve workflow (see `github-project` skill) that approves non-fork PRs via `github-actions[bot]`.
 
-**Codeowner review incompatibility:** `require_code_owner_review: true` is **incompatible** with bot auto-approve workflows. `github-actions[bot]` (GITHUB_TOKEN) is not a codeowner -- its APPROVED review does not satisfy the codeowner requirement, permanently blocking all PRs. Verified on [t3x-rte_ckeditor_image#629](https://github.com/netresearch/t3x-rte_ckeditor_image/pull/629). Keep this `false` when using auto-approve.
+**Codeowner review:** `require_code_owner_review: true` works when the CODEOWNERS file lists the solo maintainer (`@username`) or a team they belong to. The auto-approve bot's approval satisfies the "approved review" requirement, and the codeowner rule is satisfied because the PR author IS the codeowner. Ensure the CODEOWNERS file exists on the default branch BEFORE enabling this rule.
+
+> **Previous finding (outdated):** We previously reported that `require_code_owner_review` was incompatible with bot auto-approve. This was because the CODEOWNERS file didn't exist on the default branch when the rule was enabled. With CODEOWNERS properly configured, it works. Verified on [netresearch/ofelia](https://github.com/netresearch/ofelia) (2026-03-23).
 
 **Unresolved review threads:** `required_review_thread_resolution: true` will block merge if automated reviewers (Gemini Code Assist, Copilot) leave unresolved threads. Resolve via:
 
@@ -107,7 +111,6 @@ gh api graphql -f query='mutation { resolveReviewThread(input: {threadId: "PRRT_
 
 **Remaining scorecard warnings (unfixable for solo maintainer):**
 - `required approving review count is 1` -- scorecard wants >= 2, impractical without human reviewers
-- `codeowners review is not required` -- incompatible with bot auto-approve (see above)
 
 ## Security-Policy (4->10)
 
@@ -142,11 +145,13 @@ Enable private vulnerability reporting:
 gh api repos/OWNER/REPO/private-vulnerability-reporting -X PUT
 ```
 
-## SLSA Generator Pinning Exception
+## SLSA Provenance: Migrate from slsa-github-generator to actions/attest
 
-The `slsa-framework/slsa-github-generator` reusable workflow **cannot be SHA-pinned**. It MUST use `@vX.Y.Z` tags -- the slsa-verifier needs the tag to verify trusted builder identity. This is a known GitHub Actions limitation tracked as [slsa-verifier#12](https://github.com/slsa-framework/slsa-verifier/issues/12).
+`slsa-framework/slsa-github-generator` **cannot be SHA-pinned** — known unfixable limitation ([#4440](https://github.com/slsa-framework/slsa-github-generator/issues/4440)). Its internal actions use tag refs that conflict with SHA-pinning rulesets.
 
-Accept this as an unavoidable Pinned-Dependencies gap (score stays at 8, not 10).
+**Migration path:** Replace with `actions/attest-build-provenance` (v4.1.0+), fully SHA-pinnable. For SLSA Build Level 3, host the build+attest workflow as a **reusable workflow in the org `.github` repo**. This provides true L3 isolation — callers cannot modify the build process. Verification uses `gh attestation verify` instead of `slsa-verifier`.
+
+This eliminates the Pinned-Dependencies gap entirely (score can reach 10/10).
 
 ## Checks Not Worth Fixing
 
