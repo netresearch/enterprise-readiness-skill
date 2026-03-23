@@ -44,9 +44,9 @@ mechanical:
   - id: ER-06
     type: regex
     target: README.md
-    pattern: 'slsa\.dev|slsa-github-generator'
+    pattern: 'slsa\.dev|slsa-github-generator|attestation'
     severity: info
-    desc: "README should have SLSA badge (if SLSA provenance enabled)"
+    desc: "README should have SLSA badge or mention attestation (if provenance enabled)"
 
   # === DEPENDENCY MANAGEMENT ===
   - id: ER-07
@@ -110,9 +110,9 @@ mechanical:
   - id: ER-15
     type: regex
     target: .github/workflows/*.yml
-    pattern: 'slsa-github-generator'
+    pattern: 'attest-build-provenance|attest@|build-go-attest|slsa-github-generator'
     severity: info
-    desc: "Should use SLSA GitHub generator for provenance"
+    desc: "Should use actions/attest-build-provenance or org reusable attest workflow (preferred) or slsa-github-generator for provenance"
 
   # === REQUIRED WORKFLOWS ===
   - id: ER-18
@@ -169,13 +169,21 @@ mechanical:
     severity: error
     desc: "Workflows must not interpolate github.event.* in run: blocks (script injection)"
 
-  # === GITHUB ATTESTATION (alternative to SLSA generator) ===
+  # === GITHUB ATTESTATION ===
   - id: ER-26
     type: regex
     target: .github/workflows/*.yml
-    pattern: "attest-build-provenance|slsa-github-generator"
+    pattern: "attest-build-provenance|attest@|slsa-github-generator"
     severity: info
-    desc: "Release workflow should generate provenance attestation"
+    desc: "Release workflow should generate provenance attestation (prefer actions/attest-build-provenance over slsa-github-generator)"
+
+  # === SLSA-GENERATOR DEPRECATION CHECK ===
+  - id: ER-29
+    type: regex_not
+    target: .github/workflows/*.yml
+    pattern: 'slsa-framework/slsa-github-generator'
+    severity: warning
+    desc: "Should migrate from slsa-github-generator to actions/attest-build-provenance (slsa-github-generator cannot be SHA-pinned, see slsa-framework/slsa-github-generator#4440)"
 
   # === SUPPLY CHAIN SECURITY ===
   - id: ER-27
@@ -233,8 +241,12 @@ llm_reviews:
     domain: security
     prompt: |
       Verify SLSA provenance setup if present:
-      1. Check for slsa-github-generator workflow
-      2. Verify base64-subjects format is correct (sha256sum output, not JSON)
-      3. Check for compile-generator: true if needed
+      1. Preferred: actions/attest-build-provenance in a reusable workflow
+         hosted in the org .github repo (SLSA Build Level 3)
+      2. Legacy: slsa-github-generator — should be migrated away due to
+         SHA-pinning incompatibility (slsa-framework/slsa-github-generator#4440)
+      3. If using actions/attest: verify it's SHA-pinned and has
+         id-token: write + attestations: write permissions
+      4. Verification should use `gh attestation verify` (not slsa-verifier)
     severity: info
-    desc: "SLSA provenance should be correctly configured"
+    desc: "SLSA provenance should use actions/attest-build-provenance (preferred) or slsa-github-generator"
