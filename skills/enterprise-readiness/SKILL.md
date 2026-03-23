@@ -5,7 +5,7 @@ license: "(MIT AND CC-BY-SA-4.0). See LICENSE-MIT and LICENSE-CC-BY-SA-4.0"
 compatibility: "Requires gh CLI, python3, cosign, docker."
 metadata:
   author: Netresearch DTT GmbH
-  version: "4.6.0"
+  version: "4.7.0"
   repository: https://github.com/netresearch/enterprise-readiness-skill
 allowed-tools: Bash(gh:*) Bash(python3:*) Bash(cosign:*) Read Write Glob Grep
 ---
