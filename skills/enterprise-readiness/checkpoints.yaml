@@ -30,7 +30,7 @@ mechanical:
   - id: ER-04
     type: regex
     target: README.md
-    pattern: 'scorecard\.dev|api\.scorecard\.dev'
+    pattern: 'scorecard\.dev|securityscorecards\.dev|api\.scorecard\.dev'
     severity: warning
     desc: "README should have OpenSSF Scorecard badge"
 
@@ -56,16 +56,16 @@ mechanical:
     desc: "Dependabot should be configured"
 
   - id: ER-08
-    type: contains
+    type: regex
     target: .github/dependabot.yml
-    pattern: 'package-ecosystem: "composer"'
+    pattern: 'package-ecosystem:\s*"?(composer|gomod|npm|pip)"?'
     severity: warning
-    desc: "Dependabot should monitor composer dependencies"
+    desc: "Dependabot should monitor language-specific dependencies (composer, gomod, npm, pip)"
 
   - id: ER-09
-    type: contains
+    type: regex
     target: .github/dependabot.yml
-    pattern: 'package-ecosystem: "github-actions"'
+    pattern: 'package-ecosystem:\s*"?github-actions"?'
     severity: warning
     desc: "Dependabot should monitor GitHub Actions"
 
@@ -157,7 +157,7 @@ mechanical:
   - id: ER-24
     type: regex
     target: README.md
-    pattern: "baseline\\.opensssf\\.org|opensssf\\.org.*baseline"
+    pattern: "baseline\\.openssf\\.org|openssf\\.org.*baseline"
     severity: info
     desc: "README should have OpenSSF Baseline badge"
 
