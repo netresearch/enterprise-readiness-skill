@@ -70,12 +70,17 @@ mechanical:
     desc: "Dependabot should monitor GitHub Actions"
 
   # === ACTION PINNING ===
+  # IMPORTANT: Only THIRD-PARTY actions need SHA-pinning.
+  # Org-internal reusable workflows (org/repo/.github/workflows/*.yml@main)
+  # MUST use @main or @tag — SHA-pinning them degrades security by breaking
+  # centralized update propagation. A pinned org-internal reusable workflow
+  # is itself a finding (anti-pattern).
   - id: ER-10
     type: regex
     target: .github/workflows/*.yml
     pattern: 'uses: [^@]+@[a-f0-9]{40}'
     severity: warning
-    desc: "GitHub Actions should be pinned to SHA. Exception: org-internal reusable workflows may use @main or @tag"
+    desc: "Third-party GitHub Actions must be pinned to SHA. Org-internal reusable workflows MUST use @main or @tag (NOT SHA-pinned — pinning breaks centralized security updates)"
 
   # === WORKFLOW PERMISSIONS ===
   - id: ER-11
@@ -208,10 +213,12 @@ llm_reviews:
     prompt: |
       Check GitHub Actions pinning in workflow files:
       1. Third-party actions (e.g., actions/checkout, codecov/codecov-action) MUST be pinned to SHA
-      2. Org-internal reusable workflows (uses: org/repo/.github/workflows/*.yml@ref) MAY use @main or @tag
+      2. Org-internal reusable workflows (uses: org/repo/.github/workflows/*.yml@ref) MUST use @main or @tag — this is CORRECT and REQUIRED, NOT a finding
       3. Flag any third-party action using a tag (e.g., @v4) or branch instead of SHA
+      4. Do NOT flag org-internal reusable workflows using @main — SHA-pinning them is an ANTI-PATTERN that breaks centralized security update propagation
+      5. If an org-internal reusable workflow IS SHA-pinned, flag THAT as a warning (defeats the purpose of centralized workflow management)
     severity: warning
-    desc: "Verify third-party actions are SHA-pinned. Org-internal reusable workflows (uses: org/repo/.github/workflows/) may reference @main or tags."
+    desc: "Verify third-party actions are SHA-pinned. Org-internal reusable workflows MUST use @main or @tag (pinning them is an anti-pattern)."
 
   # === SIGNED COMMITS ===
   - id: ER-16
