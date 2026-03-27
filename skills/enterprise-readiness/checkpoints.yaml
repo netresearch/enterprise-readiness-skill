@@ -206,6 +206,37 @@ mechanical:
     severity: warning
     desc: "GitHub Actions must not use tag-only references (@v4, @v6); pin to SHA with version comment (uses: owner/action@<sha> # vX.Y.Z) for supply chain security"
 
+  # === CI DUPLICATE RUN PREVENTION ===
+  - id: ER-30
+    type: regex_not
+    target: .github/workflows/*.yml
+    pattern: 'on:\s*\n\s+push:\s*\n\s+pull_request:'
+    severity: warning
+    desc: "Workflows with both push and pull_request triggers must scope push to specific branches (e.g., push: branches: [main]) to prevent duplicate CI runs on PR branch pushes"
+
+  # === PHPSTAN BASELINE ===
+  - id: ER-31
+    type: file_exists
+    target: phpstan-baseline.neon
+    severity: info
+    desc: "PHPStan baseline file should exist for projects using PHPStan (tracks known issues)"
+
+  # === CODECOV CONFIG ===
+  - id: ER-32
+    type: regex
+    target: codecov.yml
+    pattern: 'patch:'
+    severity: info
+    desc: "Codecov config should define patch coverage target for realistic new-code coverage thresholds"
+
+  # === REUSABLE WORKFLOW SHA-PINNING ===
+  - id: ER-33
+    type: regex_not
+    target: .github/workflows/*.yml
+    pattern: 'uses:\s+[^/]+/[^/]+/\.github/workflows/[^@]+@v\d+'
+    severity: warning
+    desc: "Third-party reusable workflows must be pinned to commit SHAs, not tags, for supply chain security"
+
 llm_reviews:
   # === ACTION PINNING (companion to ER-10) ===
   - id: ER-10b
@@ -242,6 +273,18 @@ llm_reviews:
       4. If block mode: verify allowed-endpoints are appropriate for the job type
     severity: warning
     desc: "Verify Harden-Runner is correctly configured in all workflow jobs with appropriate egress policy"
+
+  # === PHPUNIT VERSION COMPATIBILITY ===
+  - id: ER-34
+    domain: testing
+    prompt: |
+      Check for PHPUnit version compatibility issues:
+      1. Review composer.json for PHPUnit version constraints — broad ranges like "^11.0 || ^12.0" risk cross-version attribute failures
+      2. Check test files for PHPUnit 12-only attributes (e.g., #[AllowMockObjectsWithoutExpectations]) that break on PHPUnit 11
+      3. Verify CI matrix includes the lowest supported PHP version, which may pull an older PHPUnit
+      4. Flag any PHPUnit attribute not available in the minimum supported PHPUnit version
+    severity: warning
+    desc: "PHPUnit attributes and features must be compatible with all PHPUnit versions resolved across the CI PHP version matrix"
 
   # === SLSA PROVENANCE REVIEW ===
   - id: ER-17

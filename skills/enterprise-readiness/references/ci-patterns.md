@@ -104,6 +104,31 @@ pre-push:
 └─────────────────────────────────────────────────────────────┘
 ```
 
+### Preventing Duplicate CI Runs
+
+When a workflow triggers on both `push:` and `pull_request:`, pushing to a PR branch
+causes every job to run **twice** -- once for the push event and once for the
+pull_request event. This wastes CI minutes and clutters the checks list.
+
+**Fix:** Restrict `push:` to protected branches only:
+
+```yaml
+on:
+  push:
+    branches: [main]      # Only run on pushes to main (merge commits)
+  pull_request:            # Runs on PR open/sync — covers feature branches
+```
+
+**Anti-pattern** (causes duplicate runs):
+```yaml
+on:
+  push:                    # BAD: triggers on ALL branch pushes including PR branches
+  pull_request:
+```
+
+This applies to all workflow files, not just `ci.yml`. Audit every `.github/workflows/*.yml`
+for unscoped `push:` triggers.
+
 ### GitHub Actions Example
 
 ```yaml
@@ -268,6 +293,33 @@ coverage: {
     diff-cover coverage.xml --compare-branch=origin/main --fail-under=90
 ```
 
+### Codecov Patch Coverage Configuration
+
+Codecov's `patch` target checks coverage on **new/changed lines only**. Set a
+realistic threshold -- lines that require specific PHP extensions (GD, Imagick) or
+a full TYPO3 bootstrap may be uncoverable in some CI matrix entries but covered in
+others.
+
+```yaml
+# codecov.yml
+coverage:
+  status:
+    project:
+      default:
+        target: 80%
+    patch:
+      default:
+        target: 60%          # Realistic for extension code with environment deps
+        threshold: 5%        # Allow 5% drop before failing
+```
+
+**Key considerations:**
+- Lines behind `extension_loaded('gd')` guards may show as uncovered in matrix
+  entries without that extension
+- TYPO3 integration tests may cover code that unit tests cannot reach
+- Set `patch.target` based on what your CI matrix actually covers, not aspirational goals
+- Use Codecov flags to separate unit vs integration coverage for clearer reporting
+
 ### PR Quality Requirements
 
 ```yaml
@@ -292,7 +344,66 @@ branch_protection:
   required_signatures: true      # Signed commits
 ```
 
-## 4. Multi-Platform Testing
+## 4. PHPStan Baseline Management
+
+### Generating a Baseline
+
+Capture all existing issues so new code is held to a higher standard:
+
+```bash
+# Generate baseline from current state
+vendor/bin/phpstan analyse --generate-baseline
+
+# When codebase is already clean, allow empty baseline
+vendor/bin/phpstan analyse --generate-baseline --allow-empty-baseline
+```
+
+This creates `phpstan-baseline.neon` (or the configured path) containing all
+currently-known errors, which PHPStan then ignores on subsequent runs.
+
+### Baseline CI Strategy
+
+The baseline should **shrink over time, never grow**. Track this in CI:
+
+```yaml
+- name: PHPStan analysis
+  run: vendor/bin/phpstan analyse --no-progress
+
+- name: Check baseline size
+  run: |
+    if [ -f phpstan-baseline.neon ]; then
+      IGNORED=$(grep -c 'message:' phpstan-baseline.neon || echo 0)
+      echo "PHPStan baseline: $IGNORED ignored errors"
+      # Optional: fail if baseline grew
+      # Compare against a known count stored in a tracking file
+    fi
+```
+
+### Baseline Best Practices
+
+| Practice | Description |
+|----------|-------------|
+| **Goal: empty baseline** | `ignoreErrors: []` means all issues resolved |
+| **Never add new entries** | Fix new issues immediately; only existing code gets a pass |
+| **Review baseline in PRs** | Any PR that increases baseline size needs justification |
+| **Track count over time** | Log baseline error count as a CI metric |
+| **Use `--allow-empty-baseline`** | Required when generating baseline on a clean codebase |
+
+### PHPStan Configuration Example
+
+```neon
+# phpstan.neon
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: max
+    paths:
+        - Classes
+    tmpDir: .Build/phpstan
+```
+
+## 5. Multi-Platform Testing
 
 ### OS Matrix Strategy
 
@@ -323,7 +434,7 @@ strategy:
         latest: true  # Upload coverage only from latest
 ```
 
-## 5. Flaky Test Prevention
+## 6. Flaky Test Prevention
 
 ### CI-Specific Test Configuration
 
@@ -359,7 +470,7 @@ strategy:
     done
 ```
 
-## 6. Caching Strategy
+## 7. Caching Strategy
 
 ### Go Caching
 
@@ -389,7 +500,7 @@ strategy:
     cache: 'npm'
 ```
 
-## 7. Signed Commits Enforcement
+## 8. Signed Commits Enforcement
 
 ### Problem: GitHub Can't Sign Rebase Merges
 
@@ -438,6 +549,44 @@ jobs:
           git checkout main
           git merge origin/${{ github.head_ref }} --ff-only
           git push origin main
+```
+
+## 9. Reusable Workflow Pinning
+
+### Supply Chain Security for Reusable Workflows
+
+All `uses:` references to **third-party** reusable workflows must be pinned to
+commit SHAs, just like regular actions:
+
+```yaml
+# BAD: tag reference is mutable (supply chain risk)
+jobs:
+  ci:
+    uses: org/shared-workflows/.github/workflows/ci.yml@main
+    uses: org/shared-workflows/.github/workflows/ci.yml@v2
+
+# GOOD: SHA-pinned (immutable reference)
+jobs:
+  ci:
+    uses: org/shared-workflows/.github/workflows/ci.yml@abc123def456... # v2.1.0
+```
+
+### Exception: Org-Internal Workflows
+
+Org-internal reusable workflows (maintained by the same organization) **should use
+`@main` or `@tag`**, not SHAs. SHA-pinning org-internal workflows is an
+**anti-pattern** because it breaks centralized security update propagation.
+
+See `checkpoints.yaml` ER-10 for the enforcement rule.
+
+### Auditing Workflow References
+
+```bash
+# Find all reusable workflow references
+grep -rn 'uses:.*\.github/workflows/.*\.yml@' .github/workflows/
+
+# Find unpinned references (tag or branch, no SHA)
+grep -rn 'uses:.*\.github/workflows/.*\.yml@' .github/workflows/ | grep -v '@[a-f0-9]\{40\}'
 ```
 
 ## Related References
