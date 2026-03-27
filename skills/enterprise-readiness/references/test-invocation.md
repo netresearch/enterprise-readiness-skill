@@ -132,6 +132,64 @@ jobs:
     fi
 ```
 
+## PHPUnit Version Compatibility in CI
+
+### Problem: Attributes Differ Between Major Versions
+
+PHPUnit 12 introduced new attributes (e.g., `#[AllowMockObjectsWithoutExpectations]`)
+that do not exist in PHPUnit 11. When a CI matrix tests multiple PHP versions, each
+PHP version may resolve a different PHPUnit major version via Composer constraints.
+
+**Example failure:**
+```
+PHP 8.2 + PHPUnit 11: #[AllowMockObjectsWithoutExpectations] → "Unknown attribute"
+PHP 8.4 + PHPUnit 12: works fine
+```
+
+### Best Practices
+
+| Practice | Description |
+|----------|-------------|
+| **Test with lowest PHP version** | Always include the minimum supported PHP in the CI matrix |
+| **Pin PHPUnit major range** | Use `"phpunit/phpunit": "^11.0"` not `"^11.0 \|\| ^12.0"` unless you actively support both |
+| **Guard version-specific attributes** | Use `#[RequiresPhpunit('12')]` or conditional logic |
+| **CI matrix awareness** | Know which PHPUnit version each PHP version pulls in |
+
+### CI Matrix Example (PHP)
+
+```yaml
+strategy:
+  matrix:
+    php-version: ['8.2', '8.3', '8.4']
+
+steps:
+  - name: Install dependencies
+    run: composer install --no-progress
+
+  - name: Show PHPUnit version
+    run: .Build/bin/phpunit --version   # Log which version is active
+
+  - name: Run tests
+    run: .Build/bin/phpunit -c Build/phpunit/UnitTests.xml
+```
+
+### Version-Safe Test Code
+
+```php
+// Instead of using PHPUnit 12-only attributes unconditionally:
+// #[AllowMockObjectsWithoutExpectations]  // Breaks on PHPUnit 11
+
+// Option 1: Use setUp() method (works across versions)
+protected function setUp(): void
+{
+    $this->mock = $this->createMock(SomeClass::class);
+    $this->mock->expects(self::any())->method('someMethod');
+}
+
+// Option 2: Conditionally apply based on PHPUnit version
+// Only use version-specific attributes when you control the PHPUnit constraint
+```
+
 ## Assertions
 
 ### Go Assertions
