@@ -303,9 +303,9 @@ llm_reviews:
 
   # === PHPSTAN BASELINE CONTENT QUALITY ===
   - id: ER-35
-    type: llm_review
     domain: quality
     prompt: |
+      If PHPStan is not configured in the project (no phpstan.neon, no phpstan in composer.json require-dev), report N/A and skip this check.
       Review PHPStan baseline file for quality:
       1. Check if phpstan-baseline.neon exists and contains ignoreErrors entries
       2. An empty baseline (ignoreErrors: []) is the ideal state — all issues fixed
@@ -316,14 +316,14 @@ llm_reviews:
     severity: warning
     desc: "PHPStan baseline should be empty (ignoreErrors: []). All static analysis issues should be fixed, not suppressed. Review entries and plan to eliminate them"
 
-  # === REUSABLE WORKFLOW SHA PINNING CONTEXT ===
+  # === REUSABLE WORKFLOW SHA PINNING (complements ER-10b for reusable workflows) ===
   - id: ER-36
-    type: llm_review
     domain: security
     prompt: |
-      Review reusable workflow pinning strategy in .github/workflows/:
+      Review reusable workflow references (pattern: uses: org/repo/.github/workflows/file.yml@ref) in .github/workflows/:
+      This checkpoint complements ER-10b (which covers GitHub Actions) by specifically targeting reusable workflow references.
       1. Third-party reusable workflows (external organizations) MUST be SHA-pinned for supply chain security
-      2. Org-internal reusable workflows (same GitHub org) SHOULD use @main or @tag, NOT SHA-pinned
+      2. Org-internal reusable workflows (same GitHub org) MUST use @main or @tag, NOT SHA-pinned
       3. SHA-pinning org-internal workflows is an anti-pattern — it breaks centralized security update propagation
       4. Flag: third-party workflow using @v tag without SHA (e.g., uses: external/repo/.github/workflows/ci.yml@v2)
       5. Flag: org-internal workflow using SHA pin (e.g., uses: myorg/workflows/.github/workflows/ci.yml@abc123)
@@ -331,7 +331,7 @@ llm_reviews:
          - Third-party: uses: external/repo/.github/workflows/ci.yml@abc123def456 # v2.1.0
          - Org-internal: uses: myorg/workflows/.github/workflows/ci.yml@main
     severity: warning
-    desc: "Third-party reusable workflows must use SHA pins. Org-internal workflows must use @main/@tag for centralized security updates"
+    desc: "Third-party reusable workflows MUST use SHA pins. Org-internal reusable workflows MUST use @main/@tag for centralized security updates"
 
   # === NPM DEPENDENCY MONITORING ===
   - id: ER-37
