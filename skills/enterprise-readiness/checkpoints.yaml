@@ -332,3 +332,30 @@ llm_reviews:
          - Org-internal: uses: myorg/workflows/.github/workflows/ci.yml@main
     severity: warning
     desc: "Third-party reusable workflows must use SHA pins. Org-internal workflows must use @main/@tag for centralized security updates"
+
+  # === NPM DEPENDENCY MONITORING ===
+  - id: ER-37
+    name: npm audit runs in CI when package.json exists
+    type: llm_review
+    severity: warning
+    domain: supply-chain
+    prompt: |
+      If package.json exists in the project root or Build/ directory:
+      1. Check that CI workflow runs `npm audit` or equivalent
+      2. Check that .github/dependabot.yml includes npm ecosystem
+      3. Check that npm dependencies are not excessively outdated (>2 major versions)
+    tags: [npm, supply-chain, dependencies, ci]
+
+  - id: ER-38
+    name: Dependabot configured for all dependency ecosystems
+    type: llm_review
+    severity: info
+    domain: supply-chain
+    prompt: |
+      Check .github/dependabot.yml covers ALL dependency ecosystems in use:
+      - composer (if composer.json exists)
+      - npm (if package.json exists)
+      - github-actions (if .github/workflows/ exists)
+      - docker (if Dockerfile exists)
+      Report any missing ecosystem configurations.
+    tags: [dependabot, supply-chain, dependencies]
