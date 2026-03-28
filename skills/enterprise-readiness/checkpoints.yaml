@@ -207,19 +207,14 @@ mechanical:
     desc: "GitHub Actions must not use tag-only references (@v4, @v6); pin to SHA with version comment (uses: owner/action@<sha> # vX.Y.Z) for supply chain security"
 
   # === CI DUPLICATE RUN PREVENTION ===
-  - id: ER-30
-    type: regex_not
-    target: .github/workflows/*.yml
-    pattern: 'on:\s*\n\s+push:\s*\n\s+pull_request:'
-    severity: warning
-    desc: "Workflows with both push and pull_request triggers must scope push to specific branches (e.g., push: branches: [main]) to prevent duplicate CI runs on PR branch pushes"
+  # ER-30 moved to llm_reviews — mechanical regex cannot reliably detect duplicate CI triggers
 
   # === PHPSTAN BASELINE ===
   - id: ER-31
     type: file_exists
     target: phpstan-baseline.neon
     severity: info
-    desc: "PHPStan baseline file should exist for projects using PHPStan (tracks known issues)"
+    desc: "PHPStan baseline file should exist for projects using PHPStan (tracks known issues). Only applicable when PHPStan is configured in the project."
 
   # === CODECOV CONFIG ===
   - id: ER-32
@@ -230,12 +225,7 @@ mechanical:
     desc: "Codecov config should define patch coverage target for realistic new-code coverage thresholds"
 
   # === REUSABLE WORKFLOW SHA-PINNING ===
-  - id: ER-33
-    type: regex_not
-    target: .github/workflows/*.yml
-    pattern: 'uses:\s+[^/]+/[^/]+/\.github/workflows/[^@]+@v\d+'
-    severity: warning
-    desc: "Third-party reusable workflows must be pinned to commit SHAs, not tags, for supply chain security"
+  # ER-33 moved to llm_reviews — mechanical regex cannot distinguish org-internal vs third-party workflows
 
 llm_reviews:
   # === ACTION PINNING (companion to ER-10) ===
@@ -332,6 +322,33 @@ llm_reviews:
          - Org-internal: uses: myorg/workflows/.github/workflows/ci.yml@main
     severity: warning
     desc: "Third-party reusable workflows MUST use SHA pins. Org-internal reusable workflows MUST use @main/@tag for centralized security updates"
+
+  # === CI DUPLICATE RUN PREVENTION ===
+  - id: ER-30
+    domain: ci
+    prompt: |
+      Check GitHub Actions workflow files for duplicate CI run issues:
+      1. Find workflows that trigger on BOTH push: and pull_request:
+      2. If push: is present WITHOUT branch restrictions (e.g., branches: [main]),
+         pushing to a PR branch causes every job to run TWICE
+      3. Flag workflows where push: is unrestricted while pull_request: is also present
+      4. Do NOT flag workflows where push: is scoped to specific branches (e.g., push: branches: [main])
+      5. Do NOT flag workflows that only have one trigger
+    severity: warning
+    desc: "Workflows with both push and pull_request triggers must scope push to specific branches to prevent duplicate CI runs"
+
+  # === REUSABLE WORKFLOW SHA-PINNING ===
+  - id: ER-33
+    domain: security
+    prompt: |
+      Check reusable workflow references (uses: org/repo/.github/workflows/file.yml@ref):
+      1. Third-party reusable workflows (external organizations) MUST be SHA-pinned
+      2. Org-internal reusable workflows MUST use @main or @tag (NOT SHA-pinned)
+      3. A mechanical regex cannot distinguish org-internal from third-party — use context
+      4. Flag: third-party workflow using @v tag without SHA
+      5. Flag: org-internal workflow using SHA pin (anti-pattern)
+    severity: warning
+    desc: "Third-party reusable workflows must be pinned to commit SHAs, not tags, for supply chain security"
 
   # === NPM DEPENDENCY MONITORING ===
   - id: ER-37

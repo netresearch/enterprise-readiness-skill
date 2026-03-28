@@ -559,16 +559,20 @@ All `uses:` references to **third-party** reusable workflows must be pinned to
 commit SHAs, just like regular actions:
 
 ```yaml
-# BAD: tag reference is mutable (supply chain risk)
+# BAD: branch reference is mutable (supply chain risk)
 jobs:
   ci:
     uses: org/shared-workflows/.github/workflows/ci.yml@main
+
+# BAD: tag reference is also mutable
+jobs:
+  ci:
     uses: org/shared-workflows/.github/workflows/ci.yml@v2
 
 # GOOD: SHA-pinned (immutable reference)
 jobs:
   ci:
-    uses: org/shared-workflows/.github/workflows/ci.yml@abc123def456... # v2.1.0
+    uses: org/shared-workflows/.github/workflows/ci.yml@a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2 # v2.1.0
 ```
 
 ### Exception: Org-Internal Workflows
@@ -577,7 +581,7 @@ Org-internal reusable workflows (maintained by the same organization) **should u
 `@main` or `@tag`**, not SHAs. SHA-pinning org-internal workflows is an
 **anti-pattern** because it breaks centralized security update propagation.
 
-See `checkpoints.yaml` ER-10 for the enforcement rule.
+See `checkpoints.yaml` ER-33 for the enforcement rule.
 
 ### Auditing Workflow References
 
