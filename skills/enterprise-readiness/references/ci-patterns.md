@@ -591,6 +591,7 @@ grep -rn 'uses:.*\.github/workflows/.*\.yml@' .github/workflows/ | grep -v '@[a-
 
 ## Related References
 
+- `references/ci-docker-worktree.md` - Docker/worktree CI robustness (CaptainHook, lint scope, merge queues)
 - `references/security-hardening.md` - Security scanning details
 - `references/code-review.md` - Code quality checklist
 - `references/signed-releases.md` - Release signing

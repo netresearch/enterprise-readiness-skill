@@ -53,6 +53,7 @@ See `references/badges-and-workflows.md` for URL patterns and Scorecard quick wi
 | `references/code-review.md` | PR quality checks |
 | `references/documentation.md` | ADRs, changelogs, migration guides |
 | `references/ci-patterns.md` | CI/CD pipelines, Git hooks |
+| `references/ci-docker-worktree.md` | Docker/worktree CI robustness (CaptainHook, lint scope, merge queues) |
 | `references/openssf-badge-silver.md` | Silver badge criteria |
 | `references/openssf-badge-gold.md` | Gold badge criteria |
 | `references/openssf-badge-baseline.md` | OSPS Baseline levels 1/2/3 |

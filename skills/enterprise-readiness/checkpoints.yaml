@@ -359,3 +359,69 @@ llm_reviews:
       - docker (if Dockerfile exists)
       Report any missing ecosystem configurations.
     tags: [dependabot, supply-chain, dependencies]
+
+  # === CI ROBUSTNESS: DOCKER / WORKTREE ===
+
+  - id: ER-39
+    name: CaptainHook disabled in Docker/CI Composer commands
+    type: llm_review
+    severity: warning
+    domain: ci
+    prompt: |
+      If the project uses CaptainHook (check composer.json for captainhook/captainhook
+      or captainhook/plugin-composer):
+      1. Check Build/Scripts/runTests.sh and any CI scripts for `composer install`
+         or `composer update` commands run inside Docker containers
+      2. Verify each such command passes CAPTAINHOOK_DISABLE=true as an env variable
+      3. Without this, CaptainHook's hook-installer fails when .git is a file (Docker,
+         worktrees), aborting all subsequent post-install-cmd plugins
+      4. Also check docker-compose*.yml for Composer commands missing the env var
+      If CaptainHook is not in use, report N/A.
+    tags: [captainhook, docker, worktree, ci, composer]
+
+  - id: ER-40
+    name: PHPStan extension-installer generates non-empty config
+    type: llm_review
+    severity: warning
+    domain: quality
+    prompt: |
+      If the project uses phpstan/extension-installer (check composer.json):
+      1. After composer install, GeneratedConfig.php should list registered extensions
+      2. If GeneratedConfig.php shows EXTENSIONS = [], the installer did not run --
+         usually because a prior Composer plugin (CaptainHook) failed and aborted
+         post-install-cmd scripts
+      3. Check that CI scripts include verification of the generated config or that
+         CaptainHook is disabled (ER-39) to prevent this failure chain
+      If phpstan/extension-installer is not in use, report N/A.
+    tags: [phpstan, extension-installer, composer, ci]
+
+  - id: ER-41
+    name: PHP lint scope excludes vendor and build directories
+    type: llm_review
+    severity: warning
+    domain: ci
+    prompt: |
+      If the project has a lint test suite or lint CI step:
+      1. Check that PHP lint (php -l) commands scan only source directories
+         (e.g., Classes/, Configuration/, Tests/), NOT the entire project tree
+      2. A `find .` starting point is a finding -- it includes vendor/ and .Build/
+         which may contain intentional syntax error fixtures from third-party packages
+      3. Correct pattern: `find Classes Configuration Tests -name '*.php'`
+      4. Check Build/Scripts/runTests.sh, Makefile, and CI workflow files
+      If no PHP lint step exists, report N/A.
+    tags: [lint, php, ci, scope]
+
+  - id: ER-42
+    name: Merge queue thread resolution awareness
+    type: llm_review
+    severity: info
+    domain: ci
+    prompt: |
+      If the repository uses GitHub merge queues (check branch protection rules):
+      1. Verify CONTRIBUTING.md or PR templates mention that all review threads
+         must be resolved before merge
+      2. Check if auto-merge workflows account for the constraint that commits
+         cannot be pushed while a branch is in the merge queue
+      3. Flag if required_review_thread_resolution is enabled but not documented
+      If merge queues are not in use, report N/A.
+    tags: [merge-queue, github, branch-protection, ci]
