@@ -224,6 +224,20 @@ mechanical:
     severity: info
     desc: "Codecov config should define patch coverage target for realistic new-code coverage thresholds"
 
+  # === LABELER CONFIG ===
+  - id: ER-43
+    type: command
+    command: "! grep -rqF 'labeler' .github/workflows/ 2>/dev/null || test -f .github/labeler.yml"
+    severity: warning
+    desc: "If CI workflows use a labeler job, .github/labeler.yml must exist to define label rules"
+
+  # === CHANGELOG COMPLETENESS ===
+  - id: ER-44
+    type: file_exists
+    target: CHANGELOG.md
+    severity: warning
+    desc: "CHANGELOG.md must exist to document release history"
+
   # === REUSABLE WORKFLOW SHA-PINNING ===
   # ER-33 moved to llm_reviews — mechanical regex cannot distinguish org-internal vs third-party workflows
 
@@ -452,3 +466,87 @@ llm_reviews:
       3. Flag if required_review_thread_resolution is enabled but not documented
       If merge queues are not in use, report N/A.
     tags: [merge-queue, github, branch-protection, ci]
+
+  # === ADR COVERAGE ===
+  - id: ER-45
+    name: Architecture Decision Records for significant decisions
+    type: llm_review
+    severity: warning
+    domain: documentation
+    prompt: |
+      Evaluate whether the project should have Architecture Decision Records (ADRs):
+      1. Count the number of PHP classes in Classes/ — if >10 classes, the extension
+         is complex enough to warrant a Documentation/Developer/Adr/ directory
+      2. Scan for significant architectural decisions that should each have an ADR:
+         - Encryption or cryptography choices (sodium, openssl, key management)
+         - Access control mechanisms (RBAC, permission checks, policy enforcement)
+         - Audit logging or compliance-relevant data handling
+         - External service integrations or protocol choices
+         - Caching strategies or performance-critical design decisions
+         - Data model changes with migration implications
+      3. Check if Documentation/Developer/Adr/ directory exists
+      4. If ADRs exist, verify they follow a consistent format (title, status,
+         context, decision, consequences)
+      Report missing ADRs for identified significant decisions.
+    tags: [adr, documentation, architecture, decisions]
+
+  # === CHANGELOG COMPLETENESS ===
+  - id: ER-46
+    name: Every git tag has a corresponding CHANGELOG entry
+    type: llm_review
+    severity: warning
+    domain: documentation
+    prompt: |
+      Compare git tags with CHANGELOG.md entries:
+      1. Run `git tag -l` to list all version tags, normalizing format by stripping any `v` prefix (e.g., v1.2.0 → 1.2.0)
+      2. Parse CHANGELOG.md headings (## [x.y.z] or ## x.y.z patterns)
+      3. Flag any git tag that does not have a corresponding CHANGELOG heading (compare using normalized version without `v` prefix)
+      4. Flag any CHANGELOG heading that does not correspond to a git tag
+         (may indicate an unreleased section — acceptable if labeled [Unreleased])
+      5. Verify CHANGELOG entries are in reverse chronological order
+      If CHANGELOG.md does not exist, flag that as the primary finding.
+    tags: [changelog, releases, documentation, tags]
+
+  # === UPGRADE WIZARD FOR NEW COLUMNS ===
+  - id: ER-47
+    name: UpgradeWizard for new database columns on existing tables
+    type: llm_review
+    severity: warning
+    domain: migration
+    prompt: |
+      Check ext_tables.sql for columns added to existing tables and verify
+      that appropriate data migration exists:
+      1. Parse ext_tables.sql for CREATE TABLE statements — identify columns
+         that are additions to core or existing tables (not entirely new tables)
+      2. For each new column on an existing table, check if an
+         UpgradeWizardInterface implementation exists in Classes/Updates/ or
+         Classes/Upgrade/ that handles data migration for that column
+      3. New columns with sensible defaults (e.g., NOT NULL DEFAULT '') may
+         not need a wizard — focus on columns that require data transformation
+         or population from existing data
+      4. Also check for ext_localconf.php registration of upgrade wizards
+      Report columns that likely need migration wizards but lack them.
+    tags: [upgrade-wizard, database, migration, ext-tables, typo3]
+
+  # === REUSABLE WORKFLOWS ONLY ===
+  - id: ER-48
+    name: CI uses org reusable workflows instead of standalone third-party actions
+    type: llm_review
+    severity: warning
+    domain: ci
+    prompt: |
+      Review CI workflow files for use of standalone third-party actions where
+      org-provided reusable workflows should be used instead:
+      1. Check if workflows directly use third-party actions with unpinned tags
+         (e.g., uses: shivammathur/setup-php@v2) instead of calling an org
+         reusable workflow that wraps and standardizes these
+      2. Flag workflows that duplicate CI logic already available in org
+         reusable workflows (e.g., separate PHPStan, PHP-CS-Fixer, PHPUnit
+         steps instead of a single reusable CI workflow call)
+      3. Acceptable: using third-party actions that are SHA-pinned AND not
+         available through org reusable workflows
+      4. Preferred pattern: uses: org/.github/.github/workflows/ci.yml@main
+         with inputs, rather than reimplementing CI steps locally
+      Report specific workflow files and actions that should be replaced
+      with org reusable workflow calls.
+    tags: [reusable-workflows, ci, github-actions, standardization]
