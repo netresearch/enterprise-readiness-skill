@@ -77,15 +77,13 @@ gh api repos/{owner}/{repo}/branches/main/protection \
   --jq 'if .required_conversation_resolution.enabled then "✅ Conversation resolution required" else "❌ NOT required - enable it" end'
 ```
 
-**Enable conversation resolution** (include in full branch protection PUT):
+**Enable conversation resolution**:
 ```bash
-gh api repos/{owner}/{repo}/branches/main/protection -X PUT \
-  --input - << 'EOF'
-{
-  ...existing settings...,
-  "required_conversation_resolution": true
-}
-EOF
+# WARNING: This PUT request replaces all existing branch protection settings.
+# You must include all settings you want to keep in the JSON payload below.
+gh api repos/{owner}/{repo}/branches/main/protection \
+  | jq 'del(.required_conversation_resolution) | . + {"required_conversation_resolution": true}' \
+  | gh api repos/{owner}/{repo}/branches/main/protection -X PUT --input -
 ```
 
 Or via GitHub UI: Settings → Branches → Edit → Check **"Require conversation resolution before merging"**
@@ -248,7 +246,7 @@ with:
 - 37-41: Excellent GitHub security posture
 - 29-36: Good, minor improvements needed
 - 21-28: Fair, significant gaps
-- Below 20: Poor, major improvements required
+- Below 21: Poor, major improvements required
 
 ---
 

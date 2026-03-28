@@ -188,7 +188,7 @@ mechanical:
     target: .github/workflows/*.yml
     pattern: 'slsa-framework/slsa-github-generator'
     severity: warning
-    desc: "Should migrate from slsa-github-generator to actions/attest-build-provenance (slsa-github-generator cannot be SHA-pinned, see slsa-framework/slsa-github-generator#4440)"
+    desc: "Should migrate from slsa-github-generator to actions/attest-build-provenance (slsa-github-generator internal actions use tag refs that conflict with SHA-pinning rulesets, see slsa-framework/slsa-github-generator#4440)"
 
   # === SUPPLY CHAIN SECURITY ===
   - id: ER-27

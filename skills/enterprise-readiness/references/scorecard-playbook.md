@@ -147,7 +147,7 @@ gh api repos/OWNER/REPO/private-vulnerability-reporting -X PUT
 
 ## SLSA Provenance: Migrate from slsa-github-generator to actions/attest
 
-`slsa-framework/slsa-github-generator` **cannot be SHA-pinned** — known unfixable limitation ([#4440](https://github.com/slsa-framework/slsa-github-generator/issues/4440)). Its internal actions use tag refs that conflict with SHA-pinning rulesets.
+`slsa-framework/slsa-github-generator` can be SHA-pinned (and should be — see `references/slsa-provenance.md`), but its internal actions use tag refs that conflict with SHA-pinning rulesets ([#4440](https://github.com/slsa-framework/slsa-github-generator/issues/4440)). This triggers Scorecard warnings even when the top-level workflow call is correctly pinned.
 
 **Migration path:** Replace with `actions/attest-build-provenance` (v4.1.0+), fully SHA-pinnable. For SLSA Build Level 3, host the build+attest workflow as a **reusable workflow in the org `.github` repo**. This provides true L3 isolation — callers cannot modify the build process. Verification uses `gh attestation verify` instead of `slsa-verifier`.
 

@@ -26,4 +26,4 @@
 | Token-Permissions | `permissions: {}` at workflow-level, `write` only per-job | 0->10 |
 | Branch-Protection | `required_approving_review_count: 1` + auto-approve | 0->8 |
 | Security-Policy | SECURITY.md + private vulnerability reporting | 4->10 |
-| Pinned-Dependencies | SHA-pin all actions (except SLSA generator) | 8->10 |
+| Pinned-Dependencies | SHA-pin all actions (SLSA generator pinnable but internal actions use tag refs) | 8->10 |
