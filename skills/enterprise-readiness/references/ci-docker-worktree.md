@@ -54,8 +54,15 @@ should catch (e.g., PHPStan for Doctrine, phpstan-phpunit).
 After `composer install`, check the generated config:
 
 ```bash
-grep "EXTENSIONS = \[\]" \
-  .Build/vendor/phpstan/extension-installer/src/GeneratedConfig.php
+# Prefer TYPO3-style .Build/vendor if present; otherwise use vendor/ or $VENDOR_DIR
+VENDOR_DIR="${VENDOR_DIR:-vendor}"
+if [ -d ".Build/vendor" ]; then
+  SEARCH_PATH=".Build/vendor/phpstan/extension-installer/src/GeneratedConfig.php"
+else
+  SEARCH_PATH="$VENDOR_DIR/phpstan/extension-installer/src/GeneratedConfig.php"
+fi
+
+grep -F "EXTENSIONS = []" "$SEARCH_PATH"
 ```
 
 If the output shows `EXTENSIONS = []`, the extension-installer plugin
@@ -84,7 +91,18 @@ find . -name '*.php' ! -path './.Build/*' -exec php -l {} \;
 This still includes `vendor/` at the project root (if present) and
 misses the intent of excluding build artifacts.
 
-### Correct -- scan only source directories
+### Acceptable -- `find .` with proper exclusions
+
+```bash
+find . -name '*.php' \
+  ! -path './vendor/*' ! -path './.Build/*' ! -path './var/*' ! -path './node_modules/*' \
+  -exec php -l {} \;
+```
+
+Using `find .` is fine when it explicitly prunes or excludes
+third-party and build directories.
+
+### Best -- scan only source directories
 
 ```bash
 find Classes Configuration Tests -name '*.php' -exec php -l {} \;
@@ -96,11 +114,11 @@ faster, deterministic, and immune to third-party fixture files.
 ### Detection
 
 ```bash
-grep -n 'find \.' Build/Scripts/runTests.sh | grep -i 'php.*-l\|lint'
+grep -n 'find \.' Build/Scripts/runTests.sh | grep -Ei 'php.*-l|lint'
 ```
 
-If the `find` starts from `.` rather than explicit directories, the
-lint scope is too broad.
+If the `find` starts from `.` without `-prune` or `! -path` exclusions
+for vendor/, .Build/, var/, etc., the lint scope is too broad.
 
 ## 4. Merge Queue Awareness
 

@@ -53,11 +53,11 @@ See `references/badges-and-workflows.md` for URL patterns and Scorecard quick wi
 | `references/code-review.md` | PR quality checks |
 | `references/documentation.md` | ADRs, changelogs, migration guides |
 | `references/ci-patterns.md` | CI/CD pipelines, Git hooks |
-| `references/ci-docker-worktree.md` | Docker/worktree CI robustness (CaptainHook, lint scope, merge queues) |
+| `references/ci-docker-worktree.md` | Docker/worktree CI robustness |
 | `references/openssf-badge-silver.md` | Silver badge criteria |
 | `references/openssf-badge-gold.md` | Gold badge criteria |
-| `references/openssf-badge-baseline.md` | OSPS Baseline levels 1/2/3 |
-| `references/badge-submission-api.md` | Programmatic badge data submission gotchas |
+| `references/openssf-badge-baseline.md` | OSPS Baseline levels |
+| `references/badge-submission-api.md` | Badge API submission gotchas |
 | `references/slsa-provenance.md` | SLSA Level 3 implementation |
 | `references/signed-releases.md` | Cosign/GPG signing |
 | `references/solo-maintainer-guide.md` | N/A criteria justification |
@@ -70,12 +70,12 @@ See `references/badges-and-workflows.md` for URL patterns and Scorecard quick wi
 
 ## Critical Rules
 
-- **NEVER** interpolate `${{ github.event.* }}` in `run:` blocks (script injection)
+- **NEVER** interpolate `${{ github.event.* }}` in `run:` (script injection)
 - **NEVER** guess action versions -- always fetch from GitHub API
 - **ALWAYS** use SHA pins for actions with version comments
 - **ALWAYS** verify commit hashes against official tags
-- **ALWAYS** include `https://` URLs in badge justification text (platform rejects criteria without URLs)
-- **NEVER** URL-decode session cookies when submitting badge data (breaks authentication silently)
+- **ALWAYS** include `https://` URLs in badge justifications (platform rejects criteria without URLs)
+- **NEVER** URL-decode session cookies for badge submission (breaks auth silently)
 
 ## Related Skills
 

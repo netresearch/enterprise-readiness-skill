@@ -375,7 +375,8 @@ llm_reviews:
       2. Verify each such command passes CAPTAINHOOK_DISABLE=true as an env variable
       3. Without this, CaptainHook's hook-installer fails when .git is a file (Docker,
          worktrees), aborting all subsequent post-install-cmd plugins
-      4. Also check docker-compose*.yml for Composer commands missing the env var
+      4. Also check docker-compose*.yml / docker-compose*.yaml and compose.yml / compose.yaml
+         for Composer commands missing the env var
       If CaptainHook is not in use, report N/A.
     tags: [captainhook, docker, worktree, ci, composer]
 
@@ -386,13 +387,19 @@ llm_reviews:
     domain: quality
     prompt: |
       If the project uses phpstan/extension-installer (check composer.json):
-      1. After composer install, GeneratedConfig.php should list registered extensions
-      2. If GeneratedConfig.php shows EXTENSIONS = [], the installer did not run --
-         usually because a prior Composer plugin (CaptainHook) failed and aborted
-         post-install-cmd scripts
-      3. Check that CI scripts include verification of the generated config or that
-         CaptainHook is disabled (ER-39) to prevent this failure chain
-      If phpstan/extension-installer is not in use, report N/A.
+      1. Check composer.lock / installed packages for PHPStan extension packages
+         (e.g., phpstan-doctrine, phpstan-phpunit, phpstan-strict-rules, etc.).
+      2. If such extension packages are installed, GeneratedConfig.php (typically
+         vendor/phpstan/extension-installer/src/GeneratedConfig.php) should list
+         these registered extensions in the EXTENSIONS constant after composer install.
+      3. If extension packages are present but GeneratedConfig.php shows
+         EXTENSIONS = [], the installer likely did not run -- usually because a
+         prior Composer plugin (such as CaptainHook) failed and aborted
+         post-install-cmd scripts.
+      4. In that case, check that CI scripts include verification of the generated
+         config or that CaptainHook is disabled (ER-39) to prevent this failure chain.
+      If phpstan/extension-installer is not in use, or no supported extension
+      packages are installed, report N/A.
     tags: [phpstan, extension-installer, composer, ci]
 
   - id: ER-41
@@ -404,9 +411,12 @@ llm_reviews:
       If the project has a lint test suite or lint CI step:
       1. Check that PHP lint (php -l) commands scan only source directories
          (e.g., Classes/, Configuration/, Tests/), NOT the entire project tree
-      2. A `find .` starting point is a finding -- it includes vendor/ and .Build/
-         which may contain intentional syntax error fixtures from third-party packages
-      3. Correct pattern: `find Classes Configuration Tests -name '*.php'`
+      2. Flag PHP lint commands that traverse third-party or build directories
+         (e.g., vendor/, .Build/, var/, node_modules/). A plain `find . -name '*.php'`
+         is a finding unless it explicitly excludes those directories (via -prune or ! -path).
+      3. Correct patterns include limiting the start paths to source dirs, e.g.
+         `find Classes Configuration Tests -name '*.php'`, or using `find .` with
+         appropriate -prune/! -path exclusions for vendor/, .Build/, var/, etc.
       4. Check Build/Scripts/runTests.sh, Makefile, and CI workflow files
       If no PHP lint step exists, report N/A.
     tags: [lint, php, ci, scope]
