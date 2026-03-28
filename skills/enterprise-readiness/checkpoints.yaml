@@ -227,7 +227,7 @@ mechanical:
   # === LABELER CONFIG ===
   - id: ER-43
     type: command
-    command: "! grep -rl 'labeler' .github/workflows/ 2>/dev/null | head -1 || test -f .github/labeler.yml"
+    command: "! grep -rqF 'labeler' .github/workflows/ 2>/dev/null || test -f .github/labeler.yml"
     severity: warning
     desc: "If CI workflows use a labeler job, .github/labeler.yml must exist to define label rules"
 
@@ -498,9 +498,9 @@ llm_reviews:
     domain: documentation
     prompt: |
       Compare git tags with CHANGELOG.md entries:
-      1. Run `git tag -l` to list all version tags
+      1. Run `git tag -l` to list all version tags, normalizing format by stripping any `v` prefix (e.g., v1.2.0 → 1.2.0)
       2. Parse CHANGELOG.md headings (## [x.y.z] or ## x.y.z patterns)
-      3. Flag any git tag that does not have a corresponding CHANGELOG heading
+      3. Flag any git tag that does not have a corresponding CHANGELOG heading (compare using normalized version without `v` prefix)
       4. Flag any CHANGELOG heading that does not correspond to a git tag
          (may indicate an unreleased section — acceptable if labeled [Unreleased])
       5. Verify CHANGELOG entries are in reverse chronological order
