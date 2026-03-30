@@ -71,11 +71,14 @@ See `references/badges-and-workflows.md` for URL patterns and Scorecard quick wi
 ## Critical Rules
 
 - **NEVER** interpolate `${{ github.event.* }}` in `run:` (script injection)
+- **NEVER** interpolate `${{ inputs.* }}` in `run:` blocks in reusable workflows (same injection risk as `github.event.*`)
 - **NEVER** guess action versions -- always fetch from GitHub API
 - **ALWAYS** use SHA pins for actions with version comments
 - **ALWAYS** verify commit hashes against official tags
 - **ALWAYS** include `https://` URLs in badge justifications (platform rejects criteria without URLs)
 - **NEVER** URL-decode session cookies for badge submission (breaks auth silently)
+- **ALWAYS** verify builds produce zero deprecation warnings — these become errors on version upgrades
+- **ALWAYS** ensure repos with Dependabot/Renovate have auto-merge workflows to prevent PR accumulation
 
 ## Related Skills
 
