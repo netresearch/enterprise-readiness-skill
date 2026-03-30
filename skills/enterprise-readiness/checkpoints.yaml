@@ -86,7 +86,7 @@ mechanical:
   - id: ER-11
     type: contains
     target: .github/workflows/ci.yml
-    pattern: permissions:
+    pattern: "permissions:"
     severity: warning
     desc: "CI workflow should declare explicit permissions"
 
@@ -250,7 +250,7 @@ mechanical:
   - id: ER-49
     type: contains
     target: .github/workflows/release.yml
-    pattern: permissions:
+    pattern: "permissions:"
     severity: warning
     desc: "Release workflow should declare explicit permissions (principle of least privilege)"
 
