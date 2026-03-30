@@ -246,6 +246,14 @@ mechanical:
     severity: warning
     desc: "CHANGELOG.md must exist to document release history"
 
+  # === RELEASE WORKFLOW PERMISSIONS ===
+  - id: ER-54
+    type: contains
+    target: .github/workflows/release.yml
+    pattern: "permissions:"
+    severity: warning
+    desc: "Release workflow should declare explicit permissions (principle of least privilege)"
+
   # === REUSABLE WORKFLOW SHA-PINNING ===
   # ER-33 moved to llm_reviews — mechanical regex cannot distinguish org-internal vs third-party workflows
 
@@ -595,3 +603,50 @@ llm_reviews:
       Report missing or misconfigured auto-merge setup.
     severity: warning
     desc: "Repos with Dependabot/Renovate should have auto-merge workflow to prevent PR accumulation"
+
+  # === REUSABLE WORKFLOW PERMISSION COMPATIBILITY ===
+  - id: ER-52
+    name: Caller workflows grant all permissions required by called reusable workflows
+    type: llm_review
+    severity: error
+    domain: ci
+    prompt: |
+      For each workflow in .github/workflows/ calling a reusable workflow at
+      `jobs.<job>.uses` (not step-level `uses`), covering both remote calls
+      (`uses: <org>/<repo>/.github/workflows/<file>@<ref>`) and local calls
+      (`uses: ./.github/workflows/<file>.yml`):
+      1. Identify permissions declared in the caller workflow (top-level and job-level)
+      2. GitHub validates ALL job-level permissions at startup, even for skipped jobs
+      3. If the shared workflow declares job-level permissions (e.g., pull-requests: write)
+         that are not granted by the caller, the entire workflow fails with startup_failure
+      4. Check: does the caller grant every permission the shared workflow's jobs declare?
+      5. Common miss: caller grants only `contents: write` but shared workflow also needs
+         `pull-requests: write` for a bump or changelog job
+      6. Flag missing permissions as error — this causes startup_failure across all repos
+         using the shared workflow
+    tags: [permissions, reusable-workflows, ci, startup-failure]
+
+  # === DUPLICATE RELEASE NOTES DETECTION ===
+  - id: ER-53
+    name: Release workflow must not produce duplicate content in release notes
+    type: llm_review
+    severity: warning
+    domain: ci
+    prompt: |
+      Check for duplicate release note issues.
+
+      A common cause is a misconfiguration in softprops/action-gh-release.
+
+      Static check (primary):
+      1. Read .github/workflows/release.yml or any shared release workflow
+      2. Look for softprops/action-gh-release used with both `body:` (or
+         `body_path:`) and `generate_release_notes: true` — this is a known
+         misconfiguration where the explicit body is prepended to
+         auto-generated notes, producing duplicate content. Flag as warning.
+
+      Dynamic confirmation (secondary):
+      3. Check the 3 most recent releases for actual duplication:
+         `gh release view <tag> --json body -q .body`
+      4. Look for repeated sections, duplicate changelog entries, or
+         duplicated commit lists in release bodies
+    tags: [release-notes, duplicate-content, ci, softprops]
