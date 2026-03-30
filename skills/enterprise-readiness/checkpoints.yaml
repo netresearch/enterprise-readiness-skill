@@ -176,11 +176,11 @@ mechanical:
 
   # === WORKFLOW INPUT INJECTION PREVENTION ===
   - id: ER-49
-    type: regex
+    type: regex_not
     target: .github/workflows/*.yml
     pattern: 'run:.*\$\{\{\s*inputs\.'
     severity: error
-    desc: "Reusable workflow run: blocks must not interpolate ${{ inputs.* }} directly (code injection). Pass through env: block instead"
+    desc: "Workflow run: blocks must not interpolate ${{ inputs.* }} directly (code injection). Pass through env: block instead"
 
   # === GITHUB ATTESTATION ===
   - id: ER-26
@@ -567,7 +567,7 @@ llm_reviews:
       1. Review CI logs or run the build locally to check for deprecation
          warnings that will become errors in future versions
       2. For TypeScript projects: check tsconfig.json for deprecated options
-         (e.g., baseUrl deprecated in TS6, removed in TS7). If found, verify
+         (e.g., deprecated tsconfig options that produce TS5101 errors). If found, verify
          the option is actually needed — remove if unused, add
          ignoreDeprecations if required
       3. For Go projects: check for deprecated function usage flagged by
