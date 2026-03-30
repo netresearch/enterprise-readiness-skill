@@ -86,7 +86,7 @@ mechanical:
   - id: ER-11
     type: contains
     target: .github/workflows/ci.yml
-    pattern: "permissions:"
+    pattern: permissions:
     severity: warning
     desc: "CI workflow should declare explicit permissions"
 
@@ -250,7 +250,7 @@ mechanical:
   - id: ER-49
     type: contains
     target: .github/workflows/release.yml
-    pattern: "permissions:"
+    pattern: permissions:
     severity: warning
     desc: "Release workflow should declare explicit permissions (principle of least privilege)"
 
@@ -631,14 +631,20 @@ llm_reviews:
     severity: warning
     domain: ci
     prompt: |
-      Check for duplicate release note issues:
-      1. Read .github/workflows/release.yml or shared release workflow
-      2. If using softprops/action-gh-release: does it set both `body:` and
-         `generate_release_notes: true`? This causes duplicate content — the
-         explicit body is prepended to the auto-generated notes
-      3. Check 3 most recent releases: `gh release view <tag> --json body -q .body`
-      4. Look for repeated sections, duplicate changelog entries, or duplicated
-         commit lists in release bodies
-      5. Flag duplicated content as warning — 71 releases were affected by this
-         misconfiguration pattern
+      Check for duplicate release note issues.
+
+      A common cause is a misconfiguration in softprops/action-gh-release.
+
+      Static check (primary):
+      1. Read .github/workflows/release.yml or any shared release workflow
+      2. Look for softprops/action-gh-release used with both `body:` and
+         `generate_release_notes: true` — this is a known misconfiguration
+         where the explicit body is prepended to auto-generated notes,
+         producing duplicate content. Flag this as a warning.
+
+      Dynamic confirmation (secondary):
+      3. Check the 3 most recent releases for actual duplication:
+         `gh release view <tag> --json body -q .body`
+      4. Look for repeated sections, duplicate changelog entries, or
+         duplicated commit lists in release bodies
     tags: [release-notes, duplicate-content, ci, softprops]
