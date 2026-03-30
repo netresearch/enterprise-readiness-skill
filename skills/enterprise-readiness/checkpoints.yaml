@@ -247,7 +247,7 @@ mechanical:
     desc: "CHANGELOG.md must exist to document release history"
 
   # === RELEASE WORKFLOW PERMISSIONS ===
-  - id: ER-49
+  - id: ER-54
     type: contains
     target: .github/workflows/release.yml
     pattern: "permissions:"
