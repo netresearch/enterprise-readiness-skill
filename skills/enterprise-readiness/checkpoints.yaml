@@ -611,8 +611,10 @@ llm_reviews:
     severity: error
     domain: ci
     prompt: |
-      For each workflow in .github/workflows/ calling a reusable workflow
-      (pattern: `uses: <org>/<repo>/.github/workflows/<file>@<ref>`):
+      For each workflow in .github/workflows/ calling a reusable workflow at
+      `jobs.<job>.uses` (not step-level `uses`), covering both remote calls
+      (`uses: <org>/<repo>/.github/workflows/<file>@<ref>`) and local calls
+      (`uses: ./.github/workflows/<file>.yml`):
       1. Identify permissions declared in the caller workflow (top-level and job-level)
       2. GitHub validates ALL job-level permissions at startup, even for skipped jobs
       3. If the shared workflow declares job-level permissions (e.g., pull-requests: write)
@@ -637,10 +639,10 @@ llm_reviews:
 
       Static check (primary):
       1. Read .github/workflows/release.yml or any shared release workflow
-      2. Look for softprops/action-gh-release used with both `body:` and
-         `generate_release_notes: true` — this is a known misconfiguration
-         where the explicit body is prepended to auto-generated notes,
-         producing duplicate content. Flag this as a warning.
+      2. Look for softprops/action-gh-release used with both `body:` (or
+         `body_path:`) and `generate_release_notes: true` — this is a known
+         misconfiguration where the explicit body is prepended to
+         auto-generated notes, producing duplicate content. Flag as warning.
 
       Dynamic confirmation (secondary):
       3. Check the 3 most recent releases for actual duplication:
