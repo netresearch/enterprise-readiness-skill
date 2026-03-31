@@ -257,6 +257,41 @@ mechanical:
   # === REUSABLE WORKFLOW SHA-PINNING ===
   # ER-33 moved to llm_reviews — mechanical regex cannot distinguish org-internal vs third-party workflows
 
+  # === MUTATION TESTING QUALITY ===
+  - id: ER-70
+    type: file_exists
+    target: "{infection.json5,infection.json}"
+    severity: warning
+    desc: "Infection config should exist for mutation testing"
+
+  - id: ER-71
+    type: command
+    command: "grep -oP '\"minMsi\":\\s*\\K[0-9]+' infection.json5 2>/dev/null || echo 0"
+    expected: "^(9[0-9]|100)$"
+    severity: warning
+    desc: "Enterprise projects should have minMsi >= 90% for mutation testing"
+
+  - id: ER-72
+    type: command
+    command: "grep -oP '\"minCoveredMsi\":\\s*\\K[0-9]+' infection.json5 2>/dev/null || echo 0"
+    expected: "^(9[0-9]|100)$"
+    severity: warning
+    desc: "Enterprise projects should have minCoveredMsi >= 90%"
+
+  # === COVERAGE CONFIGURATION ===
+  - id: ER-73
+    type: regex_not
+    target: codecov.yml
+    pattern: 'target:\s*100%'
+    severity: warning
+    desc: "codecov patch target should not be 100% — achievable only with full functional test coverage upload"
+
+  - id: ER-74
+    type: file_exists
+    target: codecov.yml
+    severity: info
+    desc: "codecov.yml should exist for coverage tracking configuration"
+
 llm_reviews:
   # === ACTION PINNING (companion to ER-10) ===
   - id: ER-10b
