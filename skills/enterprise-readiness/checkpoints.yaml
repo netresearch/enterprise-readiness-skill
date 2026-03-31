@@ -257,6 +257,34 @@ mechanical:
   # === REUSABLE WORKFLOW SHA-PINNING ===
   # ER-33 moved to llm_reviews — mechanical regex cannot distinguish org-internal vs third-party workflows
 
+  # === MUTATION TESTING QUALITY ===
+  - id: ER-70
+    type: command
+    command: "test -f infection.json5 -o -f infection.json"
+    severity: warning
+    desc: "Infection config should exist for mutation testing"
+
+  - id: ER-71
+    type: command
+    command: "for f in infection.json5 infection.json; do if [ -f \"$f\" ]; then val=$(python3 -c \"import json,sys; d=json.load(open('$f')); print(d.get('minMsi',0))\" 2>/dev/null || sed -n 's/.*\"minMsi\"[[:space:]]*:[[:space:]]*\\([0-9]*\\).*/\\1/p' \"$f\" 2>/dev/null); echo \"${val:-0}\"; exit 0; fi; done; echo 0"
+    expected: "^(9[0-9]|100)$"
+    severity: warning
+    desc: "Enterprise projects should have minMsi >= 90% for mutation testing"
+
+  - id: ER-72
+    type: command
+    command: "for f in infection.json5 infection.json; do if [ -f \"$f\" ]; then val=$(python3 -c \"import json,sys; d=json.load(open('$f')); print(d.get('minCoveredMsi',0))\" 2>/dev/null || sed -n 's/.*\"minCoveredMsi\"[[:space:]]*:[[:space:]]*\\([0-9]*\\).*/\\1/p' \"$f\" 2>/dev/null); echo \"${val:-0}\"; exit 0; fi; done; echo 0"
+    expected: "^(9[0-9]|100)$"
+    severity: warning
+    desc: "Enterprise projects should have minCoveredMsi >= 90%"
+
+  # === COVERAGE CONFIGURATION ===
+  - id: ER-73
+    type: command
+    command: "if [ ! -f codecov.yml ]; then exit 0; fi; target=$(sed -n '/patch:/,/target:/{ s/.*target:[[:space:]]*//p; }' codecov.yml 2>/dev/null | head -1); case \"$target\" in 100%) echo 'WARN: codecov patch target is 100% — achievable only with full functional test coverage upload' && exit 1 ;; *) exit 0 ;; esac"
+    severity: warning
+    desc: "codecov patch target should not be 100% — achievable only with full functional test coverage upload"
+
 llm_reviews:
   # === ACTION PINNING (companion to ER-10) ===
   - id: ER-10b
