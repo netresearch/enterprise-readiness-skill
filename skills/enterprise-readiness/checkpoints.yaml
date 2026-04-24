@@ -86,12 +86,16 @@ mechanical:
   # MUST use @main or @tag — SHA-pinning them degrades security by breaking
   # centralized update propagation. A pinned org-internal reusable workflow
   # is itself a finding (anti-pattern).
+  #
+  # Pure-delegation repos (only org reusable workflows, no direct third-party
+  # action uses) trivially satisfy the SHA-pinning rule because the reusable
+  # workflows pin their own deps. Accept that pattern.
   - id: ER-10
     type: regex
     target: .github/workflows/*.yml
-    pattern: 'uses: [^@]+@[a-f0-9]{40}'
+    pattern: 'uses:[[:space:]]+[^@]+@[a-f0-9]{40}|uses:[[:space:]]+netresearch/(typo3-ci-workflows|[.]github)/[.]github/workflows/'
     severity: warning
-    desc: "Third-party GitHub Actions must be pinned to SHA. Org-internal reusable workflows MUST use @main or @tag (NOT SHA-pinned — pinning breaks centralized security updates)"
+    desc: "Third-party GitHub Actions must be pinned to SHA, OR all CI delegated to netresearch reusable workflows (which pin their own deps centrally)"
 
   # === WORKFLOW PERMISSIONS ===
   - id: ER-11
@@ -126,9 +130,9 @@ mechanical:
   - id: ER-15
     type: regex
     target: .github/workflows/*.yml
-    pattern: 'attest-build-provenance|attest@|build-go-attest|slsa-github-generator'
+    pattern: 'attest-build-provenance|attest@|build-go-attest|slsa-github-generator|uses:[[:space:]]+netresearch/typo3-ci-workflows/[.]github/workflows/(release|release-typo3-extension)[.]yml'
     severity: info
-    desc: "Should use actions/attest-build-provenance or org reusable attest workflow (preferred) or slsa-github-generator for provenance"
+    desc: "Provenance attestation: actions/attest-build-provenance (preferred), build-go-attest, slsa-github-generator, OR delegation to netresearch typo3-ci-workflows release workflow"
 
   # === REQUIRED WORKFLOWS ===
   - id: ER-18
@@ -203,9 +207,9 @@ mechanical:
   - id: ER-26
     type: regex
     target: .github/workflows/*.yml
-    pattern: "attest-build-provenance|attest@|slsa-github-generator"
+    pattern: 'attest-build-provenance|attest@|slsa-github-generator|uses:[[:space:]]+netresearch/typo3-ci-workflows/[.]github/workflows/(release|release-typo3-extension)[.]yml'
     severity: info
-    desc: "Release workflow should generate provenance attestation (prefer actions/attest-build-provenance over slsa-github-generator)"
+    desc: "Release workflow should generate provenance attestation: actions/attest-build-provenance (preferred), slsa-github-generator, OR delegation to netresearch release reusable workflow"
 
   # === SLSA-GENERATOR DEPRECATION CHECK ===
   - id: ER-29
@@ -216,12 +220,14 @@ mechanical:
     desc: "Should migrate from slsa-github-generator to actions/attest-build-provenance (slsa-github-generator internal actions use tag refs that conflict with SHA-pinning rulesets, see slsa-framework/slsa-github-generator#4440)"
 
   # === SUPPLY CHAIN SECURITY ===
+  # harden-runner can live in caller workflows OR be added by the org
+  # reusable workflow (which standardises egress policy). Accept either.
   - id: ER-27
     type: regex
     target: .github/workflows/*.yml
-    pattern: 'uses:\s*step-security/harden-runner@[a-f0-9]{40}'
+    pattern: 'uses:[[:space:]]*step-security/harden-runner@[a-f0-9]{40}|uses:[[:space:]]+netresearch/(typo3-ci-workflows|[.]github)/[.]github/workflows/'
     severity: warning
-    desc: "Workflows should include step-security/harden-runner for egress monitoring, pinned to a commit SHA"
+    desc: "Workflows should include step-security/harden-runner for egress monitoring (pinned to SHA), OR delegate to netresearch reusable workflows (which apply harden-runner centrally)"
 
   # === SHA-PINNING VIOLATION DETECTION ===
   - id: ER-28
@@ -235,11 +241,22 @@ mechanical:
   # ER-30 moved to llm_reviews — mechanical regex cannot reliably detect duplicate CI triggers
 
   # === PHPSTAN BASELINE ===
+  # A PHPStan baseline file is a *liability*, not a requirement: it
+  # suppresses known errors so they no longer fail the build (technical
+  # debt). The healthy state is to have NO baseline OR an EMPTY one
+  # (project passes PHPStan cleanly at its declared level).
+  #
+  # Pass when:
+  #  - no baseline file exists, OR
+  #  - baseline exists but contains zero `message:` entries (empty
+  #    placeholder for tooling compatibility)
+  # Fail when baseline exists and has any `message:` entries — surface
+  # the technical debt for active reduction.
   - id: ER-31
-    type: file_exists
-    target: phpstan-baseline.neon
+    type: command
+    pattern: 'for f in phpstan-baseline.neon Build/phpstan-baseline.neon Build/phpstan/phpstan-baseline.neon; do if [ -f "$f" ]; then grep -q "message:" "$f" 2>/dev/null && exit 1 || exit 0; fi; done; exit 0'
     severity: info
-    desc: "PHPStan baseline file should exist for projects using PHPStan (tracks known issues). Only applicable when PHPStan is configured in the project."
+    desc: "PHPStan baseline should be absent or empty (no suppressed errors). Non-empty baselines are tech debt — actively shrink them."
 
   # === CODECOV CONFIG ===
   - id: ER-32
