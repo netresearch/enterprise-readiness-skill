@@ -6,25 +6,36 @@ skill_id: enterprise-readiness
 
 mechanical:
   # === SECURITY WORKFLOW CHECKS ===
+  # Security coverage is satisfied by either:
+  #   (a) a dedicated .github/workflows/security.yml file (the historical
+  #       layout that the previous checkpoints required); or
+  #   (b) a job in any workflow that delegates to the netresearch reusable
+  #       workflow (uses: netresearch/{typo3-ci-workflows,.github}/.github/
+  #       workflows/security.yml). Quoting after `uses:` is optional in YAML.
+  # `command` is used so we can express the OR cleanly across file existence
+  # and content patterns. Empty stderr is suppressed; exit 0 = pass.
+  # Patterns use POSIX char classes ([[:space:]]) and `[.]` instead of \. to
+  # avoid YAML+shell+regex escape stacking. The runner's YAML line parser
+  # strips outer quotes but doesn't decode YAML escape sequences, so we use
+  # double-quoted YAML scalars and single-quoted shell args (which don't need
+  # YAML escaping).
   - id: ER-01
-    type: file_exists
-    target: .github/workflows/security.yml
+    type: command
+    pattern: "test -f .github/workflows/security.yml || grep -RqE 'uses:[[:space:]]+\"?netresearch/(typo3-ci-workflows|[.]github)/[.]github/workflows/security[.]yml' .github/workflows/ 2>/dev/null"
     severity: error
-    desc: "Security workflow must exist"
+    desc: "A security workflow must exist — either as .github/workflows/security.yml or as a reusable-workflow job"
 
   - id: ER-02
-    type: regex
-    target: .github/workflows/security.yml
-    pattern: '\bcomposer\b.*audit|\btypo3-ci-workflows\b'
+    type: command
+    pattern: "grep -RqE '(composer[[:space:]]+audit|uses:[[:space:]]+\"?netresearch/(typo3-ci-workflows|[.]github)/[.]github/workflows/security[.]yml)' .github/workflows/ 2>/dev/null"
     severity: error
-    desc: "Security workflow should run composer audit (or delegate to typo3-ci-workflows)"
+    desc: "A workflow should run composer audit (directly or by delegating to a security reusable workflow)"
 
   - id: ER-03
-    type: regex
-    target: .github/workflows/security.yml
-    pattern: '\b(sbom|cyclonedx|syft|typo3-ci-workflows)\b'
+    type: command
+    pattern: "grep -RqE '(sbom|cyclonedx|syft|uses:[[:space:]]+\"?netresearch/(typo3-ci-workflows|[.]github)/[.]github/workflows/security[.]yml)' .github/workflows/ 2>/dev/null"
     severity: warning
-    desc: "Security workflow should generate SBOM (or delegate to typo3-ci-workflows)"
+    desc: "A workflow should generate SBOM (directly via cyclonedx/syft or by delegating to a security reusable workflow)"
 
   # === BADGE CHECKS ===
   - id: ER-04
@@ -126,23 +137,29 @@ mechanical:
     severity: error
     desc: "CI workflow (ci.yml) must exist"
 
+  # CodeQL / Scorecard / dependency-review may be a dedicated workflow file OR
+  # a job in another workflow that delegates to the netresearch reusable
+  # workflow (netresearch/.github/.github/workflows/{codeql,scorecard,dependency-review}.yml).
   - id: ER-19
-    type: file_exists
-    target: .github/workflows/codeql.yml
+    type: regex
+    target: .github/workflows/*.yml
+    pattern: 'uses:\s*github/codeql-action|uses:\s*netresearch/\.github/\.github/workflows/codeql\.yml'
     severity: warning
-    desc: "CodeQL workflow must exist for code scanning"
+    desc: "CodeQL must be wired up (dedicated workflow or reusable-workflow job)"
 
   - id: ER-20
-    type: file_exists
-    target: .github/workflows/scorecard.yml
+    type: regex
+    target: .github/workflows/*.yml
+    pattern: 'uses:\s*ossf/scorecard-action|uses:\s*netresearch/\.github/\.github/workflows/scorecard\.yml'
     severity: warning
-    desc: "OpenSSF Scorecard workflow must exist"
+    desc: "OpenSSF Scorecard must be wired up (dedicated workflow or reusable-workflow job)"
 
   - id: ER-21
-    type: file_exists
-    target: .github/workflows/dependency-review.yml
+    type: regex
+    target: .github/workflows/*.yml
+    pattern: 'uses:\s*actions/dependency-review-action|uses:\s*netresearch/\.github/\.github/workflows/dependency-review\.yml'
     severity: warning
-    desc: "Dependency review workflow must exist"
+    desc: "Dependency review must be wired up (dedicated workflow or reusable-workflow job)"
 
   # === REQUIRED BADGES ===
   - id: ER-22
