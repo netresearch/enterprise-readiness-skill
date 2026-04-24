@@ -31,7 +31,7 @@ allowed-tools: Bash(gh:*) Bash(python3:*) Bash(cosign:*) Read Write Glob Grep
 
 ## Mandatory Workflows & Badges
 
-Workflows: `ci.yml`, `codeql.yml`, `scorecard.yml`, `dependency-review.yml`.
+Required coverage: CI, CodeQL, OpenSSF Scorecard, dependency review, security (composer audit + SBOM). Each can be EITHER a dedicated `.github/workflows/<name>.yml` file OR a job in another workflow that delegates to the netresearch reusable workflow (`uses: netresearch/.github/.github/workflows/<name>.yml@…` or `uses: netresearch/typo3-ci-workflows/.github/workflows/security.yml@…`).
 Badges: CI Status, Codecov (`codecov.io`), OpenSSF Scorecard, Best Practices, Baseline.
 See `references/badges-and-workflows.md` for URL patterns.
 

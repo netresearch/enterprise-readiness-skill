@@ -6,29 +6,36 @@ skill_id: enterprise-readiness
 
 mechanical:
   # === SECURITY WORKFLOW CHECKS ===
-  # Security can live in a dedicated security.yml file OR as a job inside any
-  # workflow that calls the netresearch reusable workflow. Both patterns are
-  # accepted — `regex` scans every workflow file in .github/workflows/.
+  # Security coverage is satisfied by either:
+  #   (a) a dedicated .github/workflows/security.yml file (the historical
+  #       layout that the previous checkpoints required); or
+  #   (b) a job in any workflow that delegates to the netresearch reusable
+  #       workflow (uses: netresearch/{typo3-ci-workflows,.github}/.github/
+  #       workflows/security.yml). Quoting after `uses:` is optional in YAML.
+  # `command` is used so we can express the OR cleanly across file existence
+  # and content patterns. Empty stderr is suppressed; exit 0 = pass.
+  # Patterns use POSIX char classes ([[:space:]]) and `[.]` instead of \. to
+  # avoid YAML+shell+regex escape stacking. The runner's YAML line parser
+  # strips outer quotes but doesn't decode YAML escape sequences, so we use
+  # double-quoted YAML scalars and single-quoted shell args (which don't need
+  # YAML escaping).
   - id: ER-01
-    type: regex
-    target: .github/workflows/*.yml
-    pattern: 'uses:\s*netresearch/typo3-ci-workflows/\.github/workflows/security\.yml|uses:\s*netresearch/\.github/\.github/workflows/security\.yml'
+    type: command
+    pattern: "test -f .github/workflows/security.yml || grep -RqE 'uses:[[:space:]]+\"?netresearch/(typo3-ci-workflows|[.]github)/[.]github/workflows/security[.]yml' .github/workflows/ 2>/dev/null"
     severity: error
-    desc: "A security workflow (file or reusable-workflow job) must exist"
+    desc: "A security workflow must exist — either as .github/workflows/security.yml or as a reusable-workflow job"
 
   - id: ER-02
-    type: regex
-    target: .github/workflows/*.yml
-    pattern: '\bcomposer\b.*audit|netresearch/typo3-ci-workflows/\.github/workflows/security\.yml|\btypo3-ci-workflows\b'
+    type: command
+    pattern: "grep -RqE '(composer[[:space:]]+audit|uses:[[:space:]]+\"?netresearch/(typo3-ci-workflows|[.]github)/[.]github/workflows/security[.]yml)' .github/workflows/ 2>/dev/null"
     severity: error
-    desc: "A workflow should run composer audit (directly or by delegating to typo3-ci-workflows/security.yml)"
+    desc: "A workflow should run composer audit (directly or by delegating to a security reusable workflow)"
 
   - id: ER-03
-    type: regex
-    target: .github/workflows/*.yml
-    pattern: '\b(sbom|cyclonedx|syft|typo3-ci-workflows)\b'
+    type: command
+    pattern: "grep -RqE '(sbom|cyclonedx|syft|uses:[[:space:]]+\"?netresearch/(typo3-ci-workflows|[.]github)/[.]github/workflows/security[.]yml)' .github/workflows/ 2>/dev/null"
     severity: warning
-    desc: "A workflow should generate SBOM (directly or by delegating to typo3-ci-workflows)"
+    desc: "A workflow should generate SBOM (directly via cyclonedx/syft or by delegating to a security reusable workflow)"
 
   # === BADGE CHECKS ===
   - id: ER-04
