@@ -23,7 +23,11 @@
   ],
   "aiAgentSkill": "skills/enterprise-readiness/SKILL.md",
   "files": [
+    ".claude-plugin/",
     "skills/enterprise-readiness/",
+    "commands/",
+    "outputStyles/",
+    "assets/",
     "scripts/",
     "LICENSE-MIT",
     "LICENSE-CC-BY-SA-4.0",
