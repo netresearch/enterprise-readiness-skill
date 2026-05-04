@@ -19,9 +19,18 @@ mechanical:
   # strips outer quotes but doesn't decode YAML escape sequences, so we use
   # double-quoted YAML scalars and single-quoted shell args (which don't need
   # YAML escaping).
+  #
+  # ER-01: pure-pipeline rewrite for the runner allowlist (no ; && || $() `).
+  # Two evidence streams concatenated via `cat` + process substitution:
+  #   1. find emits .github/workflows/security.yml if it exists
+  #   2. grep -RlE emits paths of any workflow delegating to the netresearch
+  #      reusable security workflow
+  # If either stream produces a path, the final `grep -q .` succeeds (pass).
+  # Process substitution `<(...)` is allowlist-safe: it doesn't contain `$(`
+  # or any rejected metachar; the pipeline's first token is `cat` (allowed).
   - id: ER-01
     type: command
-    pattern: "test -f .github/workflows/security.yml || grep -RqE 'uses:[[:space:]]+\"?netresearch/(typo3-ci-workflows|[.]github)/[.]github/workflows/security[.]yml' .github/workflows/ 2>/dev/null"
+    pattern: "cat <(find .github/workflows/security.yml -type f -print 2>/dev/null) <(grep -RlE 'uses:[[:space:]]+\"?netresearch/(typo3-ci-workflows|[.]github)/[.]github/workflows/security[.]yml' .github/workflows/ 2>/dev/null) | grep -q ."
     severity: error
     desc: "A security workflow must exist — either as .github/workflows/security.yml or as a reusable-workflow job"
 
@@ -252,9 +261,17 @@ mechanical:
   #    placeholder for tooling compatibility)
   # Fail when baseline exists and has any `message:` entries — surface
   # the technical debt for active reduction.
+  #
+  # Pure-pipeline form for the runner allowlist (no ; && || $() `):
+  # `cat` reads every candidate path silently (missing files vanish via
+  # 2>/dev/null), grep tests for `message:`, and the leading `!` inverts
+  # the exit so "no message: found" becomes pass. Checking all candidates
+  # at once is stricter than the original (which stopped at the first
+  # existing file), but functionally equivalent — any baseline with
+  # suppressed errors fails regardless of which path it lives at.
   - id: ER-31
     type: command
-    pattern: 'for f in phpstan-baseline.neon Build/phpstan-baseline.neon Build/phpstan/phpstan-baseline.neon; do if [ -f "$f" ]; then grep -q "message:" "$f" 2>/dev/null && exit 1 || exit 0; fi; done; exit 0'
+    pattern: "! cat phpstan-baseline.neon Build/phpstan-baseline.neon Build/phpstan/phpstan-baseline.neon 2>/dev/null | grep -q 'message:'"
     severity: info
     desc: "PHPStan baseline should be absent or empty (no suppressed errors). Non-empty baselines are tech debt — actively shrink them."
 
@@ -360,7 +377,15 @@ llm_reviews:
       Check if the repository requires signed commits:
       1. Look for branch protection settings mentioning signatures
       2. Check if .github/workflows mention commit signing
-      3. Check CONTRIBUTING.md for signing requirements
+      3. Check CONTRIBUTING.md for signing requirements. CONTRIBUTING.md is
+         a community-health file that GitHub auto-inherits from the org-wide
+         <owner>/.github repo when not present in the project, so a missing
+         project-local CONTRIBUTING.md is acceptable if the org provides one
+         (e.g., netresearch/.github/CONTRIBUTING.md). Do NOT flag the
+         absence of project-local CONTRIBUTING.md as a finding on its own;
+         only flag if neither the project nor the org-wide repo addresses
+         signing requirements. Note: CODEOWNERS does NOT inherit from
+         org-wide .github — it must live in the repo itself if needed.
     severity: warning
     desc: "Repository should require signed commits"
 
@@ -558,7 +583,15 @@ llm_reviews:
     prompt: |
       If the repository uses GitHub merge queues (check branch protection rules):
       1. Verify CONTRIBUTING.md or PR templates mention that all review threads
-         must be resolved before merge
+         must be resolved before merge. Both CONTRIBUTING.md and PR templates
+         (.github/PULL_REQUEST_TEMPLATE.md) are community-health files that
+         GitHub auto-inherits from the org-wide <owner>/.github repo when not
+         present in the project. Treat coverage by the org-wide repo (e.g.,
+         netresearch/.github) as equivalent to project-local presence — do
+         NOT flag absence of project-local CONTRIBUTING.md or PR templates
+         on its own; only flag if neither project nor org-wide addresses the
+         thread-resolution requirement. CODEOWNERS does NOT inherit from
+         org-wide .github and remains a project-local concern if needed.
       2. Check if auto-merge workflows account for the constraint that commits
          cannot be pushed while a branch is in the merge queue
       3. Flag if required_review_thread_resolution is enabled but not documented
