@@ -261,9 +261,17 @@ mechanical:
   #    placeholder for tooling compatibility)
   # Fail when baseline exists and has any `message:` entries — surface
   # the technical debt for active reduction.
+  #
+  # Pure-pipeline form for the runner allowlist (no ; && || $() `):
+  # `cat` reads every candidate path silently (missing files vanish via
+  # 2>/dev/null), grep tests for `message:`, and the leading `!` inverts
+  # the exit so "no message: found" becomes pass. Checking all candidates
+  # at once is stricter than the original (which stopped at the first
+  # existing file), but functionally equivalent — any baseline with
+  # suppressed errors fails regardless of which path it lives at.
   - id: ER-31
     type: command
-    pattern: 'for f in phpstan-baseline.neon Build/phpstan-baseline.neon Build/phpstan/phpstan-baseline.neon; do if [ -f "$f" ]; then grep -q "message:" "$f" 2>/dev/null && exit 1 || exit 0; fi; done; exit 0'
+    pattern: "! cat phpstan-baseline.neon Build/phpstan-baseline.neon Build/phpstan/phpstan-baseline.neon 2>/dev/null | grep -q 'message:'"
     severity: info
     desc: "PHPStan baseline should be absent or empty (no suppressed errors). Non-empty baselines are tech debt — actively shrink them."
 
