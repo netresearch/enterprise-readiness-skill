@@ -267,9 +267,14 @@ mechanical:
     desc: "Codecov config should define patch coverage target for realistic new-code coverage thresholds"
 
   # === LABELER CONFIG ===
+  # Pass when no workflow references "labeler" OR .github/labeler.yml exists.
+  # Implementation: list workflows that mention "labeler"; for each, assert
+  # .github/labeler.yml exists. xargs -r skips when grep finds nothing
+  # (vacuous pass); xargs propagates non-zero when test -f fails.
+  # Avoids ; && || $() to satisfy the assessment runner allowlist.
   - id: ER-43
     type: command
-    command: "! grep -rqF 'labeler' .github/workflows/ 2>/dev/null || test -f .github/labeler.yml"
+    pattern: "grep -rlF 'labeler' .github/workflows/ 2>/dev/null | xargs -r -I {} test -f .github/labeler.yml"
     severity: warning
     desc: "If CI workflows use a labeler job, .github/labeler.yml must exist to define label rules"
 
@@ -298,24 +303,39 @@ mechanical:
     severity: warning
     desc: "Infection config should exist for mutation testing"
 
+  # ER-71/ER-72: extract numeric value from infection config and assert >=90.
+  # Pure-pipeline form (no ; && || $()) so the assessment-runner allowlist
+  # accepts it. Pattern semantics:
+  #   1. cat both candidate files (only one usually exists)
+  #   2. grep for the key:value occurrence with a numeric value
+  #   3. extract the trailing integer
+  #   4. grep -qE matches when the integer is 90-99 or 100+ (i.e. >=90)
+  # Missing file or missing key => empty pipeline => grep -q fails => fail.
+  # Note: the previous `expected:` field was silently ignored by the runner
+  # for type=command checkpoints; the threshold is now enforced inline.
   - id: ER-71
     type: command
-    command: "for f in infection.json5 infection.json; do if [ -f \"$f\" ]; then val=$(python3 -c \"import json,sys; d=json.load(open('$f')); print(d.get('minMsi',0))\" 2>/dev/null || sed -n 's/.*\"minMsi\"[[:space:]]*:[[:space:]]*\\([0-9]*\\).*/\\1/p' \"$f\" 2>/dev/null); echo \"${val:-0}\"; exit 0; fi; done; echo 0"
-    expected: "^(9[0-9]|100)$"
+    pattern: "cat infection.json5 infection.json 2>/dev/null | grep -oE '\"minMsi\"[[:space:]]*:[[:space:]]*[0-9]+' | grep -oE '[0-9]+$' | grep -qE '^(9[0-9]|100)$'"
     severity: warning
     desc: "Enterprise projects should have minMsi >= 90% for mutation testing"
 
   - id: ER-72
     type: command
-    command: "for f in infection.json5 infection.json; do if [ -f \"$f\" ]; then val=$(python3 -c \"import json,sys; d=json.load(open('$f')); print(d.get('minCoveredMsi',0))\" 2>/dev/null || sed -n 's/.*\"minCoveredMsi\"[[:space:]]*:[[:space:]]*\\([0-9]*\\).*/\\1/p' \"$f\" 2>/dev/null); echo \"${val:-0}\"; exit 0; fi; done; echo 0"
-    expected: "^(9[0-9]|100)$"
+    pattern: "cat infection.json5 infection.json 2>/dev/null | grep -oE '\"minCoveredMsi\"[[:space:]]*:[[:space:]]*[0-9]+' | grep -oE '[0-9]+$' | grep -qE '^(9[0-9]|100)$'"
     severity: warning
     desc: "Enterprise projects should have minCoveredMsi >= 90%"
 
   # === COVERAGE CONFIGURATION ===
+  # ER-73: pass unless codecov.yml exists AND its patch.target is exactly 100%.
+  # Pure-pipeline form (no ; && || $()) for the allowlist. Pattern semantics:
+  #   1. cat codecov.yml (silent if absent)
+  #   2. sed extracts the value(s) following `target:` inside the patch block
+  #   3. head -1 keeps the first occurrence
+  #   4. ! grep -qF '100%' negates: pass when 100% is NOT present
+  # No file => empty pipeline => grep finds nothing => ! makes it pass.
   - id: ER-73
     type: command
-    command: "if [ ! -f codecov.yml ]; then exit 0; fi; target=$(sed -n '/patch:/,/target:/{ s/.*target:[[:space:]]*//p; }' codecov.yml 2>/dev/null | head -1); case \"$target\" in 100%) echo 'WARN: codecov patch target is 100% — achievable only with full functional test coverage upload' && exit 1 ;; *) exit 0 ;; esac"
+    pattern: "! cat codecov.yml 2>/dev/null | sed -n '/patch:/,/target:/{ s/.*target:[[:space:]]*//p }' | head -1 | grep -qF '100%'"
     severity: warning
     desc: "codecov patch target should not be 100% — achievable only with full functional test coverage upload"
 
