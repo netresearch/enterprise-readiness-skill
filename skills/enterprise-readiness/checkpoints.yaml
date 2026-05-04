@@ -19,9 +19,18 @@ mechanical:
   # strips outer quotes but doesn't decode YAML escape sequences, so we use
   # double-quoted YAML scalars and single-quoted shell args (which don't need
   # YAML escaping).
+  #
+  # ER-01: pure-pipeline rewrite for the runner allowlist (no ; && || $() `).
+  # Two evidence streams concatenated via `cat` + process substitution:
+  #   1. find emits .github/workflows/security.yml if it exists
+  #   2. grep -RlE emits paths of any workflow delegating to the netresearch
+  #      reusable security workflow
+  # If either stream produces a path, the final `grep -q .` succeeds (pass).
+  # Process substitution `<(...)` is allowlist-safe: it doesn't contain `$(`
+  # or any rejected metachar; the pipeline's first token is `cat` (allowed).
   - id: ER-01
     type: command
-    pattern: "test -f .github/workflows/security.yml || grep -RqE 'uses:[[:space:]]+\"?netresearch/(typo3-ci-workflows|[.]github)/[.]github/workflows/security[.]yml' .github/workflows/ 2>/dev/null"
+    pattern: "cat <(find .github/workflows/security.yml -type f -print 2>/dev/null) <(grep -RlE 'uses:[[:space:]]+\"?netresearch/(typo3-ci-workflows|[.]github)/[.]github/workflows/security[.]yml' .github/workflows/ 2>/dev/null) | grep -q ."
     severity: error
     desc: "A security workflow must exist — either as .github/workflows/security.yml or as a reusable-workflow job"
 
