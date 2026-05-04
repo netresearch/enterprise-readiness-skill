@@ -315,13 +315,13 @@ mechanical:
   # for type=command checkpoints; the threshold is now enforced inline.
   - id: ER-71
     type: command
-    pattern: "cat infection.json5 infection.json 2>/dev/null | grep -oE '\"minMsi\"[[:space:]]*:[[:space:]]*[0-9]+' | grep -oE '[0-9]+$' | grep -qE '^(9[0-9]|[1-9][0-9]{2,})$'"
+    pattern: "cat infection.json5 infection.json 2>/dev/null | grep -oE '\"minMsi\"[[:space:]]*:[[:space:]]*[0-9]+' | grep -oE '[0-9]+$' | grep -qE '^(9[0-9]|100)$'"
     severity: warning
     desc: "Enterprise projects should have minMsi >= 90% for mutation testing"
 
   - id: ER-72
     type: command
-    pattern: "cat infection.json5 infection.json 2>/dev/null | grep -oE '\"minCoveredMsi\"[[:space:]]*:[[:space:]]*[0-9]+' | grep -oE '[0-9]+$' | grep -qE '^(9[0-9]|[1-9][0-9]{2,})$'"
+    pattern: "cat infection.json5 infection.json 2>/dev/null | grep -oE '\"minCoveredMsi\"[[:space:]]*:[[:space:]]*[0-9]+' | grep -oE '[0-9]+$' | grep -qE '^(9[0-9]|100)$'"
     severity: warning
     desc: "Enterprise projects should have minCoveredMsi >= 90%"
 
