@@ -166,7 +166,7 @@ mechanical:
     type: regex
     target: .github/workflows/*.yml
     follow_uses: true
-    pattern: 'uses:\s*github/codeql-action|uses:[[:space:]]+netresearch/\.github/\.github/workflows/codeql\.yml|/\.github/workflows/codeql\.yml@'
+    pattern: 'uses:[[:space:]]*github/codeql-action|uses:[[:space:]]+netresearch/[.]github/[.]github/workflows/codeql[.]yml|uses:[[:space:]]+[^[:space:]]*/[.]github/workflows/codeql[.]yml@'
     severity: warning
     desc: "CodeQL must be wired up (dedicated workflow, reusable-workflow job, or transitive delegation via netresearch/.github)"
 
@@ -174,7 +174,7 @@ mechanical:
     type: regex
     target: .github/workflows/*.yml
     follow_uses: true
-    pattern: 'uses:\s*ossf/scorecard-action|uses:[[:space:]]+netresearch/\.github/\.github/workflows/scorecard\.yml|/\.github/workflows/scorecard\.yml@'
+    pattern: 'uses:[[:space:]]*ossf/scorecard-action|uses:[[:space:]]+netresearch/[.]github/[.]github/workflows/scorecard[.]yml|uses:[[:space:]]+[^[:space:]]*/[.]github/workflows/scorecard[.]yml@'
     severity: warning
     desc: "OpenSSF Scorecard must be wired up (dedicated workflow, reusable-workflow job, or transitive delegation via netresearch/.github)"
 
@@ -182,7 +182,7 @@ mechanical:
     type: regex
     target: .github/workflows/*.yml
     follow_uses: true
-    pattern: 'uses:\s*actions/dependency-review-action|uses:[[:space:]]+netresearch/\.github/\.github/workflows/dependency-review\.yml|/\.github/workflows/dependency-review\.yml@'
+    pattern: 'uses:[[:space:]]*actions/dependency-review-action|uses:[[:space:]]+netresearch/[.]github/[.]github/workflows/dependency-review[.]yml|uses:[[:space:]]+[^[:space:]]*/[.]github/workflows/dependency-review[.]yml@'
     severity: warning
     desc: "Dependency review must be wired up (dedicated workflow, reusable-workflow job, or transitive delegation via netresearch/.github)"
 
@@ -233,7 +233,7 @@ mechanical:
     type: regex
     target: .github/workflows/*.yml
     follow_uses: true
-    pattern: 'attest-build-provenance|attest@|slsa-github-generator|uses:[[:space:]]+netresearch/typo3-ci-workflows/[.]github/workflows/(release|release-typo3-extension)[.]yml|uses:[[:space:]]+netresearch/skill-repo-skill/[.]github/workflows/release[.]yml|/\.github/workflows/release[a-z0-9-]*\.yml@'
+    pattern: 'attest-build-provenance|attest@|slsa-github-generator|uses:[[:space:]]+netresearch/typo3-ci-workflows/[.]github/workflows/(release|release-typo3-extension)[.]yml|uses:[[:space:]]+netresearch/skill-repo-skill/[.]github/workflows/release[.]yml|uses:[[:space:]]+[^[:space:]]*/[.]github/workflows/release[a-z0-9-]*[.]yml@'
     severity: info
     desc: "Release workflow should generate provenance attestation: actions/attest-build-provenance (preferred), slsa-github-generator, OR delegation to a netresearch reusable release workflow (typo3-ci-workflows, skill-repo-skill)"
 
