@@ -271,7 +271,7 @@ mechanical:
   # suppressed errors fails regardless of which path it lives at.
   - id: ER-31
     type: command
-    pattern: "! cat phpstan-baseline.neon Build/phpstan-baseline.neon Build/phpstan/phpstan-baseline.neon 2>/dev/null | grep -q 'message:'"
+    pattern: "! cat phpstan-baseline.neon Build/phpstan-baseline.neon Build/phpstan/phpstan-baseline.neon 2>/dev/null | grep -qF 'message:'"
     severity: info
     desc: "PHPStan baseline should be absent or empty (no suppressed errors). Non-empty baselines are tech debt — actively shrink them."
 
