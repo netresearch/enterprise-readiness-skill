@@ -198,7 +198,7 @@ Security-sensitive code requiring manual review:
 
 ## Operational Patterns
 
-Day-to-day workflows for triaging issues, wiring CI, and keeping the project list clean. Token lives in env (`$SONAR_TOKEN`), HTTP basic auth as `-u "$TOKEN:"`.
+Day-to-day workflows for triaging issues, wiring CI, and keeping the project list clean. Token lives in env (`$SONAR_TOKEN`), passed as `Authorization: Bearer $SONAR_TOKEN` (Basic-auth `-u "$SONAR_TOKEN:"` also works, but Bearer keeps secrets out of the URL credential slot and avoids tripping secret-scanners on `-u` patterns).
 
 ### Quality Gate vs Annotations vs Required Check
 
@@ -225,7 +225,7 @@ Refactor-PR gotcha: *0% Coverage on New Code* is **structurally unfixable** when
 Single transition (issues):
 
 ```bash
-curl -s -u "$SONAR_TOKEN:" -X POST \
+curl -s -H "Authorization: Bearer $SONAR_TOKEN" -X POST \
   "https://sonarcloud.io/api/issues/do_transition" \
   --data-urlencode "issue=$KEY" \
   --data-urlencode "transition=wontfix"   # or: falsepositive
@@ -234,7 +234,7 @@ curl -s -u "$SONAR_TOKEN:" -X POST \
 Add a comment (separate call — `do_transition` does not accept `comment`):
 
 ```bash
-curl -s -u "$SONAR_TOKEN:" -X POST \
+curl -s -H "Authorization: Bearer $SONAR_TOKEN" -X POST \
   "https://sonarcloud.io/api/issues/add_comment" \
   --data-urlencode "issue=$KEY" \
   --data-urlencode "text=Reason: ..."
@@ -243,7 +243,7 @@ curl -s -u "$SONAR_TOKEN:" -X POST \
 Available issue transitions: `falsepositive`, `wontfix`, `confirm`, `unconfirm`, `resolve`, `reopen`. Hotspots use a different endpoint:
 
 ```bash
-curl -s -u "$SONAR_TOKEN:" -X POST \
+curl -s -H "Authorization: Bearer $SONAR_TOKEN" -X POST \
   "https://sonarcloud.io/api/hotspots/change_status" \
   --data-urlencode "hotspot=$KEY" \
   --data-urlencode "status=REVIEWED" \
@@ -300,7 +300,7 @@ gh api "orgs/$ORG/repos?type=all&per_page=100&page=1" \
 # Delete each archived-but-still-in-Sonar project; expect HTTP 204 per delete
 comm -12 /tmp/sonar.txt /tmp/archived.txt \
   | while read -r repo; do
-      curl -s -u "$SONAR_TOKEN:" -X POST \
+      curl -s -H "Authorization: Bearer $SONAR_TOKEN" -X POST \
         "https://sonarcloud.io/api/projects/delete?project=${ORG}_${repo}" \
         -w "$repo: %{http_code}\n"
     done
@@ -324,7 +324,7 @@ sonarqube:
         vendor/bin/phpunit --coverage-clover .Build/logs/clover-unit.xml
         # JS example
         npm ci && npm run test:coverage
-    - uses: SonarSource/sonarqube-scan-action@<sha>  # or sonarcloud-github-action
+    - uses: SonarSource/sonarqube-scan-action@59db25f34e16620e48ab4bb9e4a5dce155cb5432  # v8.0.0 — pin to 40-char SHA, comment with version; or use sonarcloud-github-action
 ```
 
 Wire the resulting reports in `sonar-project.properties`:
