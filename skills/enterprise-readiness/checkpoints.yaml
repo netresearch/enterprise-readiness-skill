@@ -608,9 +608,10 @@ llm_reviews:
            file is NOT consulted by GitHub in that case and MUST NOT be
            used to suppress a finding.
          - The same rule applies independently to PR templates. GitHub
-           recognises a local PR template in any of these locations
-           (case-insensitive on macOS/Linux):
-             * .github/PULL_REQUEST_TEMPLATE.md (or .yml form)
+           performs a case-insensitive lookup (the filename's actual
+           case on disk doesn't matter — GitHub finds it regardless),
+           and recognises any of these local paths:
+             * .github/PULL_REQUEST_TEMPLATE.md (or .yml/.txt form)
              * .github/pull_request_template.md
              * pull_request_template.md (repo root)
              * docs/pull_request_template.md
