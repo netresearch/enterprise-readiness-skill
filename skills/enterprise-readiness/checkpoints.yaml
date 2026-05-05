@@ -611,7 +611,7 @@ llm_reviews:
            performs a case-insensitive lookup (the filename's actual
            case on disk doesn't matter — GitHub finds it regardless),
            and recognises any of these local paths:
-             * .github/PULL_REQUEST_TEMPLATE.md (or .yml/.txt form)
+             * .github/PULL_REQUEST_TEMPLATE.md (or .txt form)
              * .github/pull_request_template.md
              * pull_request_template.md (repo root)
              * docs/pull_request_template.md
