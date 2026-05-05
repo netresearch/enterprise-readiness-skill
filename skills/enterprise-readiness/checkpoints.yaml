@@ -596,13 +596,26 @@ llm_reviews:
       1. Verify CONTRIBUTING.md or PR templates mention that all review threads
          must be resolved before merge. Both CONTRIBUTING.md and PR templates
          (.github/PULL_REQUEST_TEMPLATE.md) are community-health files that
-         GitHub auto-inherits from the org-wide <owner>/.github repo when not
-         present in the project. Treat coverage by the org-wide repo (e.g.,
-         netresearch/.github) as equivalent to project-local presence — do
-         NOT flag absence of project-local CONTRIBUTING.md or PR templates
-         on its own; only flag if neither project nor org-wide addresses the
-         thread-resolution requirement. CODEOWNERS does NOT inherit from
-         org-wide .github and remains a project-local concern if needed.
+         GitHub auto-inherits from the org-wide <owner>/.github repo ONLY
+         when the project has NO local copy of that specific file. The
+         fallback does NOT supplement a present-but-incomplete local file.
+         Apply per-file:
+         - If the project has NO local CONTRIBUTING.md and the org-wide
+           <owner>/.github/CONTRIBUTING.md (e.g., netresearch/.github)
+           covers the thread-resolution requirement, treat that requirement
+           as satisfied via CONTRIBUTING.md. If the project HAS a local
+           CONTRIBUTING.md, evaluate it on its own merits — the org-wide
+           file is NOT consulted by GitHub in that case and MUST NOT be
+           used to suppress a finding.
+         - The same rule applies independently to PR templates
+           (.github/PULL_REQUEST_TEMPLATE.md): the org-wide template only
+           applies when the project has no local PR template; if a local
+           template exists, evaluate it directly.
+         - Only flag absence outright when neither the project nor (per the
+           fallback rule above, where applicable) the org-wide repo
+           addresses the thread-resolution requirement via either file.
+         CODEOWNERS does NOT inherit from org-wide .github and remains a
+         project-local concern if needed.
       2. Check if auto-merge workflows account for the constraint that commits
          cannot be pushed while a branch is in the merge queue
       3. Flag if required_review_thread_resolution is enabled but not documented
