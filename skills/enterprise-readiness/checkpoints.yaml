@@ -607,10 +607,19 @@ llm_reviews:
            CONTRIBUTING.md, evaluate it on its own merits — the org-wide
            file is NOT consulted by GitHub in that case and MUST NOT be
            used to suppress a finding.
-         - The same rule applies independently to PR templates
-           (.github/PULL_REQUEST_TEMPLATE.md): the org-wide template only
-           applies when the project has no local PR template; if a local
-           template exists, evaluate it directly.
+         - The same rule applies independently to PR templates. GitHub
+           recognises a local PR template in any of these locations
+           (case-insensitive on macOS/Linux):
+             * .github/PULL_REQUEST_TEMPLATE.md (or .yml form)
+             * .github/pull_request_template.md
+             * pull_request_template.md (repo root)
+             * docs/pull_request_template.md
+             * .github/PULL_REQUEST_TEMPLATE/ (directory containing
+               multiple templates — ANY file here counts as a local
+               template for the purposes of this fallback rule)
+           The org-wide template only applies when NONE of these local
+           paths exist; if any local template exists, evaluate it
+           directly without consulting the org-wide file.
          - Only flag absence outright when neither the project nor (per the
            fallback rule above, where applicable) the org-wide repo
            addresses the thread-resolution requirement via either file.
