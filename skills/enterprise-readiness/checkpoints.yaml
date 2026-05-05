@@ -136,12 +136,17 @@ mechanical:
     desc: "Codecov config should exist for coverage thresholds"
 
   # === SLSA PROVENANCE ===
+  # follow_uses: also inspect any reusable workflow referenced via `uses:` so
+  # delegation to netresearch/typo3-ci-workflows (release.yml,
+  # release-typo3-extension.yml) or skill-repo-skill release.yml that
+  # internally calls attest-build-provenance counts as a pass.
   - id: ER-15
     type: regex
     target: .github/workflows/*.yml
-    pattern: 'attest-build-provenance|attest@|build-go-attest|slsa-github-generator|uses:[[:space:]]+netresearch/typo3-ci-workflows/[.]github/workflows/(release|release-typo3-extension)[.]yml'
+    follow_uses: true
+    pattern: 'attest-build-provenance|attest@|build-go-attest|slsa-github-generator|uses:[[:space:]]+netresearch/typo3-ci-workflows/[.]github/workflows/(release|release-typo3-extension)[.]yml|uses:[[:space:]]+netresearch/skill-repo-skill/[.]github/workflows/release[.]yml'
     severity: info
-    desc: "Provenance attestation: actions/attest-build-provenance (preferred), build-go-attest, slsa-github-generator, OR delegation to netresearch typo3-ci-workflows release workflow"
+    desc: "Provenance attestation: actions/attest-build-provenance (preferred), build-go-attest, slsa-github-generator, OR delegation to a netresearch reusable release workflow (typo3-ci-workflows, skill-repo-skill)"
 
   # === REQUIRED WORKFLOWS ===
   - id: ER-18
@@ -153,26 +158,33 @@ mechanical:
   # CodeQL / Scorecard / dependency-review may be a dedicated workflow file OR
   # a job in another workflow that delegates to the netresearch reusable
   # workflow (netresearch/.github/.github/workflows/{codeql,scorecard,dependency-review}.yml).
+  # follow_uses: walks one hop into any reusable workflow referenced via
+  # `uses: owner/repo/.github/workflows/file.yml@ref` so an indirect chain
+  # (e.g. typo3-ci-workflows/security.yml → netresearch/.github/codeql.yml)
+  # still satisfies the inline-action pattern.
   - id: ER-19
     type: regex
     target: .github/workflows/*.yml
-    pattern: 'uses:\s*github/codeql-action|uses:\s*netresearch/\.github/\.github/workflows/codeql\.yml'
+    follow_uses: true
+    pattern: 'uses:\s*github/codeql-action|uses:[[:space:]]+netresearch/\.github/\.github/workflows/codeql\.yml|/\.github/workflows/codeql\.yml@'
     severity: warning
-    desc: "CodeQL must be wired up (dedicated workflow or reusable-workflow job)"
+    desc: "CodeQL must be wired up (dedicated workflow, reusable-workflow job, or transitive delegation via netresearch/.github)"
 
   - id: ER-20
     type: regex
     target: .github/workflows/*.yml
-    pattern: 'uses:\s*ossf/scorecard-action|uses:\s*netresearch/\.github/\.github/workflows/scorecard\.yml'
+    follow_uses: true
+    pattern: 'uses:\s*ossf/scorecard-action|uses:[[:space:]]+netresearch/\.github/\.github/workflows/scorecard\.yml|/\.github/workflows/scorecard\.yml@'
     severity: warning
-    desc: "OpenSSF Scorecard must be wired up (dedicated workflow or reusable-workflow job)"
+    desc: "OpenSSF Scorecard must be wired up (dedicated workflow, reusable-workflow job, or transitive delegation via netresearch/.github)"
 
   - id: ER-21
     type: regex
     target: .github/workflows/*.yml
-    pattern: 'uses:\s*actions/dependency-review-action|uses:\s*netresearch/\.github/\.github/workflows/dependency-review\.yml'
+    follow_uses: true
+    pattern: 'uses:\s*actions/dependency-review-action|uses:[[:space:]]+netresearch/\.github/\.github/workflows/dependency-review\.yml|/\.github/workflows/dependency-review\.yml@'
     severity: warning
-    desc: "Dependency review must be wired up (dedicated workflow or reusable-workflow job)"
+    desc: "Dependency review must be wired up (dedicated workflow, reusable-workflow job, or transitive delegation via netresearch/.github)"
 
   # === REQUIRED BADGES ===
   - id: ER-22
@@ -213,12 +225,17 @@ mechanical:
     desc: "Workflow run: blocks must not interpolate ${{ inputs.* }} directly (code injection). Pass through env: block instead"
 
   # === GITHUB ATTESTATION ===
+  # follow_uses: also inspect upstream content of any reusable workflow
+  # referenced via `uses:` so a release workflow that delegates entirely to
+  # an org reusable workflow (which itself runs attest-build-provenance) is
+  # detected.
   - id: ER-26
     type: regex
     target: .github/workflows/*.yml
-    pattern: 'attest-build-provenance|attest@|slsa-github-generator|uses:[[:space:]]+netresearch/typo3-ci-workflows/[.]github/workflows/(release|release-typo3-extension)[.]yml'
+    follow_uses: true
+    pattern: 'attest-build-provenance|attest@|slsa-github-generator|uses:[[:space:]]+netresearch/typo3-ci-workflows/[.]github/workflows/(release|release-typo3-extension)[.]yml|uses:[[:space:]]+netresearch/skill-repo-skill/[.]github/workflows/release[.]yml|/\.github/workflows/release[a-z0-9-]*\.yml@'
     severity: info
-    desc: "Release workflow should generate provenance attestation: actions/attest-build-provenance (preferred), slsa-github-generator, OR delegation to netresearch release reusable workflow"
+    desc: "Release workflow should generate provenance attestation: actions/attest-build-provenance (preferred), slsa-github-generator, OR delegation to a netresearch reusable release workflow (typo3-ci-workflows, skill-repo-skill)"
 
   # === SLSA-GENERATOR DEPRECATION CHECK ===
   - id: ER-29
@@ -234,9 +251,10 @@ mechanical:
   - id: ER-27
     type: regex
     target: .github/workflows/*.yml
+    follow_uses: true
     pattern: 'uses:[[:space:]]*step-security/harden-runner@[a-f0-9]{40}|uses:[[:space:]]+netresearch/(typo3-ci-workflows|[.]github)/[.]github/workflows/'
     severity: warning
-    desc: "Workflows should include step-security/harden-runner for egress monitoring (pinned to SHA), OR delegate to netresearch reusable workflows (which apply harden-runner centrally)"
+    desc: "Workflows should include step-security/harden-runner for egress monitoring (pinned to SHA), OR delegate to a netresearch reusable workflow (which applies harden-runner centrally — detected transitively via follow_uses)"
 
   # === SHA-PINNING VIOLATION DETECTION ===
   - id: ER-28
