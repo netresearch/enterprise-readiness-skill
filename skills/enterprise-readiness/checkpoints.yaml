@@ -379,13 +379,24 @@ llm_reviews:
       2. Check if .github/workflows mention commit signing
       3. Check CONTRIBUTING.md for signing requirements. CONTRIBUTING.md is
          a community-health file that GitHub auto-inherits from the org-wide
-         <owner>/.github repo when not present in the project, so a missing
-         project-local CONTRIBUTING.md is acceptable if the org provides one
-         (e.g., netresearch/.github/CONTRIBUTING.md). Do NOT flag the
-         absence of project-local CONTRIBUTING.md as a finding on its own;
-         only flag if neither the project nor the org-wide repo addresses
-         signing requirements. Note: CODEOWNERS does NOT inherit from
-         org-wide .github — it must live in the repo itself if needed.
+         <owner>/.github repo ONLY when the project has NO local
+         CONTRIBUTING.md. The fallback does NOT supplement a present-but-
+         incomplete local file. Apply this rule:
+         - If the project has NO local CONTRIBUTING.md and the org-wide
+           <owner>/.github/CONTRIBUTING.md (e.g., netresearch/.github)
+           documents the required signing/commit conventions, treat the
+           requirement as satisfied. Do NOT flag absence of a project-local
+           CONTRIBUTING.md on its own in this case.
+         - If the project HAS a local CONTRIBUTING.md, evaluate it on its
+           own merits. The org-wide file is NOT consulted by GitHub in this
+           case and MUST NOT be used to suppress a finding. If the local
+           CONTRIBUTING.md does not document signing requirements, flag it
+           regardless of org-wide content.
+         - Only flag absence outright when neither the project nor (when
+           applicable per the fallback rule above) the org-wide repo
+           addresses signing requirements.
+         Note: CODEOWNERS does NOT inherit from org-wide .github — it must
+         live in the repo itself if needed.
     severity: warning
     desc: "Repository should require signed commits"
 
