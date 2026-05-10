@@ -12,7 +12,7 @@ Defenses must be layered. No single control catches every attack class:
 |-------|-------|
 | Committed lockfile + `--frozen-lockfile` | Version substitution: a hijacked **new** version cannot be installed without a lockfile diff visible in PR review |
 | Lifecycle-script allowlist (`allowBuilds`) | Newly added transitive dep with a malicious postinstall — install fails for unlisted names |
-| Lifecycle-script **denylist** (`allowBuilds: foo: false`) | A hijacked version of a known dep that previously needed scripts but no longer does (because prebuilt platform binaries make the postinstall redundant) |
+| Lifecycle-script **denylist** (`allowBuilds.foo: false`) | A hijacked version of a known dep that previously needed scripts but no longer does (because prebuilt platform binaries make the postinstall redundant) |
 | Release-age quarantine (`minimumReleaseAge`) | A freshly hijacked version that hasn't been flagged yet — buys time for the community to detect and unpublish |
 | Dep-PR human review | Integrity-hash changes are visible in the lockfile diff |
 | npm provenance (`--require-attestation`, sigstore) | Tampering between source and registry — but most packages still don't publish provenance, so tree-wide enforcement isn't yet practical |
@@ -57,7 +57,7 @@ Both ship per-platform prebuilt binaries via `optionalDependencies`:
 
 pnpm/npm install only the matching optional dep for the current platform. The wrapper package's `postinstall` is a fallback for environments where the optional dep didn't install — when it does install (the normal case), the postinstall is redundant.
 
-Setting `allowBuilds: esbuild: false` means **even a hijacked future release of `esbuild` cannot execute code at install time**, because pnpm refuses to run its scripts regardless of version. The prebuilt binary still works because it's resolved through a separate package whose tarball is integrity-checked by the lockfile.
+Setting `allowBuilds.esbuild: false` (the `esbuild: false` entry in the `allowBuilds` map) means **even a hijacked future release of `esbuild` cannot execute code at install time**, because pnpm refuses to run its scripts regardless of version. The prebuilt binary still works because it's resolved through a separate package whose tarball is integrity-checked by the lockfile.
 
 A name-only allowlist (the deprecated `onlyBuiltDependencies: ["esbuild"]`) does NOT have this property: it permits scripts for any version named `esbuild`, including a hijacked one.
 
@@ -128,7 +128,7 @@ To audit a repo end-to-end:
 yq -e '.strictDepBuilds == true and .allowBuilds and .minimumReleaseAge' pnpm-workspace.yaml
 
 # Engine floor is high enough
-jq -e '.engines.pnpm | test("\\^?(10\\.(2[6-9]|[3-9][0-9])|1[1-9])")' package.json
+jq -e '.engines.pnpm | test("\\^?(10\\.(2[6-9]|[3-9][0-9])|[1-9][0-9]+)")' package.json
 
 # Lockfile is committed and frozen install works
 test -f pnpm-lock.yaml && pnpm install --frozen-lockfile
@@ -139,8 +139,8 @@ test -f pnpm-lock.yaml && pnpm install --frozen-lockfile
 | Capability | pnpm 11+ | npm | yarn (Berry) |
 |---|---|---|---|
 | Block scripts globally | `allowBuilds` (deny by omission with `strictDepBuilds`) | `ignore-scripts=true` in `.npmrc` (all-or-nothing) | `enableScripts: false` in `.yarnrc.yml` |
-| Per-package allow | `allowBuilds: pkg: true` | n/a | `--ignore-scripts` plus selective post-install |
-| Per-version pinning | `allowBuilds: pkg@1.2.3: true` | n/a | n/a |
+| Per-package allow | `allowBuilds: { pkg: true }` | n/a | `--ignore-scripts` plus selective post-install |
+| Per-version pinning | `allowBuilds: { "pkg@1.2.3": true }` | n/a | n/a |
 | Release-age quarantine | `minimumReleaseAge` | n/a (proposed; not landed) | n/a |
 | Provenance verification | `verify-deps-before-run` (limited) | `npm install --require-attestation` | n/a |
 
