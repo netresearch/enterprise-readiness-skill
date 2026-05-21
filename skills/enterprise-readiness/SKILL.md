@@ -12,6 +12,14 @@ allowed-tools: Bash(gh:*) Bash(python3:*) Bash(cosign:*) Read Write Glob Grep
 
 # Enterprise Readiness Assessment
 
+## Framing
+
+This is the **high-stakes end** of the verification spectrum. Lower-stakes work (internal scripts, prototypes, throwaway PoCs) has correspondingly lighter bars — they do not need SLSA Level 3, cosign attestation, or OpenSSF Silver. Production deploys, customer-facing releases, and supply-chain-critical artifacts do.
+
+If the project you are assessing does not yet ship to customers or production-grade infrastructure, ask the user what the target tier is before applying the full checklist. Applying enterprise-grade controls to a prototype is wasted work and trains the team to ignore the report — the same anti-pattern as `automated-assessment` > Calibration Debt.
+
+The checklists below are the **floor** for production / enterprise tier, not a ceiling and not a default for every repo.
+
 ## When to Use
 
 - Production/enterprise readiness evaluations
