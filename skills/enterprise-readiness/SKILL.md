@@ -12,13 +12,7 @@ allowed-tools: Bash(gh:*) Bash(python3:*) Bash(cosign:*) Read Write Glob Grep
 
 # Enterprise Readiness Assessment
 
-## Framing
-
-This is the **high-stakes end** of the verification spectrum. Lower-stakes work (internal scripts, prototypes, throwaway PoCs) has correspondingly lighter bars — they do not need SLSA Level 3, cosign attestation, or OpenSSF Silver. Production deploys, customer-facing releases, and supply-chain-critical artifacts do.
-
-If the project you are assessing does not yet ship to customers or production-grade infrastructure, ask the user what the target tier is before applying the full checklist. Applying enterprise-grade controls to a prototype is wasted work and trains the team to ignore the report — the same anti-pattern as `automated-assessment` > Calibration Debt.
-
-The checklists below are the **floor** for production / enterprise tier, not a ceiling and not a default for every repo.
+> Production / enterprise tier only — see `references/tier-framing.md`.
 
 ## When to Use
 
@@ -39,7 +33,7 @@ The checklists below are the **floor** for production / enterprise tier, not a c
 
 ## Mandatory Workflows & Badges
 
-Coverage required: CI, CodeQL, OpenSSF Scorecard, dependency review, security (composer audit + SBOM). Each may be a dedicated `.github/workflows/<name>.yml` OR a job that calls the netresearch reusable workflow. Badges: CI, Codecov, Scorecard, Best Practices, Baseline. See `references/badges-and-workflows.md`.
+Required coverage: CI, CodeQL, Scorecard, dependency review, composer audit, SBOM — as dedicated workflows or jobs calling the netresearch reusable. Badges: CI, Codecov, Scorecard, Best Practices, Baseline. See `references/badges-and-workflows.md`.
 
 ## Key Hardening Patterns
 
