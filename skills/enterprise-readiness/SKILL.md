@@ -12,6 +12,8 @@ allowed-tools: Bash(gh:*) Bash(python3:*) Bash(cosign:*) Read Write Glob Grep
 
 # Enterprise Readiness Assessment
 
+> Production/enterprise tier only — see `references/tier-framing.md`.
+
 ## When to Use
 
 - Production/enterprise readiness evaluations
@@ -31,7 +33,7 @@ allowed-tools: Bash(gh:*) Bash(python3:*) Bash(cosign:*) Read Write Glob Grep
 
 ## Mandatory Workflows & Badges
 
-Coverage required: CI, CodeQL, OpenSSF Scorecard, dependency review, security (composer audit + SBOM). Each may be a dedicated `.github/workflows/<name>.yml` OR a job that calls the netresearch reusable workflow. Badges: CI, Codecov, Scorecard, Best Practices, Baseline. See `references/badges-and-workflows.md`.
+Required coverage: CI, CodeQL, Scorecard, dependency review, composer audit, SBOM — as dedicated workflows or jobs calling the netresearch reusable. Badges: CI, Codecov, Scorecard, Best Practices, Baseline. See `references/badges-and-workflows.md`.
 
 ## Key Hardening Patterns
 
