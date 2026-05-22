@@ -1,10 +1,10 @@
 # Tier framing — when does this skill apply, and to what depth?
 
-This skill is the **high-stakes end** of the verification spectrum. Lower-stakes work (internal scripts, prototypes, throwaway PoCs) has correspondingly lighter bars — they do not need SLSA Level 3, cosign attestation, or OpenSSF Silver. Production deploys, customer-facing releases, and supply-chain-critical artifacts do.
+This skill is the **high-stakes end** of the verification spectrum. Lower-stakes projects (internal scripts, prototypes, throwaway PoCs) have correspondingly lighter bars — they do not need SLSA Level 3, cosign attestation, or OpenSSF Silver. Production deploys, customer-facing releases, and supply-chain-critical artifacts do.
 
 ## Ask before applying
 
-If the project being assessed does not yet ship to customers or production-grade infrastructure, ask the user **what target tier they want** before applying the full checklist. Applying enterprise-grade controls to a prototype is wasted work — and worse, it trains the team to ignore the report. That is the same failure mode `automated-assessment` calls *calibration debt*: a noisy report nobody acts on costs CI time AND erodes trust in the next genuine signal.
+If the project being assessed does not yet ship to customers or production-grade infrastructure, ask the user **what target tier they want** before applying the full checklist. Applying enterprise-grade controls to a prototype is wasted work — and worse, it trains the team to ignore the report. That is the same failure mode the [`automated-assessment` skill](https://github.com/netresearch/automated-assessment-skill/blob/main/skills/automated-assessment/references/calibration.md) calls *calibration debt*: a noisy report nobody acts on costs CI time AND erodes trust in the next genuine signal.
 
 ## What "tier" means here
 

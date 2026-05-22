@@ -12,7 +12,7 @@ allowed-tools: Bash(gh:*) Bash(python3:*) Bash(cosign:*) Read Write Glob Grep
 
 # Enterprise Readiness Assessment
 
-> Production / enterprise tier only — see `references/tier-framing.md`.
+> Production/enterprise tier only — see `references/tier-framing.md`.
 
 ## When to Use
 
