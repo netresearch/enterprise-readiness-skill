@@ -427,7 +427,7 @@ strategy:
 
 ## 8. Signed Commits Enforcement
 
-Signed-commits + merge-strategy compatibility (why GitHub can't sign rebase/squash
+Signed commits and merge strategy compatibility (why GitHub can't sign rebase/squash
 merges, the local-rebase-then-merge-commit workflow, auto-merge strategy
 requirements) is owned by `github-project`. See
 [`merge-strategy.md`](https://github.com/netresearch/github-project-skill/blob/main/skills/github-project/references/merge-strategy.md).
