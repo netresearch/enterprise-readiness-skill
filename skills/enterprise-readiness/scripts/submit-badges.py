@@ -34,12 +34,12 @@ Verification (use /projects/ NOT /en/projects/ for fresh data):
       jq '{badge_level, badge_percentage_0, badge_percentage_1, badge_percentage_2}'
 """
 
+import http.cookiejar
 import json
 import os
 import re
 import sys
 import time
-import http.cookiejar
 import urllib.parse
 import urllib.request
 
@@ -209,7 +209,7 @@ def submit_level(opener, project_id, level, data_file):
 
     # Step 1: Get edit page for CSRF tokens + lock version
     print("  Fetching edit page...")
-    auth_token, csrf_token, lock_version = get_edit_page(opener, project_id, level)
+    auth_token, _csrf_token, lock_version = get_edit_page(opener, project_id, level)
 
     if not auth_token:
         print("  ERROR: Could not get auth token - cookie expired?")
@@ -262,7 +262,7 @@ def main():
             )
             sys.exit(1)
 
-    opener, cj = make_opener(cookie)
+    opener, _cj = make_opener(cookie)
 
     if len(sys.argv) >= 2 and sys.argv[1] == "--all":
         for name, config in PROJECTS.items():
