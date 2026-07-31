@@ -71,5 +71,6 @@ Required coverage: CI, CodeQL, Scorecard, dependency review, composer audit, SBO
 | `references/harden-runner-guide.md` | Harden-Runner |
 | `references/solo-maintainer-guide.md` | N/A criteria |
 | `references/npm-pnpm-supply-chain.md` | pnpm |
+| `references/python-pip-supply-chain.md` | pip |
 
 Related skills: `go-development`, `github-project`, `security-audit`, `git-workflow`.
