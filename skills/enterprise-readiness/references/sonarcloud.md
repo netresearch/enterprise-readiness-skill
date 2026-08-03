@@ -89,10 +89,11 @@ sonar.go.coverage.reportPaths=coverage.out
 sonar.qualitygate.wait=true
 ```
 
-**`sonar-project.properties` is read ONLY by the CI-based scanner.** Repos on
-**Automatic Analysis** (the default when no scan workflow exists — the check
-appears as "SonarCloud Code Analysis") read **`.sonarcloud.properties`**
-instead, which supports a reduced key set (`sonar.sources`, `sonar.tests`,
+**SonarCloud Automatic Analysis ignores `sonar-project.properties`.** That file
+is read by scanner-based analysis (CI workflows, local SonarScanner runs) —
+but repos on **Automatic Analysis** (the default when no scan workflow exists;
+the check appears as "SonarCloud Code Analysis") read
+**`.sonarcloud.properties`** instead, which supports a reduced key set (`sonar.sources`, `sonar.tests`,
 `sonar.exclusions`, `sonar.test.exclusions`, `sonar.inclusions`,
 `sonar.test.inclusions`). An exclusion added to `sonar-project.properties`
 under Automatic Analysis silently does nothing — e.g. a `fixtures/**` exclusion
