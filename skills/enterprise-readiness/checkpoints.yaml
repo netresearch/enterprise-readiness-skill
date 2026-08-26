@@ -334,9 +334,9 @@ mechanical:
   # === MUTATION TESTING QUALITY ===
   - id: ER-70
     type: command
-    command: "test -f infection.json5 -o -f infection.json"
+    command: "test -f infection.json -o -f infection.json5 -o -f infection.json.dist"
     severity: warning
-    desc: "Infection config should exist for mutation testing"
+    desc: "Infection config should exist for mutation testing (.json, .json.dist or .json5)"
 
   # ER-71/ER-72: extract numeric value from infection config and assert >=90.
   # Pure-pipeline form (no ; && || $()) so the assessment-runner allowlist
