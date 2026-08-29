@@ -7,7 +7,7 @@ metadata:
   author: Netresearch DTT GmbH
   version: "4.17.2"
   repository: https://github.com/netresearch/enterprise-readiness-skill
-allowed-tools: Bash(gh:*) Bash(python3:*) Bash(cosign:*) Read Write Glob Grep
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*) Bash(bash ${CLAUDE_SKILL_DIR}/scripts/*) Bash(gh:*) Bash(cosign:*) Read Write Glob Grep
 ---
 
 # Enterprise Readiness Assessment
