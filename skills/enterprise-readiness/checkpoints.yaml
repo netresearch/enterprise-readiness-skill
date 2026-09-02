@@ -332,31 +332,52 @@ mechanical:
   # ER-33 moved to llm_reviews — mechanical regex cannot distinguish org-internal vs third-party workflows
 
   # === MUTATION TESTING QUALITY ===
+  # ER-70/71/72 share ONE candidate-path list, in Infection's own resolution
+  # order followed by the explicit-configuration layout used across the estate:
+  #   1.-4. infection.json5, infection.json, infection.json5.dist,
+  #         infection.json.dist — the four defaults, in exactly the order of
+  #         SchemaConfigurationLoader::POSSIBLE_DEFAULT_CONFIG_FILE_NAMES
+  #   5.-8. the same four under Build/, reached via
+  #         `infection --configuration=Build/infection.json5` (t3x-nr-passkeys-be,
+  #         t3x-nr-passkeys-fe)
+  # The lists MUST stay identical across the three checkpoints: when ER-70
+  # accepted a path that ER-71/72 did not read, a project with mutation
+  # thresholds configured was reported as having none.
+  #
+  # Paths are enumerated explicitly rather than searched, so no tree walk can
+  # reach vendor/, node_modules/ or .Build/.
   - id: ER-70
     type: command
-    command: "test -f infection.json -o -f infection.json5 -o -f infection.json.dist"
+    pattern: "find infection.json5 infection.json infection.json5.dist infection.json.dist Build/infection.json5 Build/infection.json Build/infection.json5.dist Build/infection.json.dist -maxdepth 0 -type f 2>/dev/null | grep -q ."
     severity: warning
-    desc: "Infection config should exist for mutation testing (.json, .json.dist or .json5)"
+    desc: "Infection config should exist for mutation testing (infection.json5/.json/.json5.dist/.json.dist, at the root or under Build/)"
 
   # ER-71/ER-72: extract numeric value from infection config and assert >=90.
   # Pure-pipeline form (no ; && || $()) so the assessment-runner allowlist
   # accepts it. Pattern semantics:
-  #   1. cat both candidate files (only one usually exists)
+  #   1. cat every candidate file, in precedence order (missing ones vanish
+  #      via 2>/dev/null)
   #   2. grep for the key:value occurrence with a numeric value
-  #   3. extract the trailing integer
-  #   4. grep -qE matches when the integer is 90-99 or 100+ (i.e. >=90)
+  #   3. head -1 keeps the FIRST match, i.e. the value from the
+  #      highest-precedence file that exists — a stale `infection.json.dist`
+  #      with a high threshold must not mask the active config's low one
+  #   4. extract the trailing integer
+  #   5. grep -qE matches when the integer is 90-99 or 100 (i.e. >=90)
   # Missing file or missing key => empty pipeline => grep -q fails => fail.
+  # `head` exits 0 on empty input, but the pipeline's exit status comes from
+  # the final `grep -qE` and there is no `&&`/`||` here, so the pipe-into-head
+  # exit trap does not apply.
   # Note: the previous `expected:` field was silently ignored by the runner
   # for type=command checkpoints; the threshold is now enforced inline.
   - id: ER-71
     type: command
-    pattern: "cat infection.json5 infection.json 2>/dev/null | grep -oE '\"minMsi\"[[:space:]]*:[[:space:]]*[0-9]+' | grep -oE '[0-9]+$' | grep -qE '^(9[0-9]|100)$'"
+    pattern: "cat infection.json5 infection.json infection.json5.dist infection.json.dist Build/infection.json5 Build/infection.json Build/infection.json5.dist Build/infection.json.dist 2>/dev/null | grep -oE '\"minMsi\"[[:space:]]*:[[:space:]]*[0-9]+' | head -1 | grep -oE '[0-9]+$' | grep -qE '^(9[0-9]|100)$'"
     severity: warning
     desc: "Enterprise projects should have minMsi >= 90% for mutation testing"
 
   - id: ER-72
     type: command
-    pattern: "cat infection.json5 infection.json 2>/dev/null | grep -oE '\"minCoveredMsi\"[[:space:]]*:[[:space:]]*[0-9]+' | grep -oE '[0-9]+$' | grep -qE '^(9[0-9]|100)$'"
+    pattern: "cat infection.json5 infection.json infection.json5.dist infection.json.dist Build/infection.json5 Build/infection.json Build/infection.json5.dist Build/infection.json.dist 2>/dev/null | grep -oE '\"minCoveredMsi\"[[:space:]]*:[[:space:]]*[0-9]+' | head -1 | grep -oE '[0-9]+$' | grep -qE '^(9[0-9]|100)$'"
     severity: warning
     desc: "Enterprise projects should have minCoveredMsi >= 90%"
 
