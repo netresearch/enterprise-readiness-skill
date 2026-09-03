@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "enterprise-readiness",
-  "version": "4.17.2",
+  "version": "4.17.3",
   "description": "Assess and enhance software projects for enterprise-grade security, quality, and automation",
   "author": {
     "name": "Netresearch DTT GmbH",
