@@ -294,7 +294,8 @@ Add a comment (separate call — `do_transition` does not accept `comment`):
 curl -s -H "Authorization: Bearer $SONAR_TOKEN" -X POST \
   "https://sonarcloud.io/api/issues/add_comment" \
   --data-urlencode "issue=$KEY" \
-  --data-urlencode "text=Reason: ..."
+  --data-urlencode "text=Reason: ..." \
+  --data-urlencode "pullRequest=106"      # omit for a main-branch issue
 ```
 
 Available issue transitions: `falsepositive`, `wontfix`, `confirm`, `unconfirm`, `resolve`, `reopen`. Hotspots use a different endpoint:
@@ -304,10 +305,11 @@ curl -s -H "Authorization: Bearer $SONAR_TOKEN" -X POST \
   "https://sonarcloud.io/api/hotspots/change_status" \
   --data-urlencode "hotspot=$KEY" \
   --data-urlencode "status=REVIEWED" \
-  --data-urlencode "resolution=SAFE"      # or: FIXED, ACKNOWLEDGED
+  --data-urlencode "resolution=SAFE" \
+  --data-urlencode "pullRequest=106"      # omit for a main-branch hotspot
 ```
 
-Bulk fetch issue keys for a rule:
+Bulk fetch issue keys for a rule (append `&pullRequest=106` on a pull request, or this lists the main-branch issues):
 
 ```bash
 curl -s "https://sonarcloud.io/api/issues/search?componentKeys=$PROJECT&rules=$RULE&issueStatuses=OPEN,CONFIRMED&ps=500" \
