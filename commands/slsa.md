@@ -58,7 +58,7 @@ Assess and improve Supply-chain Levels for Software Artifacts (SLSA) compliance.
 
 ## Critical Implementation Gotchas
 
-When implementing SLSA Level 3 with `slsa-github-generator`:
+When implementing SLSA Level 3 with `slsa-github-generator` (it cannot run under `sha_pinning_required` — [#4440](https://github.com/slsa-framework/slsa-github-generator/issues/4440); use `actions/attest-build-provenance` there):
 
 ### base64-subjects Format
 - **MUST** be sha256sum raw output (`HASH  FILENAME\n`) base64-encoded
