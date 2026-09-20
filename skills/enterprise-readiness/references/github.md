@@ -224,7 +224,7 @@ on:
 | Criteria | Points | How to Check |
 |----------|--------|--------------|
 | Verification instructions documented | 1 | Check README or release notes |
-| `slsa-verifier` compatible | 1 | Test with `slsa-verifier verify-artifact` |
+| Verifiable with the tool that matches the attestation | 1 | Generator-produced provenance: `slsa-verifier verify-artifact`. Native attestations from `actions/attest-build-provenance`: `gh attestation verify <artifact> --repo <owner>/<repo>` — `slsa-verifier` does not read those |
 
 **Using slsa-github-generator (Go example)** — only where no SHA-pinning ruleset applies. The generator's own workflow calls four nested actions by tag, so `sha_pinning_required` rejects the run at the first of them ([#4440](https://github.com/slsa-framework/slsa-github-generator/issues/4440), open); pinning the line below to a SHA does not help, and the generator refuses to run from one. Use `actions/attest-build-provenance` there and claim the level you reach:
 ```yaml

@@ -65,9 +65,10 @@ Supply chain security controls MUST block releases when violated.
      ↓
 3. Push signed tag: git push origin vX.Y.Z
      ↓
-4. Create release on existing tag: gh release create vX.Y.Z
+4. Create release on existing tag: gh release create vX.Y.Z --verify-tag
+   (without --verify-tag, gh creates the tag when it is missing, unsigned)
      ↓
-5. SLSA provenance workflow triggers (workflow_run)
+5. Provenance workflow triggers (release: published)
      ↓
 6. Provenance attestation uploaded to release
      ↓

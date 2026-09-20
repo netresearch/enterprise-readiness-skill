@@ -65,9 +65,14 @@ jobs:
           echo "assets: $count"
           test "$count" -gt 0
           # Attesting a signature or a checksum file alongside the artifact adds
-          # subjects nobody verifies; keep those out.
+          # subjects nobody verifies; keep those out. This is a deny-list, so it
+          # only knows the names below -- check it against what your release
+          # actually publishes before copying this workflow.
           find release-assets -type f \
-            \( -name '*.sig' -o -name '*.pem' -o -name '*.sha256' -o -name '*.intoto.jsonl' \) \
+            \( -name '*.sig' -o -name '*.asc' -o -name '*.pem' \
+               -o -name '*.sha256' -o -name '*.sha512' \
+               -o -name 'SHA256SUMS' -o -name 'SHA512SUMS' -o -name 'checksums.txt' \
+               -o -name '*.intoto.jsonl' \) \
             -delete
           test "$(find release-assets -type f | wc -l)" -gt 0
 
