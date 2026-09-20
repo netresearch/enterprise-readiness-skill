@@ -1,17 +1,32 @@
-# SLSA Provenance (Level 3)
+# Build provenance for release assets
 # https://slsa.dev/
 #
-# Generates cryptographic provenance attestations for release assets.
-# Proves WHERE and HOW artifacts were built.
+# Attests WHERE and HOW the published assets were built. The attestation is
+# issued and stored by GitHub and verified with:
+#
+#   gh attestation verify <asset> --repo <owner>/<repo>
 #
 # Prerequisites:
-# 1. Release assets must already exist (uploaded by release workflow)
-# 2. Repository must allow GitHub Actions to write to releases
+# 1. Release assets must already exist (uploaded by the release workflow)
+# 2. The repository must allow GitHub Actions to request an OIDC token
 #
-# For Go projects with GoReleaser, consider using the SLSA Go builder instead:
-# https://github.com/slsa-framework/slsa-github-generator/blob/main/internal/builders/go/README.md
+# WHY NOT slsa-framework/slsa-github-generator
+#
+# The generic generator is the usual answer for SLSA Level 3, and it cannot run
+# under a SHA-pinning ruleset: its own generator_generic_slsa3.yml calls four
+# nested actions by tag — detect-workflow-js, generate-builder,
+# secure-download-artifact and secure-builder-checkout, all @v2.1.0, the latest
+# release — and a repository or organisation with `sha_pinning_required` on
+# rejects the run at the first of them. Pinning the generator's own `uses:` to a
+# SHA does not help, because the rejected references are inside it, and the
+# generator refuses to run from a SHA anyway. Upstream:
+# https://github.com/slsa-framework/slsa-github-generator/issues/4440 (open).
+#
+# actions/attest-build-provenance is SHA-pinnable like any other action. What it
+# does not give you is the isolated builder that Level 3 is about: state the
+# level you actually reach, not the one the workflow is named after.
 
-name: SLSA Provenance
+name: Build Provenance
 
 on:
   release:
@@ -20,61 +35,43 @@ on:
 permissions: read-all
 
 jobs:
-  # Prepare subjects (SHA256 hashes of release assets)
-  prepare:
-    name: Prepare Provenance Subjects
+  provenance:
+    name: Attest release assets
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    outputs:
-      subjects: ${{ steps.subjects.outputs.subjects }}
-      has_subjects: ${{ steps.subjects.outputs.has_subjects }}
+      id-token: write
+      attestations: write
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
         with:
           egress-policy: audit
 
-      - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-        with:
-          fetch-depth: 0
-
       - name: Download release assets
+        id: assets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Never interpolate github.event.* into a run: block — take it through
+          # the environment, where it is data rather than script.
+          TAG: ${{ github.event.release.tag_name }}
         run: |
+          set -euo pipefail
           mkdir -p release-assets
-          gh release download "${{ github.event.release.tag_name }}" -D release-assets || true
-          ls -la release-assets/
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" -D release-assets
+          # An empty directory would make the attest step attest nothing while
+          # still succeeding, so say so and stop.
+          count=$(find release-assets -type f | wc -l)
+          echo "assets: $count"
+          test "$count" -gt 0
+          # Attesting a signature or a checksum file alongside the artifact adds
+          # subjects nobody verifies; keep those out.
+          find release-assets -type f \
+            \( -name '*.sig' -o -name '*.pem' -o -name '*.sha256' -o -name '*.intoto.jsonl' \) \
+            -delete
+          test "$(find release-assets -type f | wc -l)" -gt 0
 
-      - name: Generate provenance subjects
-        id: subjects
-        run: |
-          cd release-assets
-          if ls * 1> /dev/null 2>&1; then
-            sha256sum * > ../provenance-subjects.txt
-            cat ../provenance-subjects.txt
-
-            SUBJECTS=$(cat ../provenance-subjects.txt | awk '{print "{\"name\":\""$2"\",\"digest\":{\"sha256\":\""$1"\"}}"}' | jq -s -c '.')
-            SUBJECTS_BASE64=$(echo "$SUBJECTS" | base64 -w0)
-            echo "subjects=$SUBJECTS_BASE64" >> "$GITHUB_OUTPUT"
-            echo "has_subjects=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "No assets to hash"
-            echo "has_subjects=false" >> "$GITHUB_OUTPUT"
-          fi
-
-  # Generate SLSA Level 3 provenance
-  provenance:
-    name: Generate SLSA Provenance
-    needs: prepare
-    if: needs.prepare.outputs.has_subjects == 'true'
-    permissions:
-      actions: read
-      id-token: write
-      contents: write
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0
-    with:
-      base64-subjects: ${{ needs.prepare.outputs.subjects }}
-      upload-assets: true
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: release-assets/*

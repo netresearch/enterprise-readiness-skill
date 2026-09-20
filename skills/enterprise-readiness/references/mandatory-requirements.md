@@ -51,8 +51,8 @@ Supply chain security controls MUST block releases when violated.
 
 | Control | Implementation | Blocks Release? |
 |---------|----------------|-----------------|
-| SLSA Provenance | `slsa-github-generator` workflow | **YES** |
-| Signed Tags | `git tag -s` before `gh release create` | **YES** |
+| SLSA Provenance | `actions/attest-build-provenance` (the generic generator cannot run under `sha_pinning_required`, [#4440](https://github.com/slsa-framework/slsa-github-generator/issues/4440)) | **YES** |
+| Signed Tags | `git tag -s`, pushed, then `gh release create --verify-tag` — without the flag `gh` creates the tag itself, unsigned | **YES** |
 | SBOM Generation | `anchore/sbom-action` or `cyclonedx` | **YES** |
 | Dependency Audit | `composer audit` / `npm audit` fails CI | **YES** |
 
