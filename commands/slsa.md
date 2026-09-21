@@ -13,13 +13,15 @@ Assess and improve Supply-chain Levels for Software Artifacts (SLSA) compliance.
    Check for:
    - **Level 1**: Build process documented, provenance available
    - **Level 2**: Hosted build service, signed provenance
-   - **Level 3**: Hardened builds, non-falsifiable provenance (slsa-github-generator)
+   - **Level 3**: Hardened builds, non-falsifiable provenance. On GitHub: the artefact is BUILT inside a reusable workflow the project cannot edit (at Netresearch `release-source-archive.yml`, `release-go-app.yml`, `release-typo3-extension.yml`), or by slsa-github-generator. `attest-build-provenance` in the project's own workflow is Level 2, and so is attesting in a reusable what the project built.
 
 2. **Check provenance generation**
    ```bash
    # Look for slsa-github-generator or similar
    grep -r "slsa-github-generator" .github/workflows/
    grep -r "attest-build-provenance" .github/workflows/
+   # Level 3 path: the build runs in one of these org reusables
+   grep -rE "release-source-archive|release-go-app|release-typo3-extension" .github/workflows/
 
    # Check for .intoto.jsonl in releases
    gh release view --json assets --jq '.assets[].name' | grep intoto

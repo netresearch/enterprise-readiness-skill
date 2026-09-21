@@ -25,6 +25,20 @@
 # actions/attest-build-provenance is SHA-pinnable like any other action. What it
 # does not give you is the isolated builder that Level 3 is about: state the
 # level you actually reach, not the one the workflow is named after.
+#
+# THIS TEMPLATE IS SLSA BUILD LEVEL 2. FOR LEVEL 3, DO NOT USE IT.
+#
+# GitHub: attestations alone give Build Level 2; Level 3 needs the BUILD inside
+# a reusable workflow the project cannot edit. Moving only the attestation into
+# a reusable is still Level 2. At Netresearch, call the reusable for the kind of
+# artefact from a tag-push workflow instead of this file:
+#
+#   source archive  netresearch/.github/.github/workflows/release-source-archive.yml
+#   Go              netresearch/.github/.github/workflows/release-go-app.yml
+#   TYPO3           netresearch/typo3-ci-workflows/.github/workflows/release-typo3-extension.yml
+#
+# They build, generate SBOMs, sign, attest and create the release last, in one
+# run. See references/slsa-provenance.md, "Which build level you get".
 
 name: Build Provenance
 
