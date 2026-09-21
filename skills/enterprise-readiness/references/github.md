@@ -218,7 +218,7 @@ on:
 |----------|--------|--------------|
 | SLSA Level 1 (provenance exists) | 1 | Check for `.intoto.jsonl` in releases |
 | SLSA Level 2 (hosted build, signed provenance) | 1 | Check for signed attestations |
-| SLSA Level 3 (isolated builder, unforgeable) | 2 | Check for slsa-github-generator usage — unreachable where `sha_pinning_required` is on, see below |
+| SLSA Level 3 (isolated builder, unforgeable) | 2 | One reusable workflow the project cannot edit checks out, builds AND attests the artefact (attesting there what the project built is Level 2) — e.g. `release-source-archive.yml`, `release-go-app.yml`, `release-typo3-extension.yml`; see `slsa-provenance.md`. slsa-github-generator is unreachable where `sha_pinning_required` is on, see below |
 
 ### Provenance Verification (2 points)
 | Criteria | Points | How to Check |

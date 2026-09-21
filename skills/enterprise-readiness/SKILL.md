@@ -43,7 +43,7 @@ Required coverage: CI, CodeQL, Scorecard, dependency review, composer audit, SBO
 - **Dependabot**: Configure `dependabot.yml` with all ecosystems (`composer`, `npm`, `github-actions`, `docker`); set up auto-merge workflow for dependency PRs using `pull_request_target`
 - **Coverage**: Upload via `codecov-action`; configure `codecov.yml` with patch coverage threshold
 - **Duplicate CI prevention**: Scope `push:` trigger to `branches: [main]` when `pull_request:` is also present
-- **SLSA provenance**: Use `actions/attest-build-provenance` with `id-token: write` and `attestations: write` permissions; verify with `gh attestation verify`
+- **SLSA provenance**: Use `actions/attest-build-provenance` with `id-token: write` and `attestations: write` permissions; verify with `gh attestation verify`. That is Level 2 in the project's own workflow; Level 3 needs checkout, build and attestation all inside one org reusable the project cannot edit — see `references/slsa-provenance.md`
 - **Security policy**: Create `SECURITY.md` with vulnerability disclosure process and response SLA (Critical: 7 days, High: 30 days)
 
 ## Critical Rules
