@@ -28,9 +28,10 @@
 #
 # THIS TEMPLATE IS SLSA BUILD LEVEL 2. FOR LEVEL 3, DO NOT USE IT.
 #
-# GitHub: attestations alone give Build Level 2; Level 3 needs the BUILD inside
-# a reusable workflow the project cannot edit. Moving only the attestation into
-# a reusable is still Level 2. At Netresearch, call the reusable for the kind of
+# GitHub: attestations alone give Build Level 2; Level 3 needs checkout, build
+# AND attestation inside one reusable workflow the project cannot edit. Moving
+# only the attestation into a reusable is still Level 2, and so is building in
+# a reusable but attesting outside it. At Netresearch, call the reusable for the kind of
 # artefact from a tag-push workflow instead of this file:
 #
 #   source archive  netresearch/.github/.github/workflows/release-source-archive.yml
