@@ -33,26 +33,29 @@ Criteria that can be derived mechanically, with the rule that proved reliable:
 | `contribution` | `CONTRIBUTING.md` that mentions pull requests |
 | `vulnerability_report_process` | A file named exactly `SECURITY.md` (root, `.github/`, `docs/`) that names a concrete channel: a `security/advisories` link or an e-mail address |
 | `vulnerability_report_private` | Private vulnerability reporting enabled (`GET /repos/{r}/private-vulnerability-reporting`) *and* `SECURITY.md` links `security/advisories` (with or without `/new`); or `SECURITY.md` names a private e-mail address |
-| `test`, `test_continuous_integration` | Test files in the tree, and a `pull_request`-triggered workflow that runs them |
-| `static_analysis` | PHPStan, golangci-lint, CodeQL or similar in a workflow |
+| `test` | Test files in the tree, and a workflow that runs them — the criterion accepts a CI script as the documented way to run the suite, and the licence makes the suite FLOSS |
+| `test_continuous_integration` | A workflow that runs the tests on every pull request |
+| `static_analysis` | A tool for the project's own language: PHPStan or Psalm for PHP; golangci-lint, staticcheck or CodeQL for Go. CodeQL has no PHP support |
 | `dependency_monitoring` | `dependabot.yml` or a Renovate config |
 | `version_unique`, `version_tags`, `version_semver` | SemVer tags |
-| `release_notes` | A changelog file, including `Documentation/Changelog/Index.rst` for TYPO3 extensions, alongside SemVer tags |
+| `release_notes` | A changelog file (including `Documentation/Changelog/Index.rst` for TYPO3 extensions) that names the latest SemVer release |
 
 ## Traps measured on a 42-repository rollout
 
-The first three produced a wrong file before they were caught — two by hand sampling, one by a CodeRabbit review. The other three were checked before the first file was written.
+The first five produced a wrong file before they were caught — two by hand sampling, three by CodeRabbit reviews on the first pull requests. The other three were checked before the first file was written.
 
 - **A case-insensitive file match invents a security policy.** `docs/security.md` in an application repository usually documents the application's security *model*. Matching `SECURITY.md` without regard to case credited one repository with a reporting process it does not have; the fix was an exact file name plus a check that the file actually describes reporting.
 - **A security guide is not a reporting policy.** A 700-line `SECURITY.md` can mention "report" and "vulnerability" many times and end on "contact the maintainers through the project's security channels" without naming one. Require a concrete channel — an advisories link or an e-mail address — before claiming the process is published.
 - **Match the channel, not one spelling of its URL.** Requiring the literal `security/advisories/new` missed a policy that links `security/advisories` and says "Click 'Report a vulnerability'", and one that offers `security@…` instead. Both are private channels in the criterion's sense.
+- **The first matching workflow is not the right one.** Taking the first workflow file that mentions any analysis tool credited a PHP extension with CodeQL, because `checks.yml` sorts before `ci.yml` — and CodeQL does not analyse PHP. Rank the tools, and accept only those for the project's language.
+- **A changelog file is not release notes for every release.** Two extensions keep a `CHANGELOG.md` that starts at an untagged 2.0.0 and never names the latest tag. Require the latest SemVer release to appear in the file.
 - **CI reusables hide the commands.** A repository that calls `typo3-ci-workflows`'s `ci.yml` or `.github`'s `go-check.yml` contains no `phpunit` or `go test` string. Open the reusable and read its defaults — `run-unit-tests`, `run-phpstan`, `enable-golangci-lint` are on by default there — and treat a caller that sets one to `false` as having no evidence.
 - **Forks are two different things.** Compare each fork with its parent (`GET /repos/{parent}/compare/{base}...{org}:{branch}`). A fork far ahead of upstream is your project and gets a file; a fork 0 commits ahead is a mirror, and a commit there breaks the clean sync with upstream for no reader.
 - **The registry's own auto-detection misses TYPO3 changelogs.** It recorded "No release notes file found" for an extension whose release notes live in `Documentation/Changelog/Index.rst`. A disagreement between your file and the registry is therefore not automatically your error; read the cited file before deciding.
 
 ## Check the generated files against the registry
 
-For every repository that already has a badge project, compare each proposed `Met` with the registry's stored value (`/projects/{ID}.json`, no locale prefix, with a cache buster — see `badge-submission-api.md` § *API Response Caching*). This is an independent count: the registry was filled by people, the file by rules. On the Netresearch rollout 207 claims agreed, 11 met blank fields in an unfinished project, and the one disagreement was the changelog case above.
+For every repository that already has a badge project, compare each proposed `Met` with the registry's stored value (`/projects/{ID}.json`, no locale prefix, with a cache buster — see `badge-submission-api.md` § *API Response Caching*). This is an independent count: the registry was filled by people, the file by rules. On the Netresearch rollout 205 claims agreed, 11 met blank fields in an unfinished project, and the one disagreement was the changelog case above.
 
 A registry check cannot see a repository without a badge project, which is where both false positives — `docs/security.md` and the security guide without a channel — sat. Sample those by hand: pick a few claims per criterion and open the cited file.
 
