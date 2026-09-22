@@ -68,6 +68,7 @@ Required coverage: CI, CodeQL, Scorecard, dependency review, composer audit, SBO
 | `references/openssf-badge-silver.md` | Silver |
 | `references/openssf-badge-gold.md` | Gold |
 | `references/openssf-badge-baseline.md` | OSPS Baseline |
+| `references/bestpractices-json.md` | `.bestpractices.json`: pre-fill badge answers from the repo |
 | `references/harden-runner-guide.md` | Harden-Runner |
 | `references/solo-maintainer-guide.md` | N/A criteria |
 | `references/npm-pnpm-supply-chain.md` | pnpm |
