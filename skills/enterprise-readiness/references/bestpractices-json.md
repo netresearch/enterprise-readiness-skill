@@ -40,9 +40,9 @@ Criteria that can be derived mechanically, with the rule that proved reliable:
 | `version_unique`, `version_tags`, `version_semver` | SemVer tags |
 | `release_notes` | A changelog file (including `Documentation/Changelog/Index.rst` for TYPO3 extensions) that names the latest SemVer release |
 
-## Traps measured on a 42-repository rollout
+## Traps measured on the Netresearch rollout
 
-The first five produced a wrong file before they were caught — two by hand sampling, three by CodeRabbit reviews on the first pull requests. The other three were checked before the first file was written.
+The generator analysed 42 repositories — every Go module and TYPO3 extension in the organisation — and 33 of them received the file; the other nine are mirror or patch forks (see *Forks are two different things* below). The first five produced a wrong file before they were caught — two by hand sampling, three by CodeRabbit reviews on the first pull requests. The other three were checked before the first file was written.
 
 - **A case-insensitive file match invents a security policy.** `docs/security.md` in an application repository usually documents the application's security *model*. Matching `SECURITY.md` without regard to case credited one repository with a reporting process it does not have; the fix was an exact file name plus a check that the file actually describes reporting.
 - **A security guide is not a reporting policy.** A 700-line `SECURITY.md` can mention "report" and "vulnerability" many times and end on "contact the maintainers through the project's security channels" without naming one. Require a concrete channel — an advisories link or an e-mail address — before claiming the process is published.
