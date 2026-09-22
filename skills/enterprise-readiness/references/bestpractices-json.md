@@ -28,36 +28,44 @@ Criteria that can be derived mechanically, with the rule that proved reliable:
 | `repo_public`, `repo_track`, `repo_distributed` | Public repository on GitHub |
 | `sites_https` | Public repository, and the homepage field empty or `https://` |
 | `license_location` | Licence file in the root |
-| `floss_license` | GitHub's detected SPDX id is OSI-approved, and a licence file exists |
-| `discussion`, `report_process`, `report_archive` | Issues enabled on a public repository |
+| `floss_license` | GitHub's detected SPDX id is OSI-approved, a licence file exists, and `composer.json` and `CONTRIBUTING.md` name no other licence |
+| `discussion`, `report_process`, `report_archive` | Issues enabled on a public repository. Word the archive as *public bug reports*: vulnerabilities go through a private channel |
 | `contribution` | `CONTRIBUTING.md` that mentions pull requests |
 | `vulnerability_report_process` | A file named exactly `SECURITY.md` (root, `.github/`, `docs/`) that names a concrete channel: a `security/advisories` link or an e-mail address |
 | `vulnerability_report_private` | Private vulnerability reporting enabled (`GET /repos/{r}/private-vulnerability-reporting`) *and* `SECURITY.md` links `security/advisories` (with or without `/new`); or `SECURITY.md` names a private e-mail address |
-| `test` | Test files in the tree, and a workflow that runs them — the criterion accepts a CI script as the documented way to run the suite, and the licence makes the suite FLOSS |
+| `test` | Test files in the tree, and a pull-request workflow that invokes them (`go test`, `bin/phpunit`, `composer test:php:unit`, or a shared CI reusable with tests on by default) — the criterion accepts a CI script as the documented way to run the suite, and the licence makes the suite FLOSS. Cite the test directory for the count |
 | `test_continuous_integration` | A workflow that runs the tests on every pull request |
-| `static_analysis` | A tool for the project's own language: PHPStan or Psalm for PHP; golangci-lint, staticcheck or CodeQL for Go. CodeQL has no PHP support |
-| `dependency_monitoring` | `dependabot.yml` or a Renovate config |
+| `static_analysis` | An invocation in a pull-request workflow of a tool for the project's own language: PHPStan or Psalm for PHP; golangci-lint, staticcheck or CodeQL for Go. CodeQL has no PHP support. Cite the shared workflow and the analyser's configuration |
+| `dependency_monitoring` | A CI audit that fails on a known vulnerability (Composer Audit, govulncheck), or Renovate with vulnerability alerts. The criterion also asks for fixing, which a failing audit enforces; a Dependabot file that only schedules updates shows neither |
 | `version_unique`, `version_tags`, `version_semver` | SemVer tags |
 | `release_notes` | A changelog file (including `Documentation/Changelog/Index.rst` for TYPO3 extensions) that names the latest SemVer release |
 
 ## Traps measured on the Netresearch rollout
 
-The generator analysed 42 repositories — every Go module and TYPO3 extension in the organisation — and 33 of them received the file; the other nine are mirror or patch forks (see *Forks are two different things* below). The first five produced a wrong file before they were caught — two by hand sampling, three by CodeRabbit reviews on the first pull requests. The other three were checked before the first file was written.
+The generator analysed 42 repositories — every Go module and TYPO3 extension in the organisation — and 33 of them received the file; the other nine are mirror or patch forks (see *Forks are two different things* below). All but the last three produced a wrong file before hand sampling or a CodeRabbit review caught it; the last three were checked before the first file was written.
 
 - **A case-insensitive file match invents a security policy.** `docs/security.md` in an application repository usually documents the application's security *model*. Matching `SECURITY.md` without regard to case credited one repository with a reporting process it does not have; the fix was an exact file name plus a check that the file actually describes reporting.
 - **A security guide is not a reporting policy.** A 700-line `SECURITY.md` can mention "report" and "vulnerability" many times and end on "contact the maintainers through the project's security channels" without naming one. Require a concrete channel — an advisories link or an e-mail address — before claiming the process is published.
 - **Match the channel, not one spelling of its URL.** Requiring the literal `security/advisories/new` missed a policy that links `security/advisories` and says "Click 'Report a vulnerability'", and one that offers `security@…` instead. Both are private channels in the criterion's sense.
 - **The first matching workflow is not the right one.** Taking the first workflow file that mentions any analysis tool credited a PHP extension with CodeQL, because `checks.yml` sorts before `ci.yml` — and CodeQL does not analyse PHP. Rank the tools, and accept only those for the project's language.
 - **A changelog file is not release notes for every release.** Two extensions keep a `CHANGELOG.md` that starts at an untagged 2.0.0 and never names the latest tag. Require the latest SemVer release to appear in the file.
+- **A tool's name is not its invocation.** A workflow that says `run-phpstan: false`, or carries the comment *no PHPStan setup*, contains the word `phpstan` — a fallback that searched for the name credited two extensions with static analysis they switch off. Drop comment lines and require an invocation (`bin/phpstan`, `phpstan analyse`, `golangci-lint run`). The same holds for script names: `composer ci:test:php:lint` starts with `test` and runs no tests.
+- **An update bot is not vulnerability monitoring.** A `dependabot.yml` that schedules only `github-actions` updates says nothing about the project's own dependencies, and none says anything about fixing. A CI audit that fails the build on a finding covers detection and remediation in one; the shared Renovate config's `vulnerabilityAlerts` is the second choice.
+- **Licence statements can disagree inside one repository.** Two repositories carry one licence in `LICENSE` and another in `composer.json` and `CONTRIBUTING.md` (MIT against GPL-2.0-or-later; GPL-3.0 against GPL-2.0-or-later). Leave `floss_license` out and name the conflict in the pull request: which licence applies is the maintainers' decision.
+- **Private reporting narrows the archive.** Where vulnerabilities go to a private channel, "all reports stay public" is false; claim the archive for public bug reports.
 - **CI reusables hide the commands.** A repository that calls `typo3-ci-workflows`'s `ci.yml` or `.github`'s `go-check.yml` contains no `phpunit` or `go test` string. Open the reusable and read its defaults — `run-unit-tests`, `run-phpstan`, `enable-golangci-lint` are on by default there — and treat a caller that sets one to `false` as having no evidence.
 - **Forks are two different things.** Compare each fork with its parent (`GET /repos/{parent}/compare/{base}...{org}:{branch}`). A fork far ahead of upstream is your project and gets a file; a fork 0 commits ahead is a mirror, and a commit there breaks the clean sync with upstream for no reader.
 - **The registry's own auto-detection misses TYPO3 changelogs.** It recorded "No release notes file found" for an extension whose release notes live in `Documentation/Changelog/Index.rst`. A disagreement between your file and the registry is therefore not automatically your error; read the cited file before deciding.
 
 ## Check the generated files against the registry
 
-For every repository that already has a badge project, compare each proposed `Met` with the registry's stored value (`/projects/{ID}.json`, no locale prefix, with a cache buster — see `badge-submission-api.md` § *API Response Caching*). This is an independent count: the registry was filled by people, the file by rules. On the Netresearch rollout 205 claims agreed, 11 met blank fields in an unfinished project, and the one disagreement was the changelog case above.
+For every repository that already has a badge project, compare each proposed `Met` with the registry's stored value (`/projects/{ID}.json`, no locale prefix, with a cache buster — see `badge-submission-api.md` § *API Response Caching*). This is an independent count: the registry was filled by people, the file by rules. On the Netresearch rollout 204 claims agreed, 11 met blank fields in an unfinished project, and the one disagreement was the changelog case above.
 
 A registry check cannot see a repository without a badge project, which is where both false positives — `docs/security.md` and the security guide without a channel — sat. Sample those by hand: pick a few claims per criterion and open the cited file.
+
+## Watching a fleet of pull requests
+
+A `pr-status.sh --watch` per pull request polls GraphQL every 20 seconds by default. Twenty-five of them, beside other sessions on the same account, ran into the API limit twice in one evening: calls were refused with *API rate limit exceeded for user ID …* while `gh api rate_limit` for the same token reported 5000 remaining. Why the two disagree was not established, so do not read the counter as permission while refusals continue. Pass `--interval 300` for a fleet, and generate files in one batch rather than per review round.
 
 ## Finding the projects
 
