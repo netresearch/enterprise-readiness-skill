@@ -327,54 +327,59 @@ for name, config in PROJECTS.items():
 
 ## Solo Maintainer Justification Patterns
 
-None of these three criteria allows `N/A`, so a solo-maintained project answers each with `Met` or `Unmet`. Measure first, and answer `Met` only where the measurement shows it; an honest `Unmet` costs the level, a false `Met` costs the badge's credibility.
+None of these three criteria allows `N/A`, so a solo-maintained project answers each with `Met` or `Unmet`. Measure first, and answer `Met` only where the measurement shows it. For a MUST criterion an honest `Unmet` costs that level; for a SHOULD criterion (`bus_factor` at Silver) an `Unmet` with a justification still passes it (`get_unmet_result` in the BadgeApp's `app/models/project.rb` returns `criterion_barely`). A false `Met` costs the badge its credibility either way.
 
-**`two_person_review`** — "at least 50% of all proposed modifications reviewed before release by a person other than the author". A bot is not a person: a Copilot or CodeRabbit review and an auto-approve workflow do not count, however strict the branch protection around them. Count merged pull requests that carry an approving review from a human other than the author:
+**`two_person_review`** (Gold, MUST) — "at least 50% of all proposed modifications reviewed before release by a person other than the author". A bot is not a person: a Copilot, CodeRabbit or Gemini review and an auto-approve workflow do not count, however strict the branch protection around them. Count merged pull requests with an approving review from an account of type `User` other than the author. Read the type from GraphQL: `gh pr list --json reviews` returns GitHub App logins without the `[bot]` suffix, so a login filter lets App approvals through.
 
 ```bash
-gh pr list -R ORG/REPO --state merged --limit 100 --json author,reviews \
-  | jq '[.[] | .author.login as $a
-         | any(.reviews[]; .state == "APPROVED" and .author.login != $a
-                           and (.author.login | test("\\[bot\\]$|^(github-actions|copilot|coderabbitai)") | not))]
+gh api graphql -F owner=ORG -F repo=REPO -f query='
+query($owner:String!,$repo:String!){repository(owner:$owner,name:$repo){
+  pullRequests(states:MERGED,last:100){nodes{author{login}
+    reviews(first:100,states:APPROVED){nodes{author{__typename login}}}}}}}' \
+  | jq '.data.repository.pullRequests.nodes
+        | [.[] | (.author.login // "") as $a
+           | any(.reviews.nodes[]; .author.__typename == "User" and .author.login != $a)]
         | {human_reviewed: (map(select(.)) | length), total: length}'
 ```
 
-Below 50% the answer is `Unmet`:
+The count covers the last 100 merged pull requests, counts only approvals (a commenting human review is not counted, so it errs towards Unmet), and does not see changes pushed without a pull request. Below 50% the answer is `Unmet`:
 ```
-Unmet. The project has one maintainer, and fewer than half of the merged pull requests carry an
-approving review from a person other than the author (N of M in the last M merged pull requests).
-Automated review (CI, static analysis, an AI code review bot) runs on every pull request, but it is
-not a second person.
+Unmet. Fewer than half of the merged pull requests carry an approving review from a person other
+than the author (N of the last M merged pull requests). Automated review (CI, static analysis, an
+AI code review bot) runs on every pull request, but it is not a second person.
 ```
 
-**`bus_factor`** — at least two people who know the project well enough to keep it going. Organisation membership shows access, not knowledge. Count the authors of the commits of the last twelve months, and name the second person only where they carry real work:
+**`bus_factor`** (Silver SHOULD, Gold MUST) — at least two people who know the project well enough to keep it going. Organisation membership shows access, not knowledge. Count the commit authors of the last twelve months by GitHub account; names and e-mail addresses split one person into several:
 
 ```bash
-git log --since='12 months ago' --format='%an' | grep -v '\[bot\]$' | sort | uniq -c | sort -rn
+since=$(date -u -d '12 months ago' +%Y-%m-%dT%H:%M:%SZ)
+gh api --paginate "repos/ORG/REPO/commits?since=$since&per_page=100" \
+  --jq '.[] | if .author == null then "(no GitHub account)" elif .author.type == "User" then .author.login else empty end' \
+  | sort | uniq -c | sort -rn
 ```
 
-With one author, answer `Unmet`:
+Commits whose e-mail maps to no GitHub account appear as `(no GitHub account)`; check them by hand before counting a person. With one active author, answer `Unmet`:
 ```
 Unmet. One person authored the changes of the last twelve months. Documentation, ADRs and CI lower
 the cost for a successor, but nobody else currently knows the project well enough to continue it.
 ```
 
-With a second active author, answer `Met` and name both with the evidence (for example the contributors page, https://github.com/ORG/REPO/graphs/contributors).
+With a second active author, answer `Met`, name both, and cite the measurement (for example the contributors page, https://github.com/ORG/REPO/graphs/contributors, which covers all time, not only the last year).
 
-**`access_continuity`** — someone other than the maintainer can create and close issues, accept changes and release a version within a week. That needs named people with admin rights on the repository **and** the release path: the package registry (Packagist, TER, npm), signing keys, and any secret the release workflow uses. Check the repository side, then list each registry's maintainers:
+**`access_continuity`** (Silver, MUST) — the project can "create and close issues, accept proposed changes, and release versions of software, within a week" after losing any one person. The criterion names two routes: someone else already holds the necessary access, or, for an individual maintainer, "keys in a lockbox and a will providing any needed legal rights". Check the repository side (write access is enough for issues and pull requests; admin for settings and secrets), then the release path — each package registry's maintainers, signing keys, release secrets:
 
 ```bash
-gh api "repos/ORG/REPO/collaborators?permission=admin&per_page=100" --paginate --jq '.[].login'
+gh api --paginate "repos/ORG/REPO/collaborators?per_page=100" \
+  --jq '.[] | "\(.login) \(.role_name)"'               # needs push access to call
+curl -s https://packagist.org/packages/VENDOR/NAME.json | jq '[.package.maintainers[].name]'
 ```
 
-Answer `Met` only when a second named person holds every one of them:
+Answer `Met` and name the route and what backs it; otherwise answer `Unmet` and name the part of the release path that depends on the maintainer alone:
 ```
-Met. Besides the maintainer, NAME has admin rights on the repository (organisation role) and is a
-maintainer of the package on REGISTRY; the release workflow uses organisation secrets that NAME can
-manage. Evidence: https://github.com/orgs/ORG/people, REGISTRY-URL.
+Met. Besides the maintainer, NAME has write and admin access to the repository and is a maintainer
+of the package on REGISTRY (evidence: REGISTRY-URL). [Or: keys and credentials for the repository,
+REGISTRY and signing are deposited in LOCKBOX, and a will grants the needed rights.]
 ```
-
-If any part of the release path depends on the maintainer alone, answer `Unmet` and name that part.
 
 See also: `references/solo-maintainer-guide.md`
 
@@ -432,7 +437,7 @@ that silently prevent the entire save (form re-renders with 200 status).
 
 **Silver criteria that DON'T allow N/A:**
 - `access_continuity` (MUST)
-- `bus_factor` (MUST)
+- `bus_factor` (SHOULD at Silver, MUST at Gold)
 
 **Gold criteria that DON'T allow N/A:**
 - `contributors_unassociated` (MUST)

@@ -23,8 +23,8 @@ how to implement compensating controls.
 |-----------|------------------|----------------|
 | `dco` | ✅ Easy | Sign your own commits |
 | `governance` | ✅ Easy | Document decision-making process |
-| `bus_factor` | ⚠️ N/A | Justify with succession plan |
-| `access_continuity` | ⚠️ N/A | Document backup access |
+| `bus_factor` | ⚠️ SHOULD | Met needs a second active author; otherwise Unmet with a justification (N/A is not accepted) |
+| `access_continuity` | ⚠️ MUST | A second person with access, or keys in a lockbox plus a will (N/A is not accepted) |
 | `signed_releases` | ✅ Easy | Use Cosign keyless signing |
 | `version_tags_signed` | ✅ Easy | Use GPG or SSH signing |
 | `test_statement_coverage80` | ✅ Achievable | Invest in comprehensive tests |
@@ -37,7 +37,7 @@ how to implement compensating controls.
 | `two_person_review` | ❌ Structural blocker | Requires organizational change; compensating controls may not suffice |
 | `security_review` | ❌ Structural blocker | Requires formal external audit within last 5 years |
 | `contributors_unassociated` | ⚠️ N/A | Open contribution policy |
-| `bus_factor` | ⚠️ N/A | Enhanced succession planning |
+| `bus_factor` | ⚠️ MUST | Needs a second active author; N/A is not accepted |
 | `require_2FA` | ⚠️ Depends | Enable on personal account |
 | `test_statement_coverage90` | ⚠️ Hard | Significant test investment |
 | `test_branch_coverage80` | ⚠️ Hard | Advanced coverage analysis |

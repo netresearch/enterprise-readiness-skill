@@ -270,23 +270,7 @@ sha256sum binary  # Should be identical across builds
 
 ## Exceptions and Justifications
 
-Some Gold criteria may not apply to all projects. Document exceptions clearly:
-
-```markdown
-## OpenSSF Best Practices Badge - Gold Exceptions
-
-### two_person_review (N/A)
-Justification: Solo maintainer project. Compensating controls:
-- All changes go through CI with comprehensive testing
-- CodeQL and security scanning on all PRs
-- Regular self-review of security-critical changes
-
-### contributors_unassociated (N/A)
-Justification: Specialized project with limited contributor pool.
-Compensating controls:
-- Open to contributions from any organization
-- No organizational restrictions on contribution
-```
+`two_person_review` and `contributors_unassociated` do not accept `N/A` (see `badge-submission-api.md` § *N/A Not Allowed on Certain Criteria*). Where a project cannot meet them, answer `Unmet` and say why; compensating controls such as CI and code scanning are worth describing, but they are not a second person or an unassociated contributor, and they do not turn the answer into `Met`. Measurements and templates for solo-maintained projects: `badge-submission-api.md` § *Solo Maintainer Justification Patterns*.
 
 ---
 
