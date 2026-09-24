@@ -210,8 +210,8 @@ For projects working toward a badge level:
 - [ ] Silver Level (85%)
   - [x] DCO enforcement
   - [x] 80% test coverage
-  - [ ] Two-person review (solo maintainer)
 - [ ] Gold Level (40%)
+  - [ ] Two-person review (solo maintainer)
   - [ ] 90% test coverage
   - [ ] Security audit
 ```

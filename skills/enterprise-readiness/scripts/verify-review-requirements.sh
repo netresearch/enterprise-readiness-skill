@@ -125,8 +125,8 @@ PR_RULES=$(echo "$RULES" | jq '[.[] | select(.type == "pull_request") | .paramet
 if [ "$PROTECTION" = "{}" ] && [ "$(echo "$PR_RULES" | jq 'length')" = "0" ]; then
     echo "✗ No review requirement configured for $BRANCH (neither classic branch protection nor a ruleset)"
     echo ""
-    echo "To enable branch protection via GitHub CLI:"
-    echo "  gh api repos/$OWNER/$REPO/branches/$BRANCH/protection -X PUT -f required_approving_review_count=$REQUIRED_REVIEWERS"
+    echo "Configure a required approving review in a ruleset (Settings > Rules > Rulesets) or in classic"
+    echo "branch protection; see the github-project skill for the API calls."
     exit 1
 fi
 
@@ -161,13 +161,7 @@ PASSED=true
 
 # Check reviewer count
 if [ "$ACTUAL_REVIEWERS" -ge "$REQUIRED_REVIEWERS" ]; then
-    if [ "$LEVEL" = "gold" ] && [ "$ACTUAL_REVIEWERS" -ge 2 ]; then
-        echo "✓ Branch protection requires $ACTUAL_REVIEWERS approving reviews"
-    elif [ "$LEVEL" = "silver" ] && [ "$ACTUAL_REVIEWERS" -ge 1 ]; then
-        echo "✓ Branch protection requires $ACTUAL_REVIEWERS approving review(s)"
-    else
-        echo "✓ Branch protection requires $ACTUAL_REVIEWERS approving review(s)"
-    fi
+    echo "✓ Branch protection requires $ACTUAL_REVIEWERS approving review(s)"
 else
     echo "✗ Insufficient reviewers: $ACTUAL_REVIEWERS < $REQUIRED_REVIEWERS required"
     PASSED=false
@@ -212,8 +206,7 @@ if [ "$PASSED" = true ]; then
 else
     echo "Branch protection settings for $LEVEL level: insufficient."
     echo ""
-    echo "To update via GitHub CLI:"
-    echo "  gh api repos/$OWNER/$REPO/branches/$BRANCH/protection/required_pull_request_reviews \\"
-    echo "    -X PATCH -f required_approving_review_count=$REQUIRED_REVIEWERS"
+    echo "Configure a required approving review in a ruleset (Settings > Rules > Rulesets) or in classic"
+    echo "branch protection; see the github-project skill for the API calls."
     exit 1
 fi
