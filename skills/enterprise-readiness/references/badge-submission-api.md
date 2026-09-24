@@ -329,16 +329,18 @@ for name, config in PROJECTS.items():
 
 None of these three criteria allows `N/A`, so a solo-maintained project answers each with `Met` or `Unmet`. Measure first, and answer `Met` only where the measurement shows it. For a MUST criterion an honest `Unmet` costs that level; for a SHOULD criterion (`bus_factor` at Silver) an `Unmet` with a justification still passes it (`get_unmet_result` in the BadgeApp's `app/models/project.rb` returns `criterion_barely`). A false `Met` costs the badge its credibility either way.
 
-**`two_person_review`** (Gold, MUST) — "at least 50% of all proposed modifications reviewed before release by a person other than the author". A bot is not a person: a Copilot, CodeRabbit or Gemini review and an auto-approve workflow do not count, however strict the branch protection around them. Count merged pull requests with an approving review from an account of type `User` other than the author. Read the type from GraphQL: `gh pr list --json reviews` returns GitHub App logins without the `[bot]` suffix, so a login filter lets App approvals through.
+**`two_person_review`** (Gold, MUST) — "at least 50% of all proposed modifications reviewed before release by a person other than the author". A bot is not a person: a Copilot, CodeRabbit or Gemini review and an auto-approve workflow do not count, however strict the branch protection around them. Count merged pull requests with an approving review from an account of type `User` other than the author, given on the pull request's last commit — an approval of an earlier commit did not see the final changes, and GitHub keeps it unless stale approvals are dismissed. Read the type from GraphQL: `gh pr list --json reviews` returns GitHub App logins without the `[bot]` suffix, so a login filter lets App approvals through.
 
 ```bash
 gh api graphql -F owner=ORG -F repo=REPO -f query='
 query($owner:String!,$repo:String!){repository(owner:$owner,name:$repo){
   pullRequests(states:MERGED,last:100){nodes{author{login}
-    reviews(first:100,states:APPROVED){nodes{author{__typename login}}}}}}}' \
+    commits(last:1){nodes{commit{oid}}}
+    reviews(first:100,states:APPROVED){nodes{author{__typename login} commit{oid}}}}}}}' \
   | jq '.data.repository.pullRequests.nodes
-        | [.[] | (.author.login // "") as $a
-           | any(.reviews.nodes[]; .author.__typename == "User" and .author.login != $a)]
+        | [.[] | (.author.login // "") as $a | (.commits.nodes[0].commit.oid // "") as $head
+           | any(.reviews.nodes[]; .author.__typename == "User" and .author.login != $a
+                                   and .commit.oid == $head)]
         | {human_reviewed: (map(select(.)) | length), total: length}'
 ```
 

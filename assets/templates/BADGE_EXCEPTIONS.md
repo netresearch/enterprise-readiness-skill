@@ -14,13 +14,14 @@
 
 ## Summary of Exceptions
 
-`two_person_review`, `contributors_unassociated` and `bus_factor` do not accept N/A: answer them Met or Unmet, with a justification. Compensating controls are worth describing, but a bot review is not a second person and documentation is not a second maintainer, so they never make the answer Met.
+`two_person_review`, `contributors_unassociated`, `bus_factor` and `access_continuity` do not accept N/A: answer them Met or Unmet, with a justification. Compensating controls are worth describing, but a bot review is not a second person and documentation is not a second maintainer, so they never make the answer Met.
 
 | Criterion | Level | Status | Justification Summary |
 |-----------|-------|--------|----------------------|
 | `two_person_review` | Gold | Unmet | [N] of the last [M] merged pull requests approved by a human other than the author |
 | `contributors_unassociated` | Gold | Unmet | Contributors come from [ORGANISATION] only |
 | `bus_factor` | Silver (SHOULD) / Gold (MUST) | Unmet | One active author in the last twelve months |
+| `access_continuity` | Silver | Unmet | Releasing depends on [MAINTAINER] alone ([REGISTRY], signing keys) |
 | `accessibility_best_practices` | Silver | N/A | CLI tool, no UI |
 | `internationalization` | Silver | N/A | Developer tooling |
 
@@ -35,8 +36,8 @@
 **Status:** Unmet
 
 **Justification:**
-[N] of the last [M] merged pull requests carry an approving review from a person other than the
-author. Automated review runs on every pull request, but it is not a second person.
+[N] of the last [M] merged pull requests carry an approving review, on their last commit, from a
+person other than the author. Automated review runs on every pull request, but it is not a second person.
 
 **Measurement:** `references/badge-submission-api.md` § *Solo Maintainer Justification Patterns*.
 
@@ -59,6 +60,19 @@ from anyone (CONTRIBUTING.md), but has none from unassociated organisations yet.
 **Justification:**
 One person authored the changes of the last twelve months; nobody else currently knows the project
 well enough to continue it.
+
+**Measurement:** `references/badge-submission-api.md` § *Solo Maintainer Justification Patterns*.
+
+---
+
+#### `access_continuity` (Silver)
+
+**Status:** Unmet (Met needs a second person who can release, or keys in a lockbox plus a will, with a
+URL to the evidence)
+
+**Justification:**
+Nobody besides [MAINTAINER] can release: [REGISTRY] lists only [MAINTAINER], and the signing keys are not
+deposited anywhere another person could obtain them.
 
 **Measurement:** `references/badge-submission-api.md` § *Solo Maintainer Justification Patterns*.
 

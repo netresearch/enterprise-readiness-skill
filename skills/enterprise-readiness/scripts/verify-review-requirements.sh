@@ -122,7 +122,7 @@ if ! RULES=$(gh api --paginate "repos/$OWNER/$REPO/rules/branches/$BRANCH?per_pa
 fi
 PR_RULES=$(echo "$RULES" | jq '[.[] | select(.type == "pull_request") | .parameters]')
 
-if [ "$PROTECTION" = "{}" ] && [ "$(echo "$PR_RULES" | jq 'length')" = "0" ]; then
+if [ "$REQUIRED_REVIEWERS" -gt 0 ] && [ "$PROTECTION" = "{}" ] && [ "$(echo "$PR_RULES" | jq 'length')" = "0" ]; then
     echo "✗ No review requirement configured for $BRANCH (neither classic branch protection nor a ruleset)"
     echo ""
     echo "Configure a required approving review in a ruleset (Settings > Rules > Rulesets) or in classic"
@@ -137,6 +137,19 @@ DISMISS_STALE=$(jq -n --argjson p "$PROTECTION" --argjson r "$PR_RULES" \
     '($p.required_pull_request_reviews.dismiss_stale_reviews // false) or any($r[]; .dismiss_stale_reviews_on_push == true)')
 REQUIRE_CODEOWNERS=$(jq -n --argjson p "$PROTECTION" --argjson r "$PR_RULES" \
     '($p.required_pull_request_reviews.require_code_owner_reviews // false) or any($r[]; .require_code_owner_review == true)')
+
+# A ruleset's bypass actors do not need the required approvals; the rules
+# endpoint names the ruleset but not its bypass list, so read each one.
+BYPASS_NOTES=()
+for RID in $(echo "$RULES" | jq -r '.[] | select(.type == "pull_request") | .ruleset_id' | sort -u); do
+    if COUNT=$(gh api "repos/$OWNER/$REPO/rulesets/$RID" --jq '.bypass_actors | length' 2>/dev/null); then
+        if [ "$COUNT" -gt 0 ]; then
+            BYPASS_NOTES+=("⚠ Ruleset $RID lets $COUNT actor(s) bypass it; the required approvals do not bind them")
+        fi
+    else
+        BYPASS_NOTES+=("⚠ Bypass actors of ruleset $RID could not be read; the required approvals may not bind everyone")
+    fi
+done
 
 echo "=== Current Settings ==="
 echo "Required approving reviews: $ACTUAL_REVIEWERS"
@@ -153,6 +166,9 @@ echo "Required status checks: $STATUS_CHECKS"
 ENFORCE_ADMINS=$(echo "$PROTECTION" | jq -r '.enforce_admins.enabled // false')
 echo "Enforce for admins: $ENFORCE_ADMINS"
 
+for NOTE in "${BYPASS_NOTES[@]}"; do
+    echo "$NOTE"
+done
 echo ""
 echo "=== Assessment ==="
 echo ""
@@ -200,6 +216,9 @@ fi
 echo ""
 if [ "$PASSED" = true ]; then
     echo "Branch protection settings for $LEVEL level: sufficient."
+    if [ "${#BYPASS_NOTES[@]}" -gt 0 ]; then
+        echo "Except for the ruleset bypass actors listed above: they can merge without the required approvals."
+    fi
     echo "This does not show two_person_review is Met: bot approvals satisfy a required review count."
     echo "Count approvals by humans other than the author (badge-submission-api.md, Solo Maintainer Justification Patterns)."
     exit 0
