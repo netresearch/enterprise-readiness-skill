@@ -276,6 +276,8 @@ gh api "repos/OWNER/REPO/code-scanning/alerts?ref=refs/pull/106/head&state=open"
 
 **Marking re-opens the gate without a new analysis, and the mark survives the next one.** SonarCloud re-evaluates the quality gate on the transition, so the `SonarCloud Code Analysis` check flips to pass within a minute — no push, no re-run. Pushing afterwards re-analyses the PR and the issue stays resolved as long as the code at that location is unchanged. Do not push an empty commit to "refresh" the gate.
 
+**A refactor can mint new issue keys, and the mark does not follow them.** The mark binds to the issue key. Tracking across analyses survives shifted lines, but a refactor that moves flagged lines into a new function can make the next analysis raise the same finding under new keys: the accepted status stays with the old keys, and the gate goes red again. On a PR that both refactors and carries intentional findings, land the final code shape first, then mark whatever the fresh analysis reports. Re-query `api/issues/search?...&pullRequest=<n>&resolved=false` after every push that touches the flagged files — a gate that passed can re-redden without any new finding.
+
 Single transition (issues):
 
 ```bash
