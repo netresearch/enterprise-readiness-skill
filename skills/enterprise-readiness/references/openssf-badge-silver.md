@@ -282,7 +282,7 @@ Silver criteria that commonly need URLs:
 - `dco` — link to DCO check workflow (`.github/workflows/dco.yml`)
 - `governance` — link to CONTRIBUTING.md or GOVERNANCE.md
 - `roles_responsibilities` — link to CODEOWNERS file
-- `access_continuity` — link to GitHub organization members page
+- `access_continuity` — link to the evidence that a second person can release: the package registry's maintainer page, or the document that says where keys are deposited (organisation membership alone shows no release path)
 - `bus_factor` — link to contributors graph
 - `documentation_architecture` — link to architecture docs directory
 - `documentation_achievements` — link to README.md showing badges

@@ -1,6 +1,6 @@
 #!/bin/bash
 # verify-review-requirements.sh - Verify PR review requirements meet badge level
-# Usage: ./verify-review-requirements.sh [--level silver|gold] [--owner owner] [--repo repo]
+# Usage: ./verify-review-requirements.sh [--level passing|silver|gold] [--owner owner] [--repo repo] [--branch branch]
 # OpenSSF Badge Criteria: two_person_review (Gold), code_review (Silver)
 set -euo pipefail
 
@@ -47,7 +47,9 @@ case "$LEVEL" in
         REQUIRED_REVIEWERS=1
         ;;
     gold)
-        REQUIRED_REVIEWERS=2
+        # two_person_review needs one review by a person other than the author;
+        # a second required approval adds nothing the criterion asks for.
+        REQUIRED_REVIEWERS=1
         ;;
     *)
         echo "Error: Invalid level. Use passing, silver, or gold."
@@ -107,14 +109,16 @@ if ! PROTECTION=$(gh api "repos/$OWNER/$REPO/branches/$BRANCH/protection" 2>"$PR
     # could not be read (a caller without admin rights gets "Not Found").
     if ! grep -q "Branch not protected" "$PROT_ERR"; then
         echo "✗ Classic branch protection of $BRANCH could not be read: $(head -1 "$PROT_ERR")"
-        echo "  It needs admin rights on the repository; the assessment below would be incomplete."
+        echo "  Reading it needs admin rights on the repository, and the repository and branch must exist;"
+        echo "  without it the assessment would be incomplete."
         rm -f "$PROT_ERR"
         exit 2
     fi
 fi
 rm -f "$PROT_ERR"
 if ! RULES=$(gh api --paginate "repos/$OWNER/$REPO/rules/branches/$BRANCH?per_page=100" 2>/dev/null | jq -s 'add // []'); then
-    RULES="[]"
+    echo "✗ Rulesets for $BRANCH could not be read; without them the assessment would be incomplete."
+    exit 2
 fi
 PR_RULES=$(echo "$RULES" | jq '[.[] | select(.type == "pull_request") | .parameters]')
 

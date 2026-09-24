@@ -80,18 +80,11 @@ Settings → Organization → Security → Require 2FA for everyone
 | code_review_standards | "Are there code review standards?" | Check CONTRIBUTING.md | Document review expectations |
 | two_person_review | "Do changes require 2-person review?" | Count merged PRs approved by a human other than the author (`badge-submission-api.md` § *Solo Maintainer Justification Patterns*); a required review count alone is also satisfied by bot approvals | A second human reviewer |
 
-**Two-Person Review:**
-```bash
-# Set via GitHub API
-gh api repos/{owner}/{repo}/branches/main/protection \
-  -X PUT \
-  -f required_approving_review_count=2
-```
+**Two-Person Review:** the criterion counts reviews by a person other than the author, so the evidence is who approved, not what branch protection requires — a required review count is also satisfied by bot approvals. Requiring one approving review makes the review step mandatory; it is the reviewers that decide the answer.
 
 **Note:** This is challenging for solo maintainers. Options:
-- Partner with another project for cross-review
-- Use bot reviewers (limited effectiveness)
-- Mark as N/A with justification
+- Partner with another project, or a colleague, for cross-review
+- Without a second human reviewer, answer Unmet with a justification — N/A is not accepted, and bot reviewers do not count
 
 ### Build (1 criterion)
 
@@ -217,7 +210,7 @@ sha256sum binary  # Should be identical across builds
 
 | Requirement | Challenge | Mitigation |
 |-------------|-----------|------------|
-| 2-person review | Can't self-approve | Partner projects, bot reviewers |
+| 2-person review | Can't self-approve | Partner projects or a colleague as reviewer; otherwise Unmet (bot reviews do not count) |
 | Bus factor >= 2 | Single maintainer | Recruit co-maintainers |
 | Unassociated contributors | Small team | Encourage external contributions |
 | 2FA enforcement | Org setting | Document 2FA usage |

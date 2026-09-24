@@ -5,8 +5,8 @@
 ## Overview
 
 Many OpenSSF Best Practices Badge criteria assume multi-person teams. This guide helps solo
-maintainers understand which criteria apply, which can be marked N/A with justification, and
-how to implement compensating controls.
+maintainers understand which criteria apply, which have to be answered Unmet with a justification
+(several of them do not accept N/A), and how to implement compensating controls.
 
 ## Criteria Assessment Matrix
 
@@ -255,14 +255,14 @@ func TestProcess(t *testing.T) {
 
 ---
 
-## N/A Justification Template
+## Unmet and N/A Justification Template
 
-When marking criteria as N/A, use this format:
+`two_person_review`, `contributors_unassociated`, `bus_factor` and `access_continuity` do not accept N/A; answer them Unmet when they are not met. N/A is only for criteria that allow it and genuinely do not apply. Compensating controls belong in the justification, but they do not change the status. Format:
 
 ```markdown
 ## Criterion: [criterion_name]
 
-**Status:** N/A
+**Status:** Unmet (or N/A where the criterion allows it)
 
 **Reason:** [One sentence explanation]
 
@@ -290,7 +290,7 @@ When marking criteria as N/A, use this format:
 ### Gold Level
 - Solo maintainer: 3-6 months (or longer)
 - May require community building
-- Some criteria may remain N/A with justification
+- Some criteria may remain Unmet with a justification
 - Consider if Gold is necessary for your project
 
 ---

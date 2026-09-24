@@ -78,6 +78,7 @@ while read -r count author; do
             echo "1. Recruit additional maintainers"
             echo "2. Document critical code paths for knowledge transfer"
             echo "3. Pair programming to spread knowledge"
+            echo "4. Answer bus_factor Unmet with a justification (N/A is not accepted; SHOULD at Silver, MUST at Gold)"
             exit 1
         fi
     fi
