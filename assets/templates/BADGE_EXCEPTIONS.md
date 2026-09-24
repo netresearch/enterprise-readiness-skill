@@ -1,6 +1,6 @@
 # OpenSSF Best Practices Badge - Exceptions and Justifications
 
-> Documentation for badge criteria marked as "N/A" (Not Applicable) or requiring justification.
+> Documentation for badge criteria answered Unmet or N/A, with their justification.
 
 ## Project Information
 
@@ -14,11 +14,14 @@
 
 ## Summary of Exceptions
 
+`two_person_review`, `contributors_unassociated`, `bus_factor` and `access_continuity` do not accept N/A: answer them Met or Unmet, with a justification. Compensating controls are worth describing, but a bot review is not a second person and documentation is not a second maintainer, so they never make the answer Met.
+
 | Criterion | Level | Status | Justification Summary |
 |-----------|-------|--------|----------------------|
-| `two_person_review` | Gold | N/A | Solo maintainer project |
-| `contributors_unassociated` | Gold | N/A | Specialized domain |
-| `bus_factor` | Silver/Gold | N/A | Active succession plan |
+| `two_person_review` | Gold | Unmet | [N] of the last [M] merged pull requests approved by a human other than the author |
+| `contributors_unassociated` | Gold | Unmet | Contributors come from [ORGANISATION] only |
+| `bus_factor` | Silver (SHOULD) / Gold (MUST) | Unmet | One active author in the last twelve months |
+| `access_continuity` | Silver | Unmet | Releasing depends on [MAINTAINER] alone ([REGISTRY], signing keys) |
 | `accessibility_best_practices` | Silver | N/A | CLI tool, no UI |
 | `internationalization` | Silver | N/A | Developer tooling |
 
@@ -30,81 +33,48 @@
 
 #### `two_person_review` (Gold)
 
-**Form Question:** "Do changes require 2-person review before merging?"
-
-**Status:** N/A
+**Status:** Unmet
 
 **Justification:**
-This is a solo maintainer project. While two-person review is not possible, the following
-compensating controls ensure code quality and security:
+[N] of the last [M] merged pull requests carry an approving review, on their last commit, from a
+person other than the author. Automated review runs on every pull request, but it is not a second person.
 
-**Compensating Controls:**
-1. **Comprehensive CI/CD Pipeline**
-   - All changes go through automated testing (>80% coverage)
-   - Static analysis with CodeQL and gosec
-   - Dependency vulnerability scanning
-   - Secret detection with gitleaks
-
-2. **Self-Review Process**
-   - All changes sit as PR for minimum 24 hours before merge
-   - Detailed PR descriptions with rationale
-   - Security-critical changes reviewed with fresh eyes after delay
-
-3. **Community Oversight**
-   - Public pull requests visible to all
-   - Issue discussions before major changes
-   - Security researchers can review code
-
-4. **Automated Safeguards**
-   - Branch protection requiring CI pass
-   - Signed commits required
-   - Force push disabled on main branch
+**Measurement:** `references/badge-submission-api.md` § *Solo Maintainer Justification Patterns*.
 
 ---
 
 #### `contributors_unassociated` (Gold)
 
-**Form Question:** "Are there unassociated contributors from different organizations?"
-
-**Status:** N/A
+**Status:** Unmet
 
 **Justification:**
-This is a specialized project with a limited contributor base. The project welcomes contributions
-from any organization and has no restrictions on contributor affiliation.
-
-**Compensating Controls:**
-1. Open contribution policy documented in CONTRIBUTING.md
-2. No organizational control over project decisions
-3. Governance model allows for external maintainers
-4. No CLA required (uses DCO instead)
+The contributors of the last [PERIOD] come from [ORGANISATION]. The project accepts contributions
+from anyone (CONTRIBUTING.md), but has none from unassociated organisations yet.
 
 ---
 
 #### `bus_factor` (Silver/Gold)
 
-**Form Question:** "Is the bus factor >= 2?"
-
-**Status:** N/A (or Met with explanation)
+**Status:** Unmet (a justified Unmet still passes Silver, where the criterion is a SHOULD)
 
 **Justification:**
-Solo maintainer project with documented succession plan.
+One person authored the changes of the last twelve months; nobody else currently knows the project
+well enough to continue it.
 
-**Compensating Controls:**
-1. **Documentation**
-   - Comprehensive ARCHITECTURE.md
-   - Detailed CONTRIBUTING.md
-   - Decision rationale in ADRs
-   - All critical processes documented
+**Measurement:** `references/badge-submission-api.md` § *Solo Maintainer Justification Patterns*.
 
-2. **Succession Planning**
-   - Backup maintainer identified (optional: name)
-   - Repository access can be transferred
-   - No proprietary dependencies or secrets
+---
 
-3. **Community Resilience**
-   - All development happens in public
-   - No private infrastructure required
-   - Standard tooling used throughout
+#### `access_continuity` (Silver)
+
+**Status:** Unmet (Met needs a second person who can release, or keys in a lockbox plus a will, with a
+URL to the evidence)
+
+**Justification:**
+Nobody besides [MAINTAINER] can release: [REGISTRY] lists only [MAINTAINER], and the signing keys are not
+deposited anywhere another person could obtain them.
+
+**Measurement:** `references/badge-submission-api.md` § *Solo Maintainer Justification Patterns*.
 
 ---
 
