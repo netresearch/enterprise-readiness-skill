@@ -97,28 +97,42 @@ fi
 echo "Fetching branch protection settings..."
 echo ""
 
-PROTECTION=$(gh api "repos/$OWNER/$REPO/branches/$BRANCH/protection" 2>/dev/null || echo "")
+# Branch protection comes from two sources that no single endpoint merges:
+# classic protection and rulesets. On an error gh prints the error body to
+# stdout, so a read counts only when gh exits 0.
+PROT_ERR=$(mktemp)
+if ! PROTECTION=$(gh api "repos/$OWNER/$REPO/branches/$BRANCH/protection" 2>"$PROT_ERR"); then
+    PROTECTION="{}"
+    # "Branch not protected" means there is none; any other error means it
+    # could not be read (a caller without admin rights gets "Not Found").
+    if ! grep -q "Branch not protected" "$PROT_ERR"; then
+        echo "✗ Classic branch protection of $BRANCH could not be read: $(head -1 "$PROT_ERR")"
+        echo "  It needs admin rights on the repository; the assessment below would be incomplete."
+        rm -f "$PROT_ERR"
+        exit 2
+    fi
+fi
+rm -f "$PROT_ERR"
+if ! RULES=$(gh api --paginate "repos/$OWNER/$REPO/rules/branches/$BRANCH?per_page=100" 2>/dev/null | jq -s 'add // []'); then
+    RULES="[]"
+fi
+PR_RULES=$(echo "$RULES" | jq '[.[] | select(.type == "pull_request") | .parameters]')
 
-if [ -z "$PROTECTION" ]; then
-    echo "✗ No branch protection configured for $BRANCH"
+if [ "$PROTECTION" = "{}" ] && [ "$(echo "$PR_RULES" | jq 'length')" = "0" ]; then
+    echo "✗ No review requirement configured for $BRANCH (neither classic branch protection nor a ruleset)"
     echo ""
     echo "To enable branch protection via GitHub CLI:"
     echo "  gh api repos/$OWNER/$REPO/branches/$BRANCH/protection -X PUT -f required_approving_review_count=$REQUIRED_REVIEWERS"
     exit 1
 fi
 
-# Extract review requirements
-REVIEW_PROTECTION=$(gh api "repos/$OWNER/$REPO/branches/$BRANCH/protection/required_pull_request_reviews" 2>/dev/null || echo "")
-
-if [ -z "$REVIEW_PROTECTION" ]; then
-    ACTUAL_REVIEWERS=0
-    DISMISS_STALE="false"
-    REQUIRE_CODEOWNERS="false"
-else
-    ACTUAL_REVIEWERS=$(echo "$REVIEW_PROTECTION" | jq -r '.required_approving_review_count // 0')
-    DISMISS_STALE=$(echo "$REVIEW_PROTECTION" | jq -r '.dismiss_stale_reviews // false')
-    REQUIRE_CODEOWNERS=$(echo "$REVIEW_PROTECTION" | jq -r '.require_code_owner_reviews // false')
-fi
+# Extract review requirements: the stricter value of the two sources wins.
+ACTUAL_REVIEWERS=$(jq -n --argjson p "$PROTECTION" --argjson r "$PR_RULES" \
+    '[($p.required_pull_request_reviews.required_approving_review_count // 0), ($r[].required_approving_review_count // 0)] | max')
+DISMISS_STALE=$(jq -n --argjson p "$PROTECTION" --argjson r "$PR_RULES" \
+    '($p.required_pull_request_reviews.dismiss_stale_reviews // false) or any($r[]; .dismiss_stale_reviews_on_push == true)')
+REQUIRE_CODEOWNERS=$(jq -n --argjson p "$PROTECTION" --argjson r "$PR_RULES" \
+    '($p.required_pull_request_reviews.require_code_owner_reviews // false) or any($r[]; .require_code_owner_review == true)')
 
 echo "=== Current Settings ==="
 echo "Required approving reviews: $ACTUAL_REVIEWERS"
@@ -127,7 +141,8 @@ echo "Require code owner reviews: $REQUIRE_CODEOWNERS"
 echo ""
 
 # Check required status checks
-STATUS_CHECKS=$(echo "$PROTECTION" | jq -r '.required_status_checks.contexts[]? // empty' 2>/dev/null | wc -l | tr -d ' ')
+STATUS_CHECKS=$(jq -n --argjson p "$PROTECTION" --argjson r "$RULES" \
+    '([$p.required_status_checks.contexts[]?] + [$r[] | select(.type == "required_status_checks") | .parameters.required_status_checks[].context]) | unique | length')
 echo "Required status checks: $STATUS_CHECKS"
 
 # Check enforce admins
@@ -143,11 +158,11 @@ PASSED=true
 # Check reviewer count
 if [ "$ACTUAL_REVIEWERS" -ge "$REQUIRED_REVIEWERS" ]; then
     if [ "$LEVEL" = "gold" ] && [ "$ACTUAL_REVIEWERS" -ge 2 ]; then
-        echo "✓ Two-person review requirement met ($ACTUAL_REVIEWERS reviewers)"
+        echo "✓ Branch protection requires $ACTUAL_REVIEWERS approving reviews"
     elif [ "$LEVEL" = "silver" ] && [ "$ACTUAL_REVIEWERS" -ge 1 ]; then
-        echo "✓ Code review requirement met ($ACTUAL_REVIEWERS reviewer(s))"
+        echo "✓ Branch protection requires $ACTUAL_REVIEWERS approving review(s)"
     else
-        echo "✓ Review requirement met ($ACTUAL_REVIEWERS reviewer(s))"
+        echo "✓ Branch protection requires $ACTUAL_REVIEWERS approving review(s)"
     fi
 else
     echo "✗ Insufficient reviewers: $ACTUAL_REVIEWERS < $REQUIRED_REVIEWERS required"
@@ -186,10 +201,12 @@ fi
 
 echo ""
 if [ "$PASSED" = true ]; then
-    echo "OpenSSF Badge: Review requirements for $LEVEL level = Met"
+    echo "Branch protection settings for $LEVEL level: sufficient."
+    echo "This does not show two_person_review is Met: bot approvals satisfy a required review count."
+    echo "Count approvals by humans other than the author (badge-submission-api.md, Solo Maintainer Justification Patterns)."
     exit 0
 else
-    echo "OpenSSF Badge: Review requirements for $LEVEL level = Unmet"
+    echo "Branch protection settings for $LEVEL level: insufficient."
     echo ""
     echo "To update via GitHub CLI:"
     echo "  gh api repos/$OWNER/$REPO/branches/$BRANCH/protection/required_pull_request_reviews \\"

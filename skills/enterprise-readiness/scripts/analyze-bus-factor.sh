@@ -92,6 +92,6 @@ if [ -z "$RESULT" ]; then
     echo "1. Document architecture and decision rationale"
     echo "2. Create comprehensive onboarding documentation"
     echo "3. Consider recruiting co-maintainers"
-    echo "4. Mark bus_factor as N/A with justification in badge application"
+    echo "4. Answer bus_factor Unmet with a justification (N/A is not accepted; SHOULD at Silver, MUST at Gold)"
     exit 1
 fi

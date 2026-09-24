@@ -78,7 +78,7 @@ Settings → Organization → Security → Require 2FA for everyone
 | Criterion | Form Question | How to Verify | Implementation |
 |-----------|---------------|---------------|----------------|
 | code_review_standards | "Are there code review standards?" | Check CONTRIBUTING.md | Document review expectations |
-| two_person_review | "Do changes require 2-person review?" | Check branch protection | Require 2 reviewers for main branch |
+| two_person_review | "Do changes require 2-person review?" | Count merged PRs approved by a human other than the author (`badge-submission-api.md` § *Solo Maintainer Justification Patterns*); a required review count alone is also satisfied by bot approvals | A second human reviewer |
 
 **Two-Person Review:**
 ```bash
@@ -251,7 +251,7 @@ sha256sum binary  # Should be identical across builds
 ### Phase 3: Organizational Growth
 1. [ ] Recruit second maintainer
 2. [ ] Attract external contributors
-3. [ ] Establish two-person review (or document exception)
+3. [ ] Establish two-person review by a human other than the author (without one, the answer is Unmet)
 4. [ ] Complete Gold certification
 
 ---

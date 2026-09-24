@@ -70,7 +70,7 @@ Required coverage: CI, CodeQL, Scorecard, dependency review, composer audit, SBO
 | `references/openssf-badge-baseline.md` | OSPS Baseline |
 | `references/bestpractices-json.md` | `.bestpractices.json`: pre-fill badge answers from the repo |
 | `references/harden-runner-guide.md` | Harden-Runner |
-| `references/solo-maintainer-guide.md` | N/A criteria |
+| `references/solo-maintainer-guide.md` | Solo-maintainer criteria |
 | `references/npm-pnpm-supply-chain.md` | pnpm |
 | `references/python-pip-supply-chain.md` | pip |
 

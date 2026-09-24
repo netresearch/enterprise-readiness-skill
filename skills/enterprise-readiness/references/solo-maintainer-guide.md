@@ -34,9 +34,9 @@ how to implement compensating controls.
 
 | Criterion | Solo Feasibility | Recommendation |
 |-----------|------------------|----------------|
-| `two_person_review` | ❌ Structural blocker | Requires organizational change; compensating controls may not suffice |
+| `two_person_review` | ❌ Structural blocker | Needs a second human reviewer; compensating controls never make it Met — answer Unmet |
 | `security_review` | ❌ Structural blocker | Requires formal external audit within last 5 years |
-| `contributors_unassociated` | ⚠️ N/A | Open contribution policy |
+| `contributors_unassociated` | ⚠️ MUST | Met needs contributors from unassociated organisations; otherwise Unmet (N/A is not accepted) |
 | `bus_factor` | ⚠️ MUST | Needs a second active author; N/A is not accepted |
 | `require_2FA` | ⚠️ Depends | Enable on personal account |
 | `test_statement_coverage90` | ⚠️ Hard | Significant test investment |
@@ -75,7 +75,7 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     steps:
-      # Comprehensive testing replaces human review
+      # Testing lowers the risk; it does not replace human review, and the answer stays Unmet
       - uses: actions/checkout@v4
       - name: Run full test suite
         run: go test -race -coverprofile=coverage.out ./...

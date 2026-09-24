@@ -342,11 +342,10 @@ query($owner:String!,$repo:String!){repository(owner:$owner,name:$repo){
         | {human_reviewed: (map(select(.)) | length), total: length}'
 ```
 
-The count covers the last 100 merged pull requests, counts only approvals (a commenting human review is not counted, so it errs towards Unmet), and does not see changes pushed without a pull request. Below 50% the answer is `Unmet`:
+The count covers the last 100 merged pull requests, counts only approvals (a commenting human review is not counted), and does not see changes pushed without a pull request. A machine account is type `User` too: if an auto-approve workflow approves with such an account's token, exclude that login by name before trusting the figure. Below 50% the answer is `Unmet`:
 ```
 Unmet. Fewer than half of the merged pull requests carry an approving review from a person other
-than the author (N of the last M merged pull requests). Automated review (CI, static analysis, an
-AI code review bot) runs on every pull request, but it is not a second person.
+than the author (N of the last M merged pull requests). Automated review is not a second person.
 ```
 
 **`bus_factor`** (Silver SHOULD, Gold MUST) — at least two people who know the project well enough to keep it going. Organisation membership shows access, not knowledge. Count the commit authors of the last twelve months by GitHub account; names and e-mail addresses split one person into several:
@@ -360,13 +359,13 @@ gh api --paginate "repos/ORG/REPO/commits?since=$since&per_page=100" \
 
 Commits whose e-mail maps to no GitHub account appear as `(no GitHub account)`; check them by hand before counting a person. With one active author, answer `Unmet`:
 ```
-Unmet. One person authored the changes of the last twelve months. Documentation, ADRs and CI lower
-the cost for a successor, but nobody else currently knows the project well enough to continue it.
+Unmet. One person authored the changes of the last twelve months (N commits); nobody else currently
+knows the project well enough to continue it.
 ```
 
 With a second active author, answer `Met`, name both, and cite the measurement (for example the contributors page, https://github.com/ORG/REPO/graphs/contributors, which covers all time, not only the last year).
 
-**`access_continuity`** (Silver, MUST) — the project can "create and close issues, accept proposed changes, and release versions of software, within a week" after losing any one person. The criterion names two routes: someone else already holds the necessary access, or, for an individual maintainer, "keys in a lockbox and a will providing any needed legal rights". Check the repository side (write access is enough for issues and pull requests; admin for settings and secrets), then the release path — each package registry's maintainers, signing keys, release secrets:
+**`access_continuity`** (Silver, MUST) — the project can "create and close issues, accept proposed changes, and release versions of software, within a week" after losing any one person. The criterion names two routes: someone else already holds the necessary access, or, for an individual maintainer, "keys in a lockbox and a will providing any needed legal rights". Check the repository side (write access is enough for issues and pull requests; admin for settings and secrets), then the release path — each package registry's maintainers, signing keys, release secrets. A registry maintainer that is an organisation account names no person; follow it to the people who can act for it:
 
 ```bash
 gh api --paginate "repos/ORG/REPO/collaborators?per_page=100" \
@@ -374,11 +373,12 @@ gh api --paginate "repos/ORG/REPO/collaborators?per_page=100" \
 curl -s https://packagist.org/packages/VENDOR/NAME.json | jq '[.package.maintainers[].name]'
 ```
 
-Answer `Met` and name the route and what backs it; otherwise answer `Unmet` and name the part of the release path that depends on the maintainer alone:
+`access_continuity` requires a URL in a Met justification (`met_url_required`); without one the BadgeApp does not count the answer. Answer `Met`, name the route and link the evidence — for the lockbox route, a document in the repository that says where the keys are deposited and who can obtain them; otherwise answer `Unmet` and name the part of the release path that depends on the maintainer alone:
 ```
-Met. Besides the maintainer, NAME has write and admin access to the repository and is a maintainer
-of the package on REGISTRY (evidence: REGISTRY-URL). [Or: keys and credentials for the repository,
-REGISTRY and signing are deposited in LOCKBOX, and a will grants the needed rights.]
+Met. Besides the maintainer, NAME has admin access to the repository and is a maintainer of the
+package on REGISTRY: REGISTRY-URL. [Or: keys and credentials for the repository, REGISTRY and
+signing are deposited as documented in https://github.com/ORG/REPO/blob/main/CONTINUITY.md, and a
+will grants the needed rights.]
 ```
 
 See also: `references/solo-maintainer-guide.md`
