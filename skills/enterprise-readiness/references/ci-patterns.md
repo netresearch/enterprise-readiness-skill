@@ -364,10 +364,10 @@ strategy:
 A `--prefer-lowest` cell resolves every dev dependency to its constraint floor. In a Composer plugin whose tests instantiate `Composer\Console\Application` from the `composer/composer` **library**, a floor below 2.2.28 fails on that cell alone:
 
 ```
-UnexpectedValueException: Your github oauth token for github.com contains invalid characters
+UnexpectedValueException: Your github oauth token for github.com contains invalid characters: "ghs_..."
 ```
 
-Composer releases before 2.2.28 validate the GitHub token against `[.A-Za-z0-9_]`, which rejects the current installation-token format that `setup-php` configures. 2.2.28 and 2.9.8 add `-` to the pattern; 2.2.29 drops the check. The binary `setup-php` installs is recent enough to pass; the library the tests load is pinned by the constraint floor, and `prefer-lowest` puts it below the fix. Tell: the single `prefer-lowest` cell fails while every other cell, including cells running a current 2.2 binary, passes.
+Composer 2.2 before 2.2.28 (and 2.3 through 2.9.7) validates the GitHub token against `[.A-Za-z0-9_]`, which rejects the current installation-token format with a `-` that `setup-php` configures from `GITHUB_TOKEN`. The message quotes the full token, so the failing cell also prints the job's `GITHUB_TOKEN` into the log (GHSA-f9f8-rm49-7jv2). 2.2.28 and 2.9.8 add `-` to the pattern and drop the token from the message; 2.2.29 drops the check. The binary `setup-php` installs is recent enough to pass; the library the tests load is pinned by the constraint floor, and `prefer-lowest` puts it below the fix. Tell: the single `prefer-lowest` cell fails while every other cell, including cells running a current 2.2 binary, passes.
 
 Two fixes, both keeping minimum-version coverage on the 2.2 line:
 
