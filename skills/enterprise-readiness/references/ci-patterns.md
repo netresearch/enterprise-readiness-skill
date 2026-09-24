@@ -367,11 +367,11 @@ A `--prefer-lowest` cell resolves every dev dependency to its constraint floor. 
 UnexpectedValueException: Your github oauth token for github.com contains invalid characters
 ```
 
-Library releases before 2.2.28 (and before 2.9.8 on the current line) validate the GitHub token against `[.A-Za-z0-9_]`, which rejects the current installation-token format that `setup-php` configures. The composer *binary* is unaffected; only the library the tests load. Tell: the single `prefer-lowest` cell fails while every other cell, including cells running a 2.2 binary, passes.
+Composer releases before 2.2.28 validate the GitHub token against `[.A-Za-z0-9_]`, which rejects the current installation-token format that `setup-php` configures. 2.2.28 and 2.9.8 add `-` to the pattern; 2.2.29 drops the check. The binary `setup-php` installs is recent enough to pass; the library the tests load is pinned by the constraint floor, and `prefer-lowest` puts it below the fix. Tell: the single `prefer-lowest` cell fails while every other cell, including cells running a current 2.2 binary, passes.
 
 Two fixes, both keeping minimum-version coverage on the 2.2 line:
 
-- Raise the dev floor to `^2.2.29` (2.2.28 relaxes the pattern, 2.2.29 drops the check).
+- Raise the dev floor to `^2.2.29`.
 - When the failing tests only clone public repositories, clear the auth on that step:
 
 ```yaml
