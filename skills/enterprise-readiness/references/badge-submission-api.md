@@ -327,28 +327,54 @@ for name, config in PROJECTS.items():
 
 ## Solo Maintainer Justification Patterns
 
-For projects with a single maintainer, use these justification templates:
+None of these three criteria allows `N/A`, so a solo-maintained project answers each with `Met` or `Unmet`. Measure first, and answer `Met` only where the measurement shows it; an honest `Unmet` costs the level, a false `Met` costs the badge's credibility.
 
-**`two_person_review`** (set to Met, N/A not allowed):
-```
-The project uses automated multi-reviewer workflow: GitHub Copilot code review + auto-approve
-bot for solo maintainer. Branch protection requires passing CI + review approval.
-See: https://github.com/org/repo/blob/main/.github/workflows/pr-quality-gates.yml
-```
+**`two_person_review`** — "at least 50% of all proposed modifications reviewed before release by a person other than the author". A bot is not a person: a Copilot or CodeRabbit review and an auto-approve workflow do not count, however strict the branch protection around them. Count merged pull requests that carry an approving review from a human other than the author:
 
-**`bus_factor`** (set to Met, N/A not allowed):
-```
-Bus factor managed through comprehensive documentation, CI automation, and organizational access.
-Organization maintains access to all repositories. Backup maintainers have repository access
-via GitHub organization membership: https://github.com/orgs/ORG/people
+```bash
+gh pr list -R ORG/REPO --state merged --limit 100 --json author,reviews \
+  | jq '[.[] | .author.login as $a
+         | any(.reviews[]; .state == "APPROVED" and .author.login != $a
+                           and (.author.login | test("\\[bot\\]$|^(github-actions|copilot|coderabbitai)") | not))]
+        | {human_reviewed: (map(select(.)) | length), total: length}'
 ```
 
-**`access_continuity`** (set to Met, N/A not allowed):
+Below 50% the answer is `Unmet`:
 ```
-Access continuity ensured via GitHub organization. Multiple organization members have admin
-access. Repository settings and credentials managed at organization level:
-https://github.com/orgs/ORG/people
+Unmet. The project has one maintainer, and fewer than half of the merged pull requests carry an
+approving review from a person other than the author (N of M in the last M merged pull requests).
+Automated review (CI, static analysis, an AI code review bot) runs on every pull request, but it is
+not a second person.
 ```
+
+**`bus_factor`** — at least two people who know the project well enough to keep it going. Organisation membership shows access, not knowledge. Count the authors of the commits of the last twelve months, and name the second person only where they carry real work:
+
+```bash
+git log --since='12 months ago' --format='%an' | grep -v '\[bot\]$' | sort | uniq -c | sort -rn
+```
+
+With one author, answer `Unmet`:
+```
+Unmet. One person authored the changes of the last twelve months. Documentation, ADRs and CI lower
+the cost for a successor, but nobody else currently knows the project well enough to continue it.
+```
+
+With a second active author, answer `Met` and name both with the evidence (for example the contributors page, https://github.com/ORG/REPO/graphs/contributors).
+
+**`access_continuity`** — someone other than the maintainer can create and close issues, accept changes and release a version within a week. That needs named people with admin rights on the repository **and** the release path: the package registry (Packagist, TER, npm), signing keys, and any secret the release workflow uses. Check the repository side, then list each registry's maintainers:
+
+```bash
+gh api "repos/ORG/REPO/collaborators?permission=admin&per_page=100" --paginate --jq '.[].login'
+```
+
+Answer `Met` only when a second named person holds every one of them:
+```
+Met. Besides the maintainer, NAME has admin rights on the repository (organisation role) and is a
+maintainer of the package on REGISTRY; the release workflow uses organisation secrets that NAME can
+manage. Evidence: https://github.com/orgs/ORG/people, REGISTRY-URL.
+```
+
+If any part of the release path depends on the maintainer alone, answer `Unmet` and name that part.
 
 See also: `references/solo-maintainer-guide.md`
 
