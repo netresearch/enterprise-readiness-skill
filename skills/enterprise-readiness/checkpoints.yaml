@@ -91,8 +91,8 @@ mechanical:
   # block and an `enabledManagers` set by an extended preset are not detected.
   # `//` and `/* */` comments (JSONC/JSON5) are stripped before
   # `enabledManagers` is read, outside quoted strings. In a Dependabot file,
-  # commented-out lines are ignored and the ecosystem may be unquoted,
-  # single- or double-quoted.
+  # commented-out lines are ignored, flow-style entries are read, and the
+  # ecosystem may be unquoted, single- or double-quoted.
   - id: ER-07
     type: command
     pattern: "find .github/dependabot.yml .github/dependabot.yaml renovate.json renovate.jsonc renovate.json5 .github/renovate.json .github/renovate.jsonc .github/renovate.json5 .gitlab/renovate.json .gitlab/renovate.jsonc .gitlab/renovate.json5 .renovaterc .renovaterc.json .renovaterc.jsonc .renovaterc.json5 -maxdepth 0 -type f 2>/dev/null | grep -q ."
@@ -122,7 +122,7 @@ mechanical:
       }
       for f in .github/dependabot.yml .github/dependabot.yaml; do
         [ -f "$f" ] || continue
-        if grep -Ev '^[[:space:]]*#' "$f" | grep -Eq "package-ecosystem:[[:space:]]*[\"']?(composer|gomod|npm|pip)[\"']?([[:space:]]|#|\$)"; then exit 0; fi
+        if grep -Ev '^[[:space:]]*#' "$f" | grep -Eq "package-ecosystem[\"']?:[[:space:]]*[\"']?(composer|gomod|npm|pip)[\"']?([[:space:],}#]|\$)"; then exit 0; fi
       done
       for f in renovate.json renovate.jsonc renovate.json5 .github/renovate.json .github/renovate.jsonc .github/renovate.json5 \
                .gitlab/renovate.json .gitlab/renovate.jsonc .gitlab/renovate.json5 .renovaterc .renovaterc.json .renovaterc.jsonc .renovaterc.json5; do
@@ -159,7 +159,7 @@ mechanical:
       }
       for f in .github/dependabot.yml .github/dependabot.yaml; do
         [ -f "$f" ] || continue
-        if grep -Ev '^[[:space:]]*#' "$f" | grep -Eq "package-ecosystem:[[:space:]]*[\"']?(github-actions)[\"']?([[:space:]]|#|\$)"; then exit 0; fi
+        if grep -Ev '^[[:space:]]*#' "$f" | grep -Eq "package-ecosystem[\"']?:[[:space:]]*[\"']?(github-actions)[\"']?([[:space:],}#]|\$)"; then exit 0; fi
       done
       for f in renovate.json renovate.jsonc renovate.json5 .github/renovate.json .github/renovate.jsonc .github/renovate.json5 \
                .gitlab/renovate.json .gitlab/renovate.jsonc .gitlab/renovate.json5 .renovaterc .renovaterc.json .renovaterc.jsonc .renovaterc.json5; do
