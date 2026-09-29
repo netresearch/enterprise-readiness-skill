@@ -32,6 +32,7 @@ enterprise-readiness-skill/
 │   └── hooks/pre-push
 ├── docs/                              # Architecture and planning docs
 │   ├── ARCHITECTURE.md
+│   ├── SECURITY-ASSURANCE.md          # Security assurance case
 │   └── exec-plans/                    # Execution plans
 ├── tests/                             # Behaviour tests, one per script
 └── .github/workflows/                 # CI: lint, tests, security, release, auto-merge-deps
@@ -69,3 +70,4 @@ No Makefile; `package.json` serves npm distribution (its `prepare` script instal
 - `skills/enterprise-readiness/references/scorecard-playbook.md` -- raise Scorecard to ~9.0
 - `skills/enterprise-readiness/references/mandatory-requirements.md` -- badge/workflow checklist
 - `docs/ARCHITECTURE.md` -- architecture overview
+- `docs/SECURITY-ASSURANCE.md` -- threat model, trust boundaries, countermeasures

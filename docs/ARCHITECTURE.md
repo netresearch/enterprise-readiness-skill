@@ -48,6 +48,10 @@ SKILL.md (entry point)
 - **GitHub Releases**: Direct download
 - **Git clone**: Manual installation
 
+### Security
+
+Threat model, trust boundaries and the countermeasures for each script are in [SECURITY-ASSURANCE.md](SECURITY-ASSURANCE.md).
+
 ### Licensing
 
 Split license model:
