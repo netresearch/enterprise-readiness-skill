@@ -116,23 +116,32 @@ The skill triggers on keywords like:
 ## Structure
 
 ```
-enterprise-readiness/
-├── SKILL.md              # AI instructions
-├── README.md             # This file
-├── LICENSE-MIT           # Code license (MIT)
-├── LICENSE-CC-BY-SA-4.0  # Content license (CC-BY-SA-4.0)
-├── composer.json         # PHP distribution
-├── references/           # OpenSSF criteria documentation
-│   ├── general.md        # Universal checks (60 points)
-│   ├── github.md         # GitHub-specific (40 points)
-│   ├── go.md             # Go-specific (20 points)
-│   ├── openssf-badge-silver.md
-│   └── openssf-badge-gold.md
-├── scripts/              # Automation scripts
-│   ├── check-*.sh        # Validation scripts
-│   └── setup-*.sh        # Configuration scripts
-└── assets/               # Templates and configs
-    └── templates/        # CI/CD, SBOM, policy templates
+enterprise-readiness-skill/
+├── skills/enterprise-readiness/
+│   ├── SKILL.md                 # AI instructions
+│   ├── checkpoints.yaml         # Assessment checkpoints
+│   ├── evals/evals.json         # Evaluation cases
+│   ├── references/              # OpenSSF criteria, guides, playbooks
+│   │   ├── general.md           # Universal checks
+│   │   ├── github.md            # GitHub-specific checks
+│   │   ├── go.md                # Go-specific checks
+│   │   ├── openssf-badge-silver.md
+│   │   ├── openssf-badge-gold.md
+│   │   └── …
+│   └── scripts/                 # check-*.sh, verify-*.sh, add-spdx-headers.sh,
+│                                # analyze-bus-factor.sh, submit-badges.py
+├── assets/
+│   ├── templates/               # Governance, roadmap, architecture, CoC, audit, badge-exception templates
+│   └── workflows/               # CodeQL, Scorecard, SLSA, dependency review, DCO workflows
+├── commands/                    # /audit and /slsa slash commands
+├── outputStyles/                # Report output style
+├── tests/                       # Behaviour tests for the scripts
+├── docs/                        # Architecture, security assurance case, execution plans
+├── README.md                    # This file
+├── LICENSE-MIT                  # Code license (MIT)
+├── LICENSE-CC-BY-SA-4.0         # Content license (CC-BY-SA-4.0)
+├── composer.json                # Composer distribution
+└── package.json                 # npm distribution
 ```
 
 ## Contributing
