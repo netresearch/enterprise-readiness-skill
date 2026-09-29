@@ -86,9 +86,9 @@ echo ""
 echo "3. Analyzing conditional complexity in codebase..."
 
 # Count if/else and switch statements (Go has no ternary operator)
-IF_COUNT=$(grep -rn "if " --include="*.go" . 2>/dev/null | grep -v "_test.go" | grep -vc "vendor/")
-SWITCH_COUNT=$(grep -rn "switch " --include="*.go" . 2>/dev/null | grep -v "_test.go" | grep -vc "vendor/")
-SELECT_COUNT=$(grep -rn "select {" --include="*.go" . 2>/dev/null | grep -v "_test.go" | grep -vc "vendor/")
+IF_COUNT=$(grep -rn "if " --include="*.go" . 2>/dev/null | grep -v "_test.go" | grep -vc "vendor/" || true)
+SWITCH_COUNT=$(grep -rn "switch " --include="*.go" . 2>/dev/null | grep -v "_test.go" | grep -vc "vendor/" || true)
+SELECT_COUNT=$(grep -rn "select {" --include="*.go" . 2>/dev/null | grep -v "_test.go" | grep -vc "vendor/" || true)
 
 echo "   Conditional statements in source code:"
 echo "   - if statements: $IF_COUNT"
