@@ -70,7 +70,7 @@ if [[ "$LEVEL" == "gold" ]]; then
     echo "=== Gold Level Checks ==="
 
     # Check for SPDX headers
-    SPDX_COUNT=$(grep -rl "SPDX-License-Identifier" --include="*.go" --include="*.py" --include="*.js" . 2>/dev/null | wc -l)
+    SPDX_COUNT=$(grep -rl "SPDX-License-Identifier" --include="*.go" --include="*.py" --include="*.js" . 2>/dev/null | wc -l || true)
     SOURCE_COUNT=$(find . -name "*.go" -o -name "*.py" -o -name "*.js" 2>/dev/null | wc -l)
     if [[ "$SOURCE_COUNT" -gt 0 && "$SPDX_COUNT" -eq "$SOURCE_COUNT" ]]; then
         pass "SPDX headers in all source files ($SPDX_COUNT/$SOURCE_COUNT)"
