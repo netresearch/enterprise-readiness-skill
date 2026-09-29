@@ -38,7 +38,7 @@ Best Practices Badge, and S2C2F frameworks.
 ### Project Maintenance (2 points)
 | Criteria | Points | How to Check |
 |----------|--------|--------------|
-| Active commits within last 90 days | 1 | `git log --since="90 days ago" --oneline | head -5` |
+| Active commits within last 90 days | 1 | `git log --since="90 days ago" --oneline \| head -5` |
 | Issues/PRs responded to | 1 | Check recent issue activity |
 
 ---
