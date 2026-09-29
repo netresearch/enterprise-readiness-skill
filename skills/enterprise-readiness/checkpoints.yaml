@@ -71,16 +71,24 @@ mechanical:
 
   # === DEPENDENCY MANAGEMENT ===
   # ER-07..ER-09 accept either update bot. Renovate reads its configuration
-  # from any of the file names listed below (renovatebot/renovate
-  # lib/config/app-strings.ts, `configFilePatterns`; the `package.json` key is
-  # not checked); a repository that uses Renovate instead
-  # of Dependabot — the Netresearch default, via `local>netresearch/renovate-config`
-  # — has no .github/dependabot.yml and was reported as unmonitored.
+  # from the first of the file names listed below that exists
+  # (renovatebot/renovate lib/config/app-strings.ts `configFilePatterns`, in
+  # that order, read by detectConfigFile() in
+  # lib/workers/repository/init/merge.ts; the `package.json` key is not
+  # checked); a repository that uses Renovate instead of Dependabot — the
+  # Netresearch default, via `local>netresearch/renovate-config` — has no
+  # .github/dependabot.yml and was reported as unmonitored.
   #
   # Renovate enables every manager (composer, npm, gomod, pip_requirements,
-  # github-actions, ...) unless `enabledManagers` narrows the list, so for a
-  # Renovate config ER-08/ER-09 pass when that key is absent, or when it names
-  # a matching manager. A per-manager `"enabled": false` block is not detected.
+  # github-actions, ...) unless `enabledManagers` narrows the list; an empty
+  # array narrows nothing (getEnabledManagersList() in
+  # lib/workers/repository/extract/index.ts). So for a Renovate config
+  # ER-08/ER-09 read only the first existing file, and pass when its
+  # `enabledManagers` array is absent or empty, or when that array (not some
+  # other key such as `packageRules[].matchManagers`) names a matching
+  # manager. The Python managers listed are the ones covering what
+  # Dependabot's `pip` ecosystem covers. A per-manager `"enabled": false`
+  # block and an `enabledManagers` set by an extended preset are not detected.
   - id: ER-07
     type: command
     pattern: "find .github/dependabot.yml .github/dependabot.yaml renovate.json renovate.jsonc renovate.json5 .github/renovate.json .github/renovate.jsonc .github/renovate.json5 .gitlab/renovate.json .gitlab/renovate.jsonc .gitlab/renovate.json5 .renovaterc .renovaterc.json .renovaterc.jsonc .renovaterc.json5 -maxdepth 0 -type f 2>/dev/null | grep -q ."
@@ -96,8 +104,10 @@ mechanical:
       for f in renovate.json renovate.jsonc renovate.json5 .github/renovate.json .github/renovate.jsonc .github/renovate.json5 \
                .gitlab/renovate.json .gitlab/renovate.jsonc .gitlab/renovate.json5 .renovaterc .renovaterc.json .renovaterc.jsonc .renovaterc.json5; do
         [ -f "$f" ] || continue
-        if ! grep -q 'enabledManagers' "$f"; then exit 0; fi
-        if grep -Eq '"(composer|gomod|npm|pip_requirements|pip-compile|pipenv|poetry|pep621|setup-cfg)"' "$f"; then exit 0; fi
+        managers=$(tr '\n' ' ' < "$f" | grep -Eo "enabledManagers[\"']?[[:space:]]*:[[:space:]]*\[[^]]*\]") || exit 0
+        if printf '%s' "$managers" | grep -Eq '\[[[:space:]]*\]'; then exit 0; fi
+        if printf '%s' "$managers" | grep -Eq "[\"'](composer|gomod|npm|pip_requirements|pip_setup|pip-compile|pipenv|poetry|pep621|setup-cfg)[\"']"; then exit 0; fi
+        exit 1
       done
       exit 1
     severity: warning
@@ -112,8 +122,10 @@ mechanical:
       for f in renovate.json renovate.jsonc renovate.json5 .github/renovate.json .github/renovate.jsonc .github/renovate.json5 \
                .gitlab/renovate.json .gitlab/renovate.jsonc .gitlab/renovate.json5 .renovaterc .renovaterc.json .renovaterc.jsonc .renovaterc.json5; do
         [ -f "$f" ] || continue
-        if ! grep -q 'enabledManagers' "$f"; then exit 0; fi
-        if grep -q '"github-actions"' "$f"; then exit 0; fi
+        managers=$(tr '\n' ' ' < "$f" | grep -Eo "enabledManagers[\"']?[[:space:]]*:[[:space:]]*\[[^]]*\]") || exit 0
+        if printf '%s' "$managers" | grep -Eq '\[[[:space:]]*\]'; then exit 0; fi
+        if printf '%s' "$managers" | grep -Eq "[\"']github-actions[\"']"; then exit 0; fi
+        exit 1
       done
       exit 1
     severity: warning
@@ -692,7 +704,8 @@ llm_reviews:
     prompt: |
       If package.json exists in the project root or Build/ directory:
       1. Check that CI workflow runs `npm audit` or equivalent
-      2. Check that .github/dependabot.yml includes npm ecosystem
+      2. Check that the update bot covers npm: a `package-ecosystem: npm`
+         entry in .github/dependabot.yml, or a Renovate config (see ER-38)
       3. Check that npm dependencies are not excessively outdated (>2 major versions)
     tags: [npm, supply-chain, dependencies, ci]
 
@@ -711,8 +724,8 @@ llm_reviews:
       .github/dependabot.yml. Renovate (renovate.json, .github/renovate.json5,
       .renovaterc, ...): every manager is enabled by default, including through
       a shared preset such as `local>netresearch/renovate-config`, so an
-      ecosystem is missing only when `enabledManagers` leaves it out or a
-      manager block sets `"enabled": false`. Either bot is sufficient; do not
+      ecosystem is missing only when a non-empty `enabledManagers` list
+      leaves it out or a manager block sets `"enabled": false`. Either bot is sufficient; do not
       report a missing dependabot.yml when Renovate is configured.
       Report any missing ecosystem configurations.
     tags: [dependabot, renovate, supply-chain, dependencies]
