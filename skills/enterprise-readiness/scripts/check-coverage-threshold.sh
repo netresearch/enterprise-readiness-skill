@@ -32,7 +32,7 @@ elif grep -q "TOTAL" "$COVERAGE_FILE"; then
     echo "Format: Python coverage report"
 else
     # Try to extract any percentage (POSIX-compatible, works on macOS and Linux)
-    COVERAGE=$(grep -E '[0-9]+\.?[0-9]*%' "$COVERAGE_FILE" 2>/dev/null | tail -1 | sed 's/.*[^0-9]\([0-9][0-9]*\.[0-9]*\)%.*/\1/' | sed 's/.*[^0-9]\([0-9][0-9]*\)%.*/\1/' | head -1)
+    COVERAGE=$(grep -E '[0-9]+\.?[0-9]*%' "$COVERAGE_FILE" 2>/dev/null | tail -1 | sed 's/.*[^0-9]\([0-9][0-9]*\.[0-9]*\)%.*/\1/' | sed 's/.*[^0-9]\([0-9][0-9]*\)%.*/\1/' | head -1 || true)
     echo "Format: Generic"
 fi
 
