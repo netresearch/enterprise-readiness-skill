@@ -158,6 +158,19 @@ Each shell test prints `ok` or `FAIL` per case, with the captured output of a fa
 
 New or changed behaviour in a script needs a test case in `tests/` in the same pull request.
 
+## Governance and policies
+
+This repository follows the Netresearch organisation policies:
+
+- [Governance](https://github.com/netresearch/.github/blob/main/GOVERNANCE.md): who decides, how changes are accepted, and how disputes are resolved.
+- [Roadmap](https://github.com/netresearch/.github/blob/main/ROADMAP.md): planned and excluded work for the coming year.
+- [Handling of dependency and code analysis findings](https://github.com/netresearch/.github/blob/main/SECURITY.md#handling-of-dependency-and-code-analysis-findings): thresholds, deadlines and exceptions for dependency and static-analysis findings.
+- [Secret management](https://github.com/netresearch/.github/blob/main/SECURITY.md#secret-management): how CI and release credentials are stored, accessed and rotated.
+- [Access roster](https://github.com/netresearch/.github/blob/main/docs/access-roster.md): the accounts that can change code, settings or releases of this repository, with their access level.
+- [Security assurance case](docs/SECURITY-ASSURANCE.md): threat model, trust boundaries and countermeasures for this skill.
+
+Every pull request to `main` runs these security checks (`.github/workflows/security.yml`): dependency review, Composer Audit, Opengrep (static analysis), Betterleaks (secret scanning) and zizmor (workflow analysis). CodeQL analyses the GitHub Actions workflows and the Python code through the repository's default setup. The only secrets this repository's workflows use are the organisation GitHub App credentials passed to the dependency auto-merge job (`auto-merge-deps.yml`); releases are signed with short-lived OIDC credentials (`release.yml`).
+
 ## License
 
 This project uses split licensing:
