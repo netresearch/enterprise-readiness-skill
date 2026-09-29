@@ -33,20 +33,22 @@ enterprise-readiness-skill/
 ├── docs/                              # Architecture and planning docs
 │   ├── ARCHITECTURE.md
 │   └── exec-plans/                    # Execution plans
-└── .github/workflows/                 # CI: lint, release, auto-merge-deps
+├── tests/                             # Behaviour tests, one per script
+└── .github/workflows/                 # CI: lint, tests, security, release, auto-merge-deps
 ```
 
 ## Commands
 
 Build/test/lint:
 - **Lint**: CI runs `netresearch/skill-repo-skill/.github/workflows/validate.yml`
+- **Tests**: `for t in tests/*.sh; do bash "$t" || exit 1; done; python3 tests/test_submit_badges.py` (CI: `tests.yml`; see README "Development and tests")
 - **Version check**: `bash Build/Scripts/check-plugin-version.sh`
 - **Badge verification**: `bash skills/enterprise-readiness/scripts/verify-badge-criteria.sh`
 - **SPDX headers**: `bash skills/enterprise-readiness/scripts/verify-spdx-headers.sh`
 - **Signed tags**: `bash skills/enterprise-readiness/scripts/verify-signed-tags.sh`
 - **Badge submission**: `python3 skills/enterprise-readiness/scripts/submit-badges.py`
 
-No Makefile or package.json; no local test runner.
+No Makefile; `package.json` serves npm distribution (its `prepare` script installs the pre-commit hooks). New script behaviour needs a test in `tests/`.
 
 ## Rules
 
