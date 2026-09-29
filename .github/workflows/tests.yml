@@ -6,7 +6,7 @@ name: Skill Tests
 # reusable: the behaviour tests for every script under
 # skills/enterprise-readiness/scripts/ and for the version check the pre-push
 # hook runs (Build/Scripts/check-plugin-version.sh). The tests need bash, git,
-# jq, make, ssh-keygen and python3, all preinstalled on ubuntu-latest; `go` and
+# jq, make, ssh-keygen, gpg and python3, all preinstalled on ubuntu-latest; `go` and
 # `gh` are replaced by stubs. require_tests makes the job fail if the suite
 # ever matches no test file while the skill ships scripts.
 

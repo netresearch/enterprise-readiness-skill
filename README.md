@@ -156,7 +156,7 @@ Contributions welcome! Please submit PRs for:
 
 Every script under `skills/enterprise-readiness/scripts/` and the version check the pre-push hook runs (`Build/Scripts/check-plugin-version.sh`) has a behaviour test in `tests/`, named after the script (`tests/<script>.sh`, and `tests/test_submit_badges.py` for `submit-badges.py`). The tests build fixture directories and throw-away git repositories in a temporary directory and run the real script against them, checking exit codes and output: pass and fail verdicts, thresholds, excluded directories, signed and unsigned tags, and error paths. `go` and `gh` are replaced by stubs, and `submit-badges.py` talks to a fake HTTP opener, so no test calls a Go toolchain, GitHub or bestpractices.dev. Shared helpers are in `tests/helpers.bash`.
 
-The tests need bash, git, jq, make, ssh-keygen and python3. Run them from the repository root:
+The tests need bash, git, jq, make, ssh-keygen, gpg and python3. Run them from the repository root:
 
 ```bash
 for t in tests/*.sh; do bash "$t" || exit 1; done
