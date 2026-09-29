@@ -16,7 +16,8 @@ run_in() { local dir="$1"; shift; (cd "$dir" && bash "$SCRIPT" "$@"); }
 
 mkdir -p "$WORK/bare" "$WORK/full/.github/workflows"
 check "invalid level fails" 1 "Error: Level must be passing, silver, or gold" -- run_in "$WORK/bare" platinum
-check "help exits 0" 0 "Usage:" -- run_in "$WORK/bare" --help
+check "help exits 0" 0 "verify-badge-criteria.sh [passing|silver|gold]" -- run_in "$WORK/bare" --help
+absent "help shows no --level flag" "--level"
 
 check "empty project scores 0" 0 "Score: 0/10 (0%)" -- run_in "$WORK/bare"
 check "missing README is reported" 0 "README.md missing" -- run_in "$WORK/bare" passing

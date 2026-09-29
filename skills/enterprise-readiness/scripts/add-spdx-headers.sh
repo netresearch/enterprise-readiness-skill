@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: MIT
 # SPDX-FileCopyrightText: Netresearch DTT GmbH
 # add-spdx-headers.sh - Add SPDX license headers to source files
-# Usage: ./add-spdx-headers.sh [--license MIT|Apache-2.0|...] [--copyright "Your Name"]
+# Usage: ./add-spdx-headers.sh [LICENSE] [COPYRIGHT_HOLDER]
+#   LICENSE           SPDX identifier, e.g. MIT or Apache-2.0 (default: MIT)
+#   COPYRIGHT_HOLDER  name for the copyright line (default: git user.name)
 # shellcheck disable=SC2015  # `write && replace && rm || rm` is meant: the temp file is removed on every path
 set -euo pipefail
 

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 # SPDX-FileCopyrightText: Netresearch DTT GmbH
 # verify-badge-criteria.sh - Automated verification of OpenSSF Badge criteria
-# Usage: ./verify-badge-criteria.sh [--level passing|silver|gold]
+# Usage: ./verify-badge-criteria.sh [passing|silver|gold]
 # shellcheck disable=SC2015  # pass() and fail() always return 0, so `test && pass || fail` is an if-else
 set -euo pipefail
 
@@ -10,7 +10,7 @@ set -euo pipefail
 case "${1:-passing}" in
     passing|silver|gold) LEVEL="${1:-passing}" ;;
     --help|-h)
-        echo "Usage: $0 [--level passing|silver|gold]"
+        echo "Usage: $0 [passing|silver|gold]"
         echo "  passing  - Check basic OpenSSF criteria (default)"
         echo "  silver   - Check Silver level criteria"
         echo "  gold     - Check Gold level criteria"
