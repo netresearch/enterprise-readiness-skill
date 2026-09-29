@@ -1,6 +1,7 @@
 #!/bin/bash
 # add-spdx-headers.sh - Add SPDX license headers to source files
 # Usage: ./add-spdx-headers.sh [--license MIT|Apache-2.0|...] [--copyright "Your Name"]
+# shellcheck disable=SC2015  # `write && replace && rm || rm` is meant: the temp file is removed on every path
 set -euo pipefail
 
 LICENSE="${1:-MIT}"

@@ -27,7 +27,6 @@ fi
 # Function to verify a single tag
 verify_tag() {
     local tag="$1"
-    local result
 
     # Check if tag exists
     if ! git rev-parse "$tag" >/dev/null 2>&1; then

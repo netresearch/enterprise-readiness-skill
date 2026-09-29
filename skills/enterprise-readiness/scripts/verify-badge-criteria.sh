@@ -1,6 +1,7 @@
 #!/bin/bash
 # verify-badge-criteria.sh - Automated verification of OpenSSF Badge criteria
 # Usage: ./verify-badge-criteria.sh [--level passing|silver|gold]
+# shellcheck disable=SC2015  # pass() and fail() always return 0, so `test && pass || fail` is an if-else
 set -euo pipefail
 
 # Validate level argument

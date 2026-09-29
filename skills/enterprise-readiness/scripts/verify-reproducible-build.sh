@@ -50,6 +50,7 @@ echo "Output file: $OUTPUT"
 echo "Temp directory: $TEMP_DIR"
 echo ""
 
+# shellcheck disable=SC2329  # invoked through the EXIT trap below
 cleanup() {
     rm -rf "$TEMP_DIR"
 }

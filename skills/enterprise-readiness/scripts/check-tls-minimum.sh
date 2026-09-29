@@ -15,9 +15,6 @@ ISSUES=0
 GOOD=0
 WARNINGS=0
 
-# Patterns that indicate TLS configuration
-declare -a TLS_PATTERNS
-
 echo "=== Checking Go Files ==="
 echo ""
 
