@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 # verify-badge-criteria.sh - Automated verification of OpenSSF Badge criteria
 # Usage: ./verify-badge-criteria.sh [--level passing|silver|gold]
 # shellcheck disable=SC2015  # pass() and fail() always return 0, so `test && pass || fail` is an if-else

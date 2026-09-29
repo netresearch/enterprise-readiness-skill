@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 # check-coverage-threshold.sh - Validate test coverage meets requirements
 # Usage: ./check-coverage-threshold.sh [--threshold 80] [--coverage-file coverage.out]
 set -euo pipefail

@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # Tier framing — when does this skill apply, and to what depth?
 
 This skill is the **high-stakes end** of the verification spectrum. Lower-stakes projects (internal scripts, prototypes, throwaway PoCs) have correspondingly lighter bars — they do not need SLSA Level 3, cosign attestation, or OpenSSF Silver. Production deploys, customer-facing releases, and supply-chain-critical artifacts do.

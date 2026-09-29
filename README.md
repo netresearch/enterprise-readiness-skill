@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # Enterprise Readiness Skill
 
 Netresearch AI skill for assessing and enhancing software projects to meet enterprise-grade standards for security, quality, and automation.

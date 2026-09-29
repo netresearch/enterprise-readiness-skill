@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # Branch Coverage Guide
 
 > OpenSSF Badge Criteria: `test_branch_coverage80` (Gold - requires 80% branch coverage)

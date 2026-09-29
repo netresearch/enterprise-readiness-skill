@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 """Submit OpenSSF Best Practices Badge data for multiple projects.
 
 This script automates submitting badge criteria data to bestpractices.dev

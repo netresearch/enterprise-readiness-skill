@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 # check-branch-coverage.sh - Check branch (decision) coverage for Go projects
 # Usage: ./check-branch-coverage.sh [--threshold 80] [--package ./...]
 # OpenSSF Badge Criteria: test_branch_coverage80 (Gold)

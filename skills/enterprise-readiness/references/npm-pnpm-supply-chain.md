@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # npm / pnpm Supply-Chain Hardening
 
 Lifecycle-script execution, version quarantine, and lockfile defenses for JavaScript dependencies. Applies to any repo using `npm`, `pnpm`, or `yarn`, with concrete pnpm 10.26+ / 11+ configuration.

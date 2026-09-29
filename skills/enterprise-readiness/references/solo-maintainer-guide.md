@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # Solo Maintainer Guide for OpenSSF Badge Certification
 
 > Practical guidance for solo maintainers pursuing Silver and Gold level badges.

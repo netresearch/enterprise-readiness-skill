@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # General Enterprise Readiness Checks
 
 Universal checks applicable to any platform and language. Aligned with OpenSSF Scorecard,

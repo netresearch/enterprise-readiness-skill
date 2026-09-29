@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # OpenSSF OSPS Baseline Levels (1/2/3)
 
 > The OSPS Baseline is a **separate** framework from the original Best Practices Badge (Passing/Silver/Gold).

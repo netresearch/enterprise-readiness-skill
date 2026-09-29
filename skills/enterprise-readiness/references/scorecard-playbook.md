@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # OpenSSF Scorecard Optimization Playbook
 
 Proven playbook to raise OpenSSF Scorecard from ~6.8 to ~9.0. Applied successfully on [t3x-rte_ckeditor_image](https://github.com/netresearch/t3x-rte_ckeditor_image).

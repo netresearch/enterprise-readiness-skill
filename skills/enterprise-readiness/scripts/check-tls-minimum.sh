@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 # check-tls-minimum.sh - Verify TLS 1.2+ minimum version is enforced in code
 # Usage: ./check-tls-minimum.sh [directory]
 # OpenSSF Badge Criteria: crypto_tls12 (Silver), crypto_used_network (Gold)

@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # Signed Releases Implementation Guide
 
 Cryptographic signing of releases and tags provides verification that artifacts come from trusted sources.

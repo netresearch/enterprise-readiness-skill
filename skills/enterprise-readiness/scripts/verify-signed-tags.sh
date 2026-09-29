@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 # verify-signed-tags.sh - Verify git tags are cryptographically signed
 # Usage: ./verify-signed-tags.sh [tag] [--check-all]
 # OpenSSF Badge Criteria: version_tags_signed (Silver)

@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 # analyze-bus-factor.sh - Analyze commit distribution for bus factor assessment
 # Usage: ./analyze-bus-factor.sh [--days 365] [--threshold 2]
 # OpenSSF Badge Criteria: bus_factor (Silver/Gold)

@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # CI Robustness in Docker/Worktree Environments
 
 Patterns and fixes for CI pipelines that run inside Docker containers

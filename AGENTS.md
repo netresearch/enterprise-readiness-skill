@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # Enterprise Readiness Skill
 
 <!-- Index file -- detail in docs/ and skills/. Keep under 100 lines. -->

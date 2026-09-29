@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 # verify-review-requirements.sh - Verify PR review requirements meet badge level
 # Usage: ./verify-review-requirements.sh [--level passing|silver|gold] [--owner owner] [--repo repo] [--branch branch]
 # OpenSSF Badge Criteria: two_person_review (Gold), code_review (Silver)

@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 # verify-spdx-headers.sh - Verify SPDX license headers exist in source files
 # Usage: ./verify-spdx-headers.sh [--fix] [directory]
 # OpenSSF Badge Criteria: license_per_file, copyright_per_file (Gold)
