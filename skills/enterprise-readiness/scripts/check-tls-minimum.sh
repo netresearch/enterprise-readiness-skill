@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 # check-tls-minimum.sh - Verify TLS 1.2+ minimum version is enforced in code
 # Usage: ./check-tls-minimum.sh [directory]
 # OpenSSF Badge Criteria: crypto_tls12 (Silver), crypto_used_network (Gold)
@@ -14,9 +16,6 @@ echo ""
 ISSUES=0
 GOOD=0
 WARNINGS=0
-
-# Patterns that indicate TLS configuration
-declare -a TLS_PATTERNS
 
 echo "=== Checking Go Files ==="
 echo ""
@@ -61,13 +60,14 @@ if [ -n "$PY_FILES" ]; then
         [ -z "$file" ] && continue
 
         if grep -q "ssl\." "$file" 2>/dev/null; then
-            # Check for proper TLS version
-            if grep -E "PROTOCOL_TLS|TLSVersion\.TLSv1_2|TLSVersion\.TLSv1_3" "$file" >/dev/null 2>&1; then
-                echo "✓ $file: Modern TLS protocol configured"
-                GOOD=$((GOOD + 1))
-            elif grep -E "PROTOCOL_SSLv[23]|PROTOCOL_TLSv1$|PROTOCOL_TLSv1_1" "$file" >/dev/null 2>&1; then
+            # Deprecated protocols first: "PROTOCOL_TLS" is a prefix of
+            # PROTOCOL_TLSv1 and PROTOCOL_TLSv1_1
+            if grep -E "PROTOCOL_SSLv[23]|PROTOCOL_TLSv1([^_0-9]|$)|PROTOCOL_TLSv1_1" "$file" >/dev/null 2>&1; then
                 echo "✗ $file: Deprecated protocol version"
                 ISSUES=$((ISSUES + 1))
+            elif grep -E "PROTOCOL_TLS|TLSVersion\.TLSv1_2|TLSVersion\.TLSv1_3" "$file" >/dev/null 2>&1; then
+                echo "✓ $file: Modern TLS protocol configured"
+                GOOD=$((GOOD + 1))
             elif grep -q "verify_mode.*CERT_NONE" "$file" 2>/dev/null; then
                 echo "⚠ $file: Certificate verification disabled"
                 WARNINGS=$((WARNINGS + 1))
@@ -87,7 +87,7 @@ if [ -n "$JS_FILES" ]; then
     while IFS= read -r file; do
         [ -z "$file" ] && continue
 
-        if grep -E "https\.|tls\." "$file" 2>/dev/null; then
+        if grep -qE "https\.|tls\." "$file" 2>/dev/null; then
             if grep -q "rejectUnauthorized.*false" "$file" 2>/dev/null; then
                 echo "⚠ $file: Certificate verification disabled"
                 WARNINGS=$((WARNINGS + 1))

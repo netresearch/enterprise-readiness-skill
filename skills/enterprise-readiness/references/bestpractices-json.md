@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # `.bestpractices.json`: proposing badge answers from the repository
 
 A file the OpenSSF BadgeApp reads to pre-fill the Best Practices questionnaire. It is the only way to feed answers in without a logged-in session; [`badge-submission-api.md`](badge-submission-api.md) covers writing them directly, which needs a browser session cookie.

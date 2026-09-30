@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # OpenSSF Best Practices Badge - Silver Level
 
 Complete checklist for Silver level certification aligned with

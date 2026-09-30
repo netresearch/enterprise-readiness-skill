@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # StepSecurity Harden-Runner Operational Guide
 
 > Harden-Runner provides runtime security for GitHub Actions workflows by monitoring

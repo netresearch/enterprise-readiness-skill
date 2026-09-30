@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # Two-Factor Authentication Enforcement Guide
 
 > OpenSSF Gold Badge requirements: `require_2FA`, `secure_2FA`

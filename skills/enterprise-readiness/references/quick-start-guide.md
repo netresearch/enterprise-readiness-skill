@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # Quick Start Guide Implementation
 
 > OpenSSF Silver Badge requirement: `documentation_quick_start`

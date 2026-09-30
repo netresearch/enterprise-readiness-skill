@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # Reproducible Builds Implementation Guide
 
 Reproducible builds ensure that anyone can verify that binaries were built from the claimed source code.

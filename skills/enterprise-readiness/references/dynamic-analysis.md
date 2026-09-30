@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # Dynamic Analysis Guide
 
 > OpenSSF Badge Criteria: `dynamic_analysis`, `dynamic_analysis_unsafe`, `dynamic_analysis_enable_assertions`

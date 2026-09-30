@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # SLSA Level 3 Provenance Implementation Guide
 
 Complete guide for implementing SLSA Level 3 provenance.

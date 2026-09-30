@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # Developer Certificate of Origin (DCO) Implementation Guide
 
 The DCO is a lightweight way to certify that contributors have the right to submit their code under the project's license.

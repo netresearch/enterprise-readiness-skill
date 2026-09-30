@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # Security Hardening Guide
 
 > OpenSSF Gold Badge requirements: `hardening`, `crypto_tls12`, `crypto_used_network`

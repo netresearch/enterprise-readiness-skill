@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
+name: Skill Tests
+
+# Runs tests/**/*.sh and tests/**/*.py through the skill-repo-skill tests
+# reusable: the behaviour tests for every script under
+# skills/enterprise-readiness/scripts/ and for the version check the pre-push
+# hook runs (Build/Scripts/check-plugin-version.sh). The tests need bash, git,
+# jq, make, ssh-keygen, gpg and python3, all preinstalled on ubuntu-latest; `go` and
+# `gh` are replaced by stubs. require_tests makes the job fail if the suite
+# ever matches no test file while the skill ships scripts.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions: {}
+
+jobs:
+  tests:
+    uses: netresearch/skill-repo-skill/.github/workflows/tests.yml@main
+    permissions:
+      contents: read
+    with:
+      require_tests: true

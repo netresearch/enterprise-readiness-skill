@@ -1,6 +1,11 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 # check-coverage-threshold.sh - Validate test coverage meets requirements
-# Usage: ./check-coverage-threshold.sh [--threshold 80] [--coverage-file coverage.out]
+# Usage: ./check-coverage-threshold.sh [THRESHOLD] [COVERAGE_FILE]
+#   THRESHOLD      required coverage in percent (default: 80)
+#   COVERAGE_FILE  Go profile, Python report or any text with a percentage
+#                  (default: coverage.out)
 set -euo pipefail
 
 THRESHOLD="${1:-80}"
@@ -32,7 +37,7 @@ elif grep -q "TOTAL" "$COVERAGE_FILE"; then
     echo "Format: Python coverage report"
 else
     # Try to extract any percentage (POSIX-compatible, works on macOS and Linux)
-    COVERAGE=$(grep -E '[0-9]+\.?[0-9]*%' "$COVERAGE_FILE" 2>/dev/null | tail -1 | sed 's/.*[^0-9]\([0-9][0-9]*\.[0-9]*\)%.*/\1/' | sed 's/.*[^0-9]\([0-9][0-9]*\)%.*/\1/' | head -1)
+    COVERAGE=$(grep -E '[0-9]+\.?[0-9]*%' "$COVERAGE_FILE" 2>/dev/null | tail -1 | sed 's/.*[^0-9]\([0-9][0-9]*\.[0-9]*\)%.*/\1/' | sed 's/.*[^0-9]\([0-9][0-9]*\)%.*/\1/' | head -1 || true)
     echo "Format: Generic"
 fi
 

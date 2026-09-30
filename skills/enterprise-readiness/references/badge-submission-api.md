@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # Badge Data Submission Guide
 
 > Practical guide for programmatically submitting OpenSSF Best Practices Badge data.
@@ -9,15 +12,21 @@ updating badge criteria. Submissions are done via authenticated HTML form PATCH 
 
 ## Submission Script
 
-A Python script can automate badge data submission using session cookies:
+A Python script can automate badge data submission using session cookies. The skill ships one as `${CLAUDE_SKILL_DIR}/scripts/submit-badges.py`; it takes positional arguments and has no dry-run mode:
+
+```bash
+BADGE_COOKIE='...' python3 ${CLAUDE_SKILL_DIR}/scripts/submit-badges.py PROJECT_ID [LEVEL] [DATA_FILE]
+python3 ${CLAUDE_SKILL_DIR}/scripts/submit-badges.py --all     # every project in its PROJECTS table
+python3 ${CLAUDE_SKILL_DIR}/scripts/submit-badges.py --check   # list criteria the site marks insufficient
+```
+
+`LEVEL` defaults to `passing`. Without `DATA_FILE`, the file comes from the script's `PROJECTS` table, which ships empty. The cookie comes from `BADGE_COOKIE` or `~/.badge-cookie.txt`.
+
+The core of such a script:
 
 ```python
 #!/usr/bin/env python3
-"""Submit OpenSSF Best Practices Badge data.
-
-Usage:
-    BADGE_COOKIE='...' ${CLAUDE_SKILL_DIR}/scripts/submit-badges.py [--dry-run] [--level LEVEL]
-"""
+"""Submit OpenSSF Best Practices Badge data."""
 
 import json
 import os

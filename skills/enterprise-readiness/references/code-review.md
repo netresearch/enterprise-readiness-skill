@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # Code Review Quality Patterns
 
 Language-agnostic code review checklist and patterns for ensuring production-quality code.

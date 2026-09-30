@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # Architecture Overview
 
 ## Purpose
@@ -44,6 +47,10 @@ SKILL.md (entry point)
 - **Composer**: `composer require netresearch/enterprise-readiness-skill` (PHP projects)
 - **GitHub Releases**: Direct download
 - **Git clone**: Manual installation
+
+### Security
+
+Threat model, trust boundaries and the countermeasures for each script are in [SECURITY-ASSURANCE.md](SECURITY-ASSURANCE.md).
 
 ### Licensing
 

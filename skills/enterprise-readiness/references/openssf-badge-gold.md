@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # OpenSSF Best Practices Badge - Gold Level
 
 Complete checklist for Gold level certification aligned with

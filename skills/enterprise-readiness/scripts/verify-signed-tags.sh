@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 # verify-signed-tags.sh - Verify git tags are cryptographically signed
 # Usage: ./verify-signed-tags.sh [tag] [--check-all]
 # OpenSSF Badge Criteria: version_tags_signed (Silver)
@@ -24,14 +26,17 @@ if ! command -v gpg >/dev/null 2>&1; then
     echo "Warning: GPG is not installed. Tag verification may be limited."
 fi
 
-# Function to verify a single tag
+# Function to verify a single tag. Sets TAG_STATE to one of: missing,
+# lightweight, unsigned, verified, untrusted (signed, but the key is not
+# trusted here), invalid (the signature does not match the tag).
 verify_tag() {
     local tag="$1"
-    local result
+    TAG_STATE=""
 
     # Check if tag exists
     if ! git rev-parse "$tag" >/dev/null 2>&1; then
         echo "✗ Tag '$tag' does not exist"
+        TAG_STATE=missing
         return 1
     fi
 
@@ -41,23 +46,39 @@ verify_tag() {
 
     if [ "$tag_type" != "tag" ]; then
         echo "✗ $tag: Lightweight tag (not annotated, cannot be signed)"
+        TAG_STATE=lightweight
         return 1
     fi
 
-    # Try to verify signature
-    if git tag -v "$tag" >/dev/null 2>&1; then
-        echo "✓ $tag: Signed and verified"
-        return 0
-    else
-        # Check if tag has signature but verification failed
-        if git cat-file tag "$tag" 2>/dev/null | grep -q "BEGIN PGP SIGNATURE"; then
-            echo "⚠ $tag: Has signature but verification failed (missing public key?)"
-            return 1
-        else
-            echo "✗ $tag: Annotated but NOT signed"
-            return 1
-        fi
+    # A signed tag object carries an OpenPGP, SSH or X.509 signature block
+    if ! git cat-file tag "$tag" 2>/dev/null \
+        | grep -qE -- "-----BEGIN (PGP SIGNATURE|SSH SIGNATURE|SIGNED MESSAGE)-----"; then
+        echo "✗ $tag: Annotated but NOT signed"
+        TAG_STATE=unsigned
+        return 1
     fi
+
+    # --raw adds GnuPG's machine-readable status lines ([GNUPG:] ...)
+    local status
+    if status=$(git verify-tag --raw "$tag" 2>&1); then
+        echo "✓ $tag: Signed and verified"
+        TAG_STATE=verified
+        return 0
+    fi
+
+    if grep -qE "\[GNUPG:\] BADSIG|incorrect signature" <<< "$status"; then
+        echo "✗ $tag: Signature INVALID (does not match the tag)"
+        TAG_STATE=invalid
+    elif grep -qE "\[GNUPG:\] (NO_PUBKEY|EXPKEYSIG|REVKEYSIG)|No principal matched|allowedSignersFile needs to be configured" <<< "$status"; then
+        echo "⚠ $tag: Signed, but the signing key is not trusted here; cannot verify"
+        echo "  $(grep -E "NO_PUBKEY|EXPKEYSIG|REVKEYSIG|No principal matched|allowedSignersFile" <<< "$status" | head -1)"
+        TAG_STATE=untrusted
+    else
+        echo "⚠ $tag: Signed, but verification failed"
+        echo "  $(head -1 <<< "$status")"
+        TAG_STATE=untrusted
+    fi
+    return 1
 }
 
 if [ -n "$TAG" ] && [ "$TAG" != "--check-all" ]; then
@@ -75,12 +96,15 @@ if [ "$CHECK_ALL" = true ]; then
 
     TOTAL=0
     SIGNED=0
+    UNTRUSTED=0
     UNSIGNED=0
 
     for tag in $(git tag -l); do
         TOTAL=$((TOTAL + 1))
         if verify_tag "$tag"; then
             SIGNED=$((SIGNED + 1))
+        elif [[ "$TAG_STATE" = untrusted ]]; then
+            UNTRUSTED=$((UNTRUSTED + 1))
         else
             UNSIGNED=$((UNSIGNED + 1))
         fi
@@ -90,6 +114,7 @@ if [ "$CHECK_ALL" = true ]; then
     echo "=== Summary ==="
     echo "Total tags: $TOTAL"
     echo "Signed: $SIGNED"
+    echo "Signed, key not trusted: $UNTRUSTED"
     echo "Unsigned/Invalid: $UNSIGNED"
 
     if [ "$TOTAL" -eq 0 ]; then
@@ -102,7 +127,13 @@ if [ "$CHECK_ALL" = true ]; then
     PCT=$(awk -v s="$SIGNED" -v t="$TOTAL" 'BEGIN { printf "%.1f", (s/t)*100 }')
     echo "Signing rate: $PCT%"
 
-    if [ "$UNSIGNED" -gt 0 ]; then
+    if [[ "$UNTRUSTED" -gt 0 ]]; then
+        echo ""
+        echo "Tags signed with a key that is not trusted here cannot be verified."
+        echo "Import the signers' public keys (gpg --import, or gpg.ssh.allowedSignersFile) and re-run."
+    fi
+
+    if [[ $((UNSIGNED + UNTRUSTED)) -gt 0 ]]; then
         echo ""
         echo "OpenSSF Badge: version_tags_signed = Unmet"
         echo ""

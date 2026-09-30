@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 # verify-spdx-headers.sh - Verify SPDX license headers exist in source files
 # Usage: ./verify-spdx-headers.sh [--fix] [directory]
 # OpenSSF Badge Criteria: license_per_file, copyright_per_file (Gold)
@@ -29,8 +31,13 @@ echo ""
 # Supported file extensions (POSIX-compatible, no bash 4+ associative arrays)
 SUPPORTED_EXTS="go py js ts jsx tsx rs java c cpp h sh rb"
 
-# Exclude patterns
-EXCLUDE_DIRS="vendor|node_modules|.git|dist|build|.venv|__pycache__"
+# Directories that are skipped wherever they occur (matched by name and pruned)
+EXCLUDE_DIRS="vendor node_modules .git dist build .venv __pycache__"
+PRUNE_ARGS=()
+for dir in $EXCLUDE_DIRS; do
+    [[ ${#PRUNE_ARGS[@]} -gt 0 ]] && PRUNE_ARGS+=(-o)
+    PRUNE_ARGS+=(-name "$dir")
+done
 
 TOTAL=0
 MISSING=0
@@ -51,9 +58,8 @@ for ext in $SUPPORTED_EXTS; do
 "
             echo "✗ Missing SPDX header: $file"
         fi
-    done < <(find "$TARGET_DIR" -type f -name "*.$ext" \
-        ! -path "*/$EXCLUDE_DIRS/*" \
-        -print0 2>/dev/null)
+    done < <(find "$TARGET_DIR" -mindepth 1 -type d \( "${PRUNE_ARGS[@]}" \) -prune \
+        -o -type f -name "*.$ext" -print0 2>/dev/null)
 done
 
 echo ""

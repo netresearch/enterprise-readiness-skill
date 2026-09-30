@@ -1,6 +1,10 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 # analyze-bus-factor.sh - Analyze commit distribution for bus factor assessment
-# Usage: ./analyze-bus-factor.sh [--days 365] [--threshold 2]
+# Usage: ./analyze-bus-factor.sh [DAYS] [THRESHOLD]
+#   DAYS       period to analyse, in days (default: 365)
+#   THRESHOLD  minimum bus factor (default: 2)
 # OpenSSF Badge Criteria: bus_factor (Silver/Gold)
 set -euo pipefail
 

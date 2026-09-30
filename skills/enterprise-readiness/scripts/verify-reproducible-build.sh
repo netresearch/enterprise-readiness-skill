@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: Netresearch DTT GmbH
 # verify-reproducible-build.sh - Verify builds are reproducible (bit-for-bit identical)
 # Usage: ./verify-reproducible-build.sh [build-type] [output-binary]
 # OpenSSF Badge Criteria: build_reproducible (Gold)
@@ -50,6 +52,7 @@ echo "Output file: $OUTPUT"
 echo "Temp directory: $TEMP_DIR"
 echo ""
 
+# shellcheck disable=SC2329  # invoked through the EXIT trap below
 cleanup() {
     rm -rf "$TEMP_DIR"
 }

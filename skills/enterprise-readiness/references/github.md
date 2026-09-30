@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- SPDX-FileCopyrightText: Netresearch DTT GmbH -->
+
 # GitHub-Specific Enterprise Readiness Checks
 
 Checks specific to GitHub-hosted repositories and GitHub Actions.
