@@ -79,12 +79,13 @@ check "untrusted tags do not meet the criterion" 1 "version_tags_signed = Unmet"
 tamper "$REPO" v2.0.0 v2.0.1
 check "tampered ssh tag is invalid" 1 "v2.0.1: Signature INVALID" -- run_in "$REPO" v2.0.1
 
-# GnuPG: verified, unknown key, tampered. GNUPGHOME is kept short because
-# gpg-agent's socket path has a length limit.
+# GnuPG: verified, unknown key, tampered. GNUPGHOME lives directly under
+# /tmp, not under $TMPDIR, because gpg-agent's socket path has a length limit
+# and a long TMPDIR makes key generation fail with "No agent running".
 GPG_REPO="$WORK/gpg"
 new_repo "$GPG_REPO"
-GNUPGHOME="$(mktemp -d)"
-EMPTY_GNUPGHOME="$(mktemp -d)"
+GNUPGHOME="$(mktemp -d /tmp/gnupg.XXXXXX)"
+EMPTY_GNUPGHOME="$(mktemp -d /tmp/gnupg.XXXXXX)"
 export GNUPGHOME
 chmod 700 "$GNUPGHOME" "$EMPTY_GNUPGHOME"
 trap 'gpgconf --kill all 2>/dev/null; GNUPGHOME="$EMPTY_GNUPGHOME" gpgconf --kill all 2>/dev/null; rm -rf "$WORK" "$GNUPGHOME" "$EMPTY_GNUPGHOME"' EXIT
