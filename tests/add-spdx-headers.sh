@@ -23,11 +23,11 @@ printf '// SPDX-License-Identifier: Apache-2.0\nconst y = 2;\n' > "$DIR/kept.js"
 printf 'package dep\n' > "$DIR/vendor/dep/d.go"
 printf 'module.exports = 1;\n' > "$DIR/node_modules/m/i.js"
 
-run() { (cd "$DIR" && bash "$SCRIPT" "$@"); }
+run() { (cd "$DIR" && bash "$SCRIPT" "$@"); return $?; }
 
 check "run reports the licence" 0 "License: Apache-2.0" -- run Apache-2.0 "Example Corp"
 
-first_lines() { head -n "$2" "$DIR/$1"; }
+first_lines() { local file="$1" count="$2"; head -n "$count" "$DIR/$file"; return $?; }
 
 check "Go file gets a // header" 0 "// SPDX-License-Identifier: Apache-2.0" -- first_lines pkg/a.go 1
 check "Go file gets the copyright line" 0 "// Copyright (c) $YEAR Example Corp" -- first_lines pkg/a.go 2

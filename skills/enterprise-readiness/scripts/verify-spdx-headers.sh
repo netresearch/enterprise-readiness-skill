@@ -35,7 +35,7 @@ SUPPORTED_EXTS="go py js ts jsx tsx rs java c cpp h sh rb"
 EXCLUDE_DIRS="vendor node_modules .git dist build .venv __pycache__"
 PRUNE_ARGS=()
 for dir in $EXCLUDE_DIRS; do
-    [ ${#PRUNE_ARGS[@]} -gt 0 ] && PRUNE_ARGS+=(-o)
+    [[ ${#PRUNE_ARGS[@]} -gt 0 ]] && PRUNE_ARGS+=(-o)
     PRUNE_ARGS+=(-name "$dir")
 done
 

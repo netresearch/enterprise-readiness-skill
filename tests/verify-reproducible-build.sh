@@ -13,7 +13,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/helpers.bash"
 
 SCRIPT="$SCRIPTS/verify-reproducible-build.sh"
 
-run_in() { local dir="$1"; shift; (cd "$dir" && bash "$SCRIPT" "$@"); }
+run_in() { local dir="$1"; shift; (cd "$dir" && bash "$SCRIPT" "$@"); return $?; }
 
 mkdir -p "$WORK/same" "$WORK/differs" "$WORK/nothing"
 printf 'build:\n\tprintf "fixed content\\n" > out.bin\n' > "$WORK/same/Makefile"

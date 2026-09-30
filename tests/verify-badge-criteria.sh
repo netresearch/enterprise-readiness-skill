@@ -12,7 +12,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/helpers.bash"
 
 SCRIPT="$SCRIPTS/verify-badge-criteria.sh"
 
-run_in() { local dir="$1"; shift; (cd "$dir" && bash "$SCRIPT" "$@"); }
+run_in() { local dir="$1"; shift; (cd "$dir" && bash "$SCRIPT" "$@"); return $?; }
 
 mkdir -p "$WORK/bare" "$WORK/full/.github/workflows"
 check "invalid level fails" 1 "Error: Level must be passing, silver, or gold" -- run_in "$WORK/bare" platinum

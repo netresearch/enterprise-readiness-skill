@@ -13,7 +13,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/helpers.bash"
 
 SCRIPT="$SCRIPTS/verify-signed-tags.sh"
 
-run_in() { local dir="$1"; shift; (cd "$dir" && bash "$SCRIPT" "$@"); }
+run_in() { local dir="$1"; shift; (cd "$dir" && bash "$SCRIPT" "$@"); return $?; }
 
 REPO="$WORK/repo"
 new_repo "$REPO"
@@ -51,9 +51,10 @@ check "only signed tags meet the criterion" 0 "version_tags_signed = Met" -- run
 # tamper REPO TAG NEW: copies the signed tag object TAG with its tag name
 # changed to NEW, so the signature no longer matches the content.
 tamper() {
-    local obj
-    obj=$(git -C "$1" cat-file tag "$2" | sed "s/^tag $2\$/tag $3/" | git -C "$1" mktag)
-    git -C "$1" update-ref "refs/tags/$3" "$obj"
+    local repo="$1" old="$2" new="$3" obj
+    obj=$(git -C "$repo" cat-file tag "$old" | sed "s/^tag $old\$/tag $new/" | git -C "$repo" mktag)
+    git -C "$repo" update-ref "refs/tags/$new" "$obj"
+    return $?
 }
 
 # SSH: signed, but the key is not in the allowed signers file.

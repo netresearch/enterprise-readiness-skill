@@ -13,9 +13,11 @@ SCRIPT="$SCRIPTS/check-tls-minimum.sh"
 
 # fixture NAME FILE CONTENT: writes CONTENT to $WORK/NAME/FILE, prints the dir.
 fixture() {
-    mkdir -p "$WORK/$1"
-    printf '%b' "$3" > "$WORK/$1/$2"
-    echo "$WORK/$1"
+    local name="$1" file="$2" content="$3"
+    mkdir -p "$WORK/$name"
+    printf '%b' "$content" > "$WORK/$name/$file"
+    echo "$WORK/$name"
+    return 0
 }
 
 check "Go MinVersion TLS 1.2 is met" 0 "crypto_tls12 = Met" \

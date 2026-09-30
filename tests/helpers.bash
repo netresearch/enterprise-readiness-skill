@@ -80,7 +80,9 @@ summary() {
 
 # new_repo DIR: creates a git repository with one commit.
 new_repo() {
-    mkdir -p "$1"
-    git -C "$1" init -q -b main
-    git -C "$1" commit -q --allow-empty -m "initial"
+    local dir="$1"
+    mkdir -p "$dir"
+    git -C "$dir" init -q -b main
+    git -C "$dir" commit -q --allow-empty -m "initial"
+    return $?
 }

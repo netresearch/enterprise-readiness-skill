@@ -10,7 +10,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/helpers.bash"
 
 SCRIPT="$SCRIPTS/verify-spdx-headers.sh"
 
-run_in() { local dir="$1"; shift; (cd "$dir" && bash "$SCRIPT" "$@"); }
+run_in() { local dir="$1"; shift; (cd "$dir" && bash "$SCRIPT" "$@"); return $?; }
 
 # All headers present.
 mkdir -p "$WORK/ok/src"

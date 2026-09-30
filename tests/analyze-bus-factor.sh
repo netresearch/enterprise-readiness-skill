@@ -12,12 +12,14 @@ source "$(dirname "${BASH_SOURCE[0]}")/helpers.bash"
 
 SCRIPT="$SCRIPTS/analyze-bus-factor.sh"
 
-run_in() { local dir="$1"; shift; (cd "$dir" && bash "$SCRIPT" "$@"); }
+run_in() { local dir="$1"; shift; (cd "$dir" && bash "$SCRIPT" "$@"); return $?; }
 
 # commit_as DIR NAME: one empty commit by NAME.
 commit_as() {
-    GIT_AUTHOR_NAME="$2" GIT_AUTHOR_EMAIL="$2@example.org" \
-        git -C "$1" commit -q --allow-empty -m "change by $2"
+    local dir="$1" name="$2"
+    GIT_AUTHOR_NAME="$name" GIT_AUTHOR_EMAIL="$name@example.org" \
+        git -C "$dir" commit -q --allow-empty -m "change by $name"
+    return $?
 }
 
 mkdir -p "$WORK/plain"

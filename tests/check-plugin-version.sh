@@ -13,17 +13,19 @@ SCRIPT="$ROOT/Build/Scripts/check-plugin-version.sh"
 
 # repo NAME VERSION [TAG]: repository with plugin.json at VERSION, HEAD tagged TAG.
 repo() {
-    local dir="$WORK/$1"
+    local name="$1" version="$2" tag="${3:-}"
+    local dir="$WORK/$name"
     new_repo "$dir"
     mkdir -p "$dir/.claude-plugin"
-    printf '{"name": "x", "version": "%s"}\n' "$2" > "$dir/.claude-plugin/plugin.json"
-    if [[ -n "${3:-}" ]]; then
-        git -C "$dir" tag "$3"
+    printf '{"name": "x", "version": "%s"}\n' "$version" > "$dir/.claude-plugin/plugin.json"
+    if [[ -n "$tag" ]]; then
+        git -C "$dir" tag "$tag"
     fi
     echo "$dir"
+    return 0
 }
 
-run_in() { (cd "$1" && bash "$SCRIPT"); }
+run_in() { local dir="$1"; (cd "$dir" && bash "$SCRIPT"); return $?; }
 
 check "no tag at HEAD passes silently" 0 "" -- run_in "$(repo untagged 1.2.3)"
 empty "no output without a tag"

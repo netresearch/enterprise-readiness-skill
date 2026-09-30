@@ -40,7 +40,7 @@ esac
 EOF
 chmod +x "$WORK/bin/gh"
 
-run() { (cd "$WORK/cwd" && PATH="$WORK/bin:$PATH" bash "$SCRIPT" --owner o --repo r "$@"); }
+run() { (cd "$WORK/cwd" && PATH="$WORK/bin:$PATH" bash "$SCRIPT" --owner o --repo r "$@"); return $?; }
 
 check "invalid level fails" 1 "Error: Invalid level" -- run --level bronze
 check "repository is required outside a clone" 1 "Could not determine repository" \

@@ -33,7 +33,7 @@ printf 'package app\n\nfunc Run(x int) int {\n\tif x > 0 {\n\t\treturn 1\n\t}\n\
 printf 'package app\n\nfunc t() { if true {} }\n' > "$PROJECT/app_test.go"
 printf 'package dep\n\nfunc d() { if true {} }\n' > "$PROJECT/vendor/dep/d.go"
 
-run() { (cd "$PROJECT" && PATH="$WORK/bin:$PATH" bash "$SCRIPT" "$@"); }
+run() { (cd "$PROJECT" && PATH="$WORK/bin:$PATH" bash "$SCRIPT" "$@"); return $?; }
 
 export STUB_COVERAGE=90.0
 check "estimate above threshold passes" 0 "Estimated branch coverage (72.0%) meets threshold (70%)" -- run --threshold 70

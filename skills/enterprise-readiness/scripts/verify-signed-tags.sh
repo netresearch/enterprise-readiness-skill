@@ -103,7 +103,7 @@ if [ "$CHECK_ALL" = true ]; then
         TOTAL=$((TOTAL + 1))
         if verify_tag "$tag"; then
             SIGNED=$((SIGNED + 1))
-        elif [ "$TAG_STATE" = untrusted ]; then
+        elif [[ "$TAG_STATE" = untrusted ]]; then
             UNTRUSTED=$((UNTRUSTED + 1))
         else
             UNSIGNED=$((UNSIGNED + 1))
@@ -127,13 +127,13 @@ if [ "$CHECK_ALL" = true ]; then
     PCT=$(awk -v s="$SIGNED" -v t="$TOTAL" 'BEGIN { printf "%.1f", (s/t)*100 }')
     echo "Signing rate: $PCT%"
 
-    if [ "$UNTRUSTED" -gt 0 ]; then
+    if [[ "$UNTRUSTED" -gt 0 ]]; then
         echo ""
         echo "Tags signed with a key that is not trusted here cannot be verified."
         echo "Import the signers' public keys (gpg --import, or gpg.ssh.allowedSignersFile) and re-run."
     fi
 
-    if [ $((UNSIGNED + UNTRUSTED)) -gt 0 ]; then
+    if [[ $((UNSIGNED + UNTRUSTED)) -gt 0 ]]; then
         echo ""
         echo "OpenSSF Badge: version_tags_signed = Unmet"
         echo ""
