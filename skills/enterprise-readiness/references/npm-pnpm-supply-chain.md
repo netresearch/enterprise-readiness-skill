@@ -165,7 +165,7 @@ A small browser-test job (headless Chromium driving a static fixture) took five 
 |---|---|---|
 | `githubactions:S8543` "Define exact package version" | `npm install --no-save --no-package-lock playwright@…` in the workflow | A `package.json` with the exact version and a **committed** `package-lock.json` in the directory the job installs from, then `npm ci --ignore-scripts` |
 | `githubactions:S6505` "npx can install packages on-demand" | `npx playwright install …` | Call the locked binary: `./node_modules/.bin/playwright install --with-deps chromium`; run the suite through an `npm test` script |
-| Install scripts | `npm ci` without `--ignore-scripts` | Always `npm ci --ignore-scripts`; fetch browsers with the tool's own install command, which is not a lifecycle script |
+| Install scripts | `npm ci` without `--ignore-scripts` | In a test or fixture job always `npm ci --ignore-scripts`; fetch browsers with the tool's own install command, which is not a lifecycle script. A job that truly needs one lifecycle script runs that script explicitly afterwards, as described above |
 | `S5332` clear-text protocol | an `http://` literal in test code, even one only used to parse a path (`new URL(req.url, "http://x")`) | Use `req.url.split("?")[0]`; keep only the loopback URL the browser actually opens |
 | CodeQL `js/path-injection` | a static server that does `readFile(join(root, requestPath))` behind a `startsWith(root)` check | Serve from an allowlist: build a map of the needed files from `readdir` at start-up and answer only exact key hits, so no request-derived string is ever used as a path |
 
@@ -177,7 +177,23 @@ for (const dir of ["tests/fixture", "src/assets"]) {
       served.set("/" + relative(root, join(e.parentPath, e.name)).split(sep).join("/"), join(e.parentPath, e.name));
   }
 }
-// request handler: const file = served.get(decodeURIComponent(req.url.split("?")[0])); if (!file) return 404
+const server = createServer(async (req, res) => {
+  let path;
+  try {
+    path = decodeURIComponent(req.url.split("?")[0]);
+  } catch {
+    // a malformed escape such as "/%" throws URIError; without this the async handler rejects
+    res.writeHead(400).end();
+    return;
+  }
+  const file = served.get(path);
+  if (!file) {
+    res.writeHead(404).end();
+    return;
+  }
+  res.writeHead(200, { "Content-Type": types[extname(file)] ?? "application/octet-stream" });
+  res.end(await readFile(file));
+});
 ```
 
 A repository that ignores `package-lock.json` globally (bun projects usually do) needs a negation for the nested lockfile, for example `!tests/companion/package-lock.json`, or `npm ci` has nothing to read in CI.
