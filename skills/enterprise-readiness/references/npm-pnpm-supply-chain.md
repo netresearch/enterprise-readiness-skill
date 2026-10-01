@@ -169,6 +169,8 @@ A small browser-test job (headless Chromium driving a static fixture) took five 
 | `S5332` clear-text protocol | an `http://` literal in test code, even one only used to parse a path (`new URL(req.url, "http://x")`) | Use `req.url.split("?")[0]`; keep only the loopback URL the browser actually opens |
 | CodeQL `js/path-injection` | a static server that does `readFile(join(root, requestPath))` behind a `startsWith(root)` check | Serve from an allowlist: build a map of the needed files from `readdir` at start-up and answer only exact key hits, so no request-derived string is ever used as a path |
 
+The snippet needs Node.js 20.12 or newer: `readdir` with `recursive` and `Dirent.parentPath` are not available on older runtimes (`setup-node` with `node-version: "24"` covers it).
+
 ```js
 const served = new Map();
 for (const dir of ["tests/fixture", "src/assets"]) {
