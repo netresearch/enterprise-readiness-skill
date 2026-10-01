@@ -157,6 +157,31 @@ audit-level=high
 
 …then explicitly run any required postinstalls in CI/build scripts. This trades convenience for safety; pnpm's per-package `allowBuilds` is the more ergonomic answer when you have the choice.
 
+## Node tooling in a CI job: what Sonar and CodeQL flag
+
+A small browser-test job (headless Chromium driving a static fixture) took five push rounds to get past SonarCloud and CodeQL on netresearch/ldap-manager#690 and netresearch/ldap-selfservice-password-changer#695 (2026-09-29). Each finding was avoidable from the start:
+
+| Finding | Trigger | Do instead |
+|---|---|---|
+| `githubactions:S8543` "Define exact package version" | `npm install --no-save --no-package-lock playwright@…` in the workflow | A `package.json` with the exact version and a **committed** `package-lock.json` in the directory the job installs from, then `npm ci --ignore-scripts` |
+| `githubactions:S6505` "npx can install packages on-demand" | `npx playwright install …` | Call the locked binary: `./node_modules/.bin/playwright install --with-deps chromium`; run the suite through an `npm test` script |
+| Install scripts | `npm ci` without `--ignore-scripts` | Always `npm ci --ignore-scripts`; fetch browsers with the tool's own install command, which is not a lifecycle script |
+| `S5332` clear-text protocol | an `http://` literal in test code, even one only used to parse a path (`new URL(req.url, "http://x")`) | Use `req.url.split("?")[0]`; keep only the loopback URL the browser actually opens |
+| CodeQL `js/path-injection` | a static server that does `readFile(join(root, requestPath))` behind a `startsWith(root)` check | Serve from an allowlist: build a map of the needed files from `readdir` at start-up and answer only exact key hits, so no request-derived string is ever used as a path |
+
+```js
+const served = new Map();
+for (const dir of ["tests/fixture", "src/assets"]) {
+  for (const e of await readdir(join(root, dir), { recursive: true, withFileTypes: true })) {
+    if (e.isFile() && !e.parentPath.includes("node_modules"))
+      served.set("/" + relative(root, join(e.parentPath, e.name)).split(sep).join("/"), join(e.parentPath, e.name));
+  }
+}
+// request handler: const file = served.get(decodeURIComponent(req.url.split("?")[0])); if (!file) return 404
+```
+
+A repository that ignores `package-lock.json` globally (bun projects usually do) needs a negation for the nested lockfile, for example `!tests/companion/package-lock.json`, or `npm ci` has nothing to read in CI.
+
 ## Related
 
 - `slsa-provenance.md` — provenance and attestations for your **own** releases (counterpart to consuming attested upstream packages)

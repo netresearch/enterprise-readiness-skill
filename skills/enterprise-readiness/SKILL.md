@@ -73,7 +73,7 @@ Required coverage: CI, CodeQL, Scorecard, dependency review, composer audit, SBO
 | `references/bestpractices-json.md` | `.bestpractices.json`: pre-fill badge answers from the repo |
 | `references/harden-runner-guide.md` | Harden-Runner |
 | `references/solo-maintainer-guide.md` | Solo-maintainer criteria |
-| `references/npm-pnpm-supply-chain.md` | pnpm |
+| `references/npm-pnpm-supply-chain.md` | pnpm, npm ci, npx, lockfile, Node tooling in a CI job (Sonar S8543/S6505, CodeQL path-injection) |
 | `references/python-pip-supply-chain.md` | pip |
 
 Related skills: `go-development`, `github-project`, `security-audit`, `git-workflow`.
