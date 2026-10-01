@@ -185,7 +185,7 @@ coverage: {
 - uses: actions/setup-node@SHA # vX.Y.Z
   with:
     node-version: '22'
-- run: npm install
+- run: npm ci --ignore-scripts
 - run: npm run test:coverage
 ```
 

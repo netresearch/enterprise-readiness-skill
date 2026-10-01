@@ -387,7 +387,7 @@ sonarqube:
         # PHP example
         vendor/bin/phpunit --coverage-clover .Build/logs/clover-unit.xml
         # JS example
-        npm ci && npm run test:coverage
+        npm ci --ignore-scripts && npm run test:coverage
     - uses: SonarSource/sonarqube-scan-action@59db25f34e16620e48ab4bb9e4a5dce155cb5432  # v8.0.0 — pin to 40-char SHA, comment with version; or use sonarcloud-github-action
 ```
 

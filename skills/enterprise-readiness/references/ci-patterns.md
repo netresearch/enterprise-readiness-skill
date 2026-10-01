@@ -199,7 +199,7 @@ Projects with both PHP and JavaScript MUST collect coverage from both:
   with:
     node-version: '22'
 
-- run: npm install
+- run: npm ci --ignore-scripts
 
 - name: JavaScript Tests with Coverage
   run: npm run test:coverage  # Must output coverage/lcov.info
