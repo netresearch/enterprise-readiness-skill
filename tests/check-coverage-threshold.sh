@@ -31,4 +31,14 @@ check "coverage equal to threshold passes" 0 "meets threshold 85%" -- bash "$SCR
 check "generic percentage is extracted" 0 "Coverage 91.5% meets threshold 90%" -- bash "$SCRIPT" 90 "$WORK/generic.txt"
 check "file without a percentage fails" 1 "Could not extract coverage percentage" -- bash "$SCRIPT" 80 "$WORK/none.txt"
 
+for threshold in -1 101 nonsense 80percent; do
+    check "invalid threshold $threshold fails" 1 "Threshold must be a number between 0 and 100" \
+        -- bash "$SCRIPT" "$threshold" "$WORK/python.txt"
+done
+check "zero threshold is valid" 0 "meets threshold 0%" -- bash "$SCRIPT" 0 "$WORK/python.txt"
+check "decimal threshold is valid" 0 "meets threshold 84.5%" -- bash "$SCRIPT" 84.5 "$WORK/python.txt"
+printf 'TOTAL 40 0 101%%\n' > "$WORK/invalid.txt"
+check "out-of-range reported coverage fails" 1 "Extracted coverage must be a number between 0 and 100" \
+    -- bash "$SCRIPT" 80 "$WORK/invalid.txt"
+
 summary "check-coverage-threshold.sh"
