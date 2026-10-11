@@ -37,11 +37,15 @@ if [ -n "$GO_FILES" ]; then
             elif grep -E "MinVersion.*tls\.VersionTLS1[01]" "$file" >/dev/null 2>&1; then
                 echo "✗ $file: Insecure TLS version (TLS 1.0 or 1.1)"
                 ISSUES=$((ISSUES + 1))
-            elif grep -q "InsecureSkipVerify.*true" "$file" 2>/dev/null; then
-                echo "⚠ $file: InsecureSkipVerify enabled (certificate validation disabled)"
-                WARNINGS=$((WARNINGS + 1))
             else
-                echo "⚠ $file: TLS config found but MinVersion not explicitly set"
+                if ! grep -q "InsecureSkipVerify.*true" "$file" 2>/dev/null; then
+                    echo "⚠ $file: TLS config found but MinVersion not explicitly set"
+                    WARNINGS=$((WARNINGS + 1))
+                fi
+            fi
+            # Protocol minimum and peer verification are independent controls.
+            if grep -q "InsecureSkipVerify.*true" "$file" 2>/dev/null; then
+                echo "⚠ $file: InsecureSkipVerify enabled (certificate validation disabled)"
                 WARNINGS=$((WARNINGS + 1))
             fi
         fi
@@ -68,7 +72,8 @@ if [ -n "$PY_FILES" ]; then
             elif grep -E "PROTOCOL_TLS|TLSVersion\.TLSv1_2|TLSVersion\.TLSv1_3" "$file" >/dev/null 2>&1; then
                 echo "✓ $file: Modern TLS protocol configured"
                 GOOD=$((GOOD + 1))
-            elif grep -q "verify_mode.*CERT_NONE" "$file" 2>/dev/null; then
+            fi
+            if grep -q "verify_mode.*CERT_NONE" "$file" 2>/dev/null; then
                 echo "⚠ $file: Certificate verification disabled"
                 WARNINGS=$((WARNINGS + 1))
             fi

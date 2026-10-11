@@ -26,6 +26,9 @@ check "Go MinVersion TLS 1.0 is an issue" 1 "Insecure TLS version (TLS 1.0 or 1.
     -- bash "$SCRIPT" "$(fixture go10 main.go 'cfg := &tls.Config{MinVersion: tls.VersionTLS10}\n')"
 check "Go InsecureSkipVerify is a warning" 0 "InsecureSkipVerify enabled" \
     -- bash "$SCRIPT" "$(fixture goskip main.go 'cfg := &tls.Config{InsecureSkipVerify: true}\n')"
+check "Go modern TLS still reports disabled verification" 0 "InsecureSkipVerify enabled" \
+    -- bash "$SCRIPT" "$(fixture gocombined main.go 'cfg := &tls.Config{MinVersion: tls.VersionTLS12, InsecureSkipVerify: true}\n')"
+absent "Go combined configuration is not reported fully secure" "All TLS configurations meet security requirements"
 check "Go tls.Config without MinVersion is a warning" 0 "MinVersion not explicitly set" \
     -- bash "$SCRIPT" "$(fixture gonone main.go 'cfg := &tls.Config{}\n')"
 check "Go test files are ignored" 0 "crypto_tls12 = N/A" \
@@ -39,6 +42,9 @@ check "Python PROTOCOL_TLSv1_1 is deprecated" 1 "Deprecated protocol version" \
     -- bash "$SCRIPT" "$(fixture pytls11 app.py 'import ssl\nctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1_1)\n')"
 check "Python CERT_NONE is a warning" 0 "Certificate verification disabled" \
     -- bash "$SCRIPT" "$(fixture pycert app.py 'import ssl\nctx.verify_mode = ssl.CERT_NONE\n')"
+check "Python modern TLS still reports disabled verification" 0 "Certificate verification disabled" \
+    -- bash "$SCRIPT" "$(fixture pycombined app.py 'import ssl\nctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)\nctx.check_hostname = False\nctx.verify_mode = ssl.CERT_NONE\n')"
+absent "Python combined configuration is not reported fully secure" "All TLS configurations meet security requirements"
 
 check "Node minVersion TLSv1.2 is met" 0 "TLS 1.2+ minimum configured" \
     -- bash "$SCRIPT" "$(fixture js12 server.js 'const tls = require("tls");\ntls.createServer({ minVersion: "TLSv1.2" });\n')"
