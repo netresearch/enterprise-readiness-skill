@@ -11,6 +11,13 @@ set -euo pipefail
 THRESHOLD="${1:-80}"
 COVERAGE_FILE="${2:-coverage.out}"
 
+# Reject malformed thresholds rather than letting awk coerce them during comparison.
+if [[ ! "$THRESHOLD" =~ ^[0-9]+([.][0-9]+)?$ ]] ||
+    ! awk -v value="$THRESHOLD" 'BEGIN {exit !(value >= 0 && value <= 100)}'; then
+    echo "Error: Threshold must be a number between 0 and 100"
+    exit 1
+fi
+
 echo "=== Coverage Threshold Check ==="
 echo "Required: ${THRESHOLD}%"
 echo "Coverage file: $COVERAGE_FILE"
@@ -43,6 +50,12 @@ fi
 
 if [[ -z "$COVERAGE" ]]; then
     echo "Error: Could not extract coverage percentage"
+    exit 1
+fi
+
+if [[ ! "$COVERAGE" =~ ^[0-9]+([.][0-9]+)?$ ]] ||
+    ! awk -v value="$COVERAGE" 'BEGIN {exit !(value >= 0 && value <= 100)}'; then
+    echo "Error: Extracted coverage must be a number between 0 and 100"
     exit 1
 fi
 
