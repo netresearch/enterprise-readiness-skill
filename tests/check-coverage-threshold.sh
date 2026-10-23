@@ -43,6 +43,9 @@ check "out-of-range reported coverage fails" 1 "Extracted coverage must be a num
 printf 'Lines covered: -80%%\n' > "$WORK/negative.txt"
 check "negative generic coverage fails" 1 "Extracted coverage must be a number between 0 and 100" \
     -- bash "$SCRIPT" 75 "$WORK/negative.txt"
+printf 'Lines covered: -.80%%\n' > "$WORK/negative-decimal.txt"
+check "negative decimal without leading zero fails" 1 "Extracted coverage must be a number between 0 and 100" \
+    -- bash "$SCRIPT" 80 "$WORK/negative-decimal.txt"
 printf '87.5%%\n' > "$WORK/bare.txt"
 check "generic percentage at line start is extracted" 0 "Coverage 87.5% meets threshold 80%" \
     -- bash "$SCRIPT" 80 "$WORK/bare.txt"
