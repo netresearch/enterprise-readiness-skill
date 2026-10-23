@@ -43,8 +43,9 @@ elif grep -q "TOTAL" "$COVERAGE_FILE"; then
     COVERAGE=$(grep "TOTAL" "$COVERAGE_FILE" | awk '{print $NF}' | tr -d '%')
     echo "Format: Python coverage report"
 else
-    # Try to extract any percentage (POSIX-compatible, works on macOS and Linux)
-    COVERAGE=$(grep -E '[0-9]+\.?[0-9]*%' "$COVERAGE_FILE" 2>/dev/null | tail -1 | sed 's/.*[^0-9]\([0-9][0-9]*\.[0-9]*\)%.*/\1/' | sed 's/.*[^0-9]\([0-9][0-9]*\)%.*/\1/' | head -1 || true)
+    # Take the last percentage in the file, keeping a leading minus so the range check rejects it
+    # (POSIX-compatible, works on macOS and Linux)
+    COVERAGE=$(grep -oE -- '-?[0-9]+([.][0-9]+)?%' "$COVERAGE_FILE" 2>/dev/null | tail -1 | tr -d '%' || true)
     echo "Format: Generic"
 fi
 
