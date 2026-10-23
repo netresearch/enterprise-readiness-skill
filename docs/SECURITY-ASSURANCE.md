@@ -58,7 +58,7 @@ This document states what users of the Enterprise Readiness skill can and cannot
 
 ## Checks on pull requests
 
-On every pull request: `lint.yml` (skill validation including ShellCheck, ruff, markdownlint, yamllint, actionlint, JSON syntax and checkpoint schema), `tests.yml` (behaviour tests), `eval-validate.yml` and `pr-quality.yml`. On pull requests to `main` also: `security.yml` (Betterleaks, zizmor, dependency review, Composer Audit, Opengrep), `harness-verify.yml`, `check-template-drift.yml`, and CodeQL for Actions and Python through the repository's default setup.
+On every pull request: `lint.yml` (skill validation including ShellCheck, ruff, markdownlint, yamllint, actionlint, JSON syntax and checkpoint schema), `tests.yml` (behaviour tests), `eval-validate.yml` and `pr-quality.yml`. On pull requests to `main` also: `security.yml` (Betterleaks, zizmor, dependency review, Composer Audit, Opengrep, CodeQL for Actions and Python), `harness-verify.yml` and `check-template-drift.yml`.
 
 ## What users cannot expect
 

@@ -180,7 +180,7 @@ This repository follows the Netresearch organisation policies:
 - [Access roster](https://github.com/netresearch/.github/blob/main/docs/access-roster.md): the accounts that can change code, settings or releases of this repository, with their access level.
 - [Security assurance case](docs/SECURITY-ASSURANCE.md): threat model, trust boundaries and countermeasures for this skill.
 
-Every pull request to `main` runs these security checks (`.github/workflows/security.yml`): dependency review, Composer Audit, Opengrep (static analysis), Betterleaks (secret scanning) and zizmor (workflow analysis). CodeQL analyses the GitHub Actions workflows and the Python code through the repository's default setup. The only secrets this repository's workflows use are the organisation GitHub App credentials passed to the dependency auto-merge job (`auto-merge-deps.yml`); releases are signed with short-lived OIDC credentials (`release.yml`).
+Every pull request to `main` runs these security checks (`.github/workflows/security.yml`): dependency review, Composer Audit, Opengrep (static analysis), Betterleaks (secret scanning), zizmor (workflow analysis) and CodeQL (analysis of the GitHub Actions workflows and the Python code). The only secrets this repository's workflows use are the organisation GitHub App credentials passed to the dependency auto-merge job (`auto-merge-deps.yml`); releases are signed with short-lived OIDC credentials (`release.yml`).
 
 ## License
 
