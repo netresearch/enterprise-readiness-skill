@@ -47,7 +47,7 @@ Build/test/lint:
 - **Badge verification**: `bash skills/enterprise-readiness/scripts/verify-badge-criteria.sh`
 - **SPDX headers**: `bash skills/enterprise-readiness/scripts/verify-spdx-headers.sh`
 - **Signed tags**: `bash skills/enterprise-readiness/scripts/verify-signed-tags.sh`
-- **Badge submission**: `python3 skills/enterprise-readiness/scripts/submit-badges.py`
+- **Badge submission**: `uv run skills/enterprise-readiness/scripts/submit-badges.py`
 
 No Makefile; `package.json` serves npm distribution (its `prepare` script installs the pre-commit hooks). New script behaviour needs a test in `tests/`.
 

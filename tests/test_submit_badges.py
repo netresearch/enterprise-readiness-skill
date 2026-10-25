@@ -181,5 +181,33 @@ class MainTests(unittest.TestCase):
         self.assertIn("Usage:", out)
 
 
+class LauncherTests(unittest.TestCase):
+    """The shebang and the PEP 723 block decide which Python runs the script.
+
+    The shared skill validator reports a wrong header only as a warning, so
+    nothing else in CI fails on it. On Python 3.9, the macOS default, the
+    script would not start.
+    """
+
+    def setUp(self):
+        self.lines = SCRIPT.read_text().splitlines()
+
+    def test_shebang_runs_the_script_through_uv(self):
+        self.assertEqual(self.lines[0], "#!/usr/bin/env -S uv run --script")
+
+    def test_metadata_requires_python_3_11(self):
+        import tomllib
+
+        start = self.lines.index("# /// script")
+        end = self.lines.index("# ///", start + 1)
+        block = "\n".join(
+            line.removeprefix("#").removeprefix(" ")
+            for line in self.lines[start + 1 : end]
+        )
+        metadata = tomllib.loads(block)
+        self.assertEqual(metadata["requires-python"], ">=3.11")
+        self.assertEqual(metadata["dependencies"], [])
+
+
 if __name__ == "__main__":
     unittest.main()

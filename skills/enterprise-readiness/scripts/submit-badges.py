@@ -1,6 +1,11 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
 # SPDX-License-Identifier: MIT
 # SPDX-FileCopyrightText: Netresearch DTT GmbH
+#
+# /// script
+# requires-python = ">=3.11"
+# dependencies = []
+# ///
 """Submit OpenSSF Best Practices Badge data for multiple projects.
 
 This script automates submitting badge criteria data to bestpractices.dev
