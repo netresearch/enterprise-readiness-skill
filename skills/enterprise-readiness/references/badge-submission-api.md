@@ -15,9 +15,9 @@ updating badge criteria. Submissions are done via authenticated HTML form PATCH 
 A Python script can automate badge data submission using session cookies. The skill ships one as `${CLAUDE_SKILL_DIR}/scripts/submit-badges.py`; it takes positional arguments and has no dry-run mode:
 
 ```bash
-BADGE_COOKIE='...' python3 ${CLAUDE_SKILL_DIR}/scripts/submit-badges.py PROJECT_ID [LEVEL] [DATA_FILE]
-python3 ${CLAUDE_SKILL_DIR}/scripts/submit-badges.py --all     # every project in its PROJECTS table
-python3 ${CLAUDE_SKILL_DIR}/scripts/submit-badges.py --check   # list criteria the site marks insufficient
+BADGE_COOKIE='...' uv run ${CLAUDE_SKILL_DIR}/scripts/submit-badges.py PROJECT_ID [LEVEL] [DATA_FILE]
+uv run ${CLAUDE_SKILL_DIR}/scripts/submit-badges.py --all     # every project in its PROJECTS table
+uv run ${CLAUDE_SKILL_DIR}/scripts/submit-badges.py --check   # list criteria the site marks insufficient
 ```
 
 `LEVEL` defaults to `passing`. Without `DATA_FILE`, the file comes from the script's `PROJECTS` table, which ships empty. The cookie comes from `BADGE_COOKIE` or `~/.badge-cookie.txt`.
