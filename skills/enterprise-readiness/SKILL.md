@@ -66,7 +66,7 @@ Maintained public projects MUST include an evidence-backed `.bestpractices.json`
 | `references/badges-and-workflows.md` | Badge URLs, workflows |
 | `references/mandatory-requirements.md` | Checklist |
 | `references/ci-patterns.md` | CI/CD, hooks |
-| `references/code-review.md` | PR quality |
+| `references/code-review.md` | PR quality and verification claims |
 | `references/slsa-provenance.md` | SLSA Level 3 |
 | `references/signed-releases.md` | Cosign/GPG |
 | `references/openssf-badge-silver.md` | Silver |
