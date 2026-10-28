@@ -1146,3 +1146,25 @@ llm_reviews:
       4. Look for repeated sections, duplicate changelog entries, or
          duplicated commit lists in release bodies
     tags: [release-notes, duplicate-content, ci, softprops]
+
+  # Predicts: unsupported formal assurance from incomplete, vacuous or irrelevant checker evidence.
+  # Calibration: re-evaluate if independent native verifiers bind every claimed property/revision
+  # and matched review probes no longer expose unsupported assurance; ordinary edits remain inapplicable.
+  - id: ER-76
+    name: Formal assurances are supported by scoped native evidence
+    type: llm_review
+    severity: error
+    domain: code-quality
+    prompt: |-
+      Apply only when the project, requested change or release asserts a formal/model-based guarantee or explicitly declares such a verification obligation. Otherwise report not applicable; do not require a model for ordinary tests, docs or unrelated work.
+      Identify the exact property/theorem, assumptions and trusted components, actor/value bounds, checker/kernel version and configuration, model and target input revision. Classify structural receipt validation, actual checker execution, bounded model evidence and implementation conformance separately.
+      For positive model claims, inspect a complete native search, an interpretable unsafe trace violating the same intended invariant, and reachable useful success plus relevant failure/concurrent paths. A parser error, timeout, wrong invariant, disabled success, self-reported aggregate flag or stale artifact cannot substantiate that assurance. When implementation conformance is claimed, inspect the model-to-code mapping and the separately executed runtime checks; these do not supply a formal refinement proof.
+      A genuine counterexample can complete a design-only assessment. Distinguish unsupported assurance or incomplete execution from a proven application defect; preserve the user's repair/CI scope. Record claim locations and concrete evidence gaps. This LLM review does not itself execute a theorem kernel or model checker and is not a mathematical proof.
+    tags:
+      - formal-verification
+      - evidence
+      - model-checking
+      - scope
+    desc: Review declared formal assurances against native evidence and their scope
+    provenance: regression
+    source: https://github.com/netresearch/t3x-nr-vault/pull/480
