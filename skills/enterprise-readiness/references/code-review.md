@@ -219,6 +219,36 @@ func TestHandleInvalidState(t *testing.T) {
 
 ## Review Process Quality
 
+### Evidence for Correctness and Formal Claims
+
+Passing tests provide evidence for the cases and environments exercised, not a
+proof for every input or execution. Review the claimed scope against the actual
+test output and the revision tested.
+
+When a PR supplies a proof or model-checking claim, inspect the exact property or
+theorem, assumptions and trusted components, bounds, checker version and
+configuration, input revision and complete result. Distinguish safety from
+liveness or termination, and a bounded result from a universal claim.
+
+For a positive bounded-model claim, require a completed configured search and a
+known unsafe variant that violates the intended invariant with an interpretable
+counterexample trace. A parser error, timeout or unrelated failure does not
+validate that control. Check that successful operations and the relevant failure
+or concurrent paths are reachable; constraints can make a green result vacuous.
+
+Map model actions to the implementation boundaries they represent, and bind the
+review evidence to the actual artifacts and revision. A model digest alone does
+not identify the production implementation. A successful abstract check does
+not establish implementation conformance; regression tests do not supply a
+formal refinement or equivalence proof.
+
+A review can finish with a counterexample or an unverified claim. Keep application
+repairs, a repaired model and CI changes within the user's requested scope; a
+review-only assignment does not authorize them. For constructing or checking a
+model when that work is requested, use the separate
+[Netresearch Formal Model Checking skill](https://github.com/netresearch/formal-model-checking-skill).
+Ordinary PR reviews do not require a new formal model.
+
 ### Required Conversation Resolution (Branch Protection)
 
 Enable `required_conversation_resolution` in branch protection to **enforce** that all review threads are resolved before merging. Without this, review feedback can be silently ignored — especially problematic when automated reviewers (e.g., GitHub Copilot) leave actionable comments.
