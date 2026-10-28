@@ -543,7 +543,7 @@
       },
       {
         "type": "content",
-        "pattern": "(reachab|vacuous)"
+        "pattern": "((JobDone|success|completion)[^.!?;]*(unreachable|not reachable|disabled|cannot complete)|disabl[^.!?;]*(JobDone|success|completion)[^.!?;]*vacuous)"
       },
       {
         "type": "content",
@@ -559,7 +559,7 @@
       },
       {
         "type": "must_not",
-        "pattern": "(^|[.!?;:][[:space:]]+)(approve the PR|the implementation is formally verified|this proves the production scheduler)"
+        "pattern": "(^|[.!?;:][[:space:]]+)(((I|we)[[:space:]]+)?approve[[:space:]]+(the|this)[[:space:]]+PR|the implementation is formally verified|this proves the production scheduler)"
       }
     ],
     "samples": {
@@ -567,7 +567,9 @@
       "failing": [
         "The green summary and unsafe syntax error prove OrderPreserved for every production execution. Approve the PR.",
         "Inspect OrderPreserved, its assumptions, bounds, input revision and checker version/configuration. Require a complete search and check success and failure reachability. Map model steps to the implementation operations; a model digest does not establish conformance. Keep this review-only, with no application or CI edits. The syntax error is the required counterexample.",
-        "Inspect OrderPreserved, its assumptions, bounds, input revision and checker version/configuration. Require a complete search; a syntax error is not a counterexample. Map model steps to implementation operations; the digest does not establish conformance. Keep this review-only, with no application or CI edits. Disabled success needs no further investigation."
+        "Inspect OrderPreserved, its assumptions, bounds, input revision and checker version/configuration. Require a complete search; a syntax error is not a counterexample. Map model steps to implementation operations; the digest does not establish conformance. Keep this review-only, with no application or CI edits. Disabled success needs no further investigation.",
+        "Do not approve on this evidence. Inspect OrderPreserved, its assumptions, bounds, input revision and checker version/configuration. A positive claim requires a complete search and an unsafe variant with the intended violating trace; a syntax error is not a counterexample. JobDone is reachable; the search is not vacuous. Map model steps to the separate implementation operations and identify the implementation revision; the model digest alone does not establish conformance. Tests provide evidence for exercised cases. Keep this review-only, with no application or CI edits.",
+        "Do not approve on this evidence. Inspect OrderPreserved, its assumptions, bounds, input revision and checker version/configuration. A positive claim requires a complete search and an unsafe variant with the intended violating trace; a syntax error is not a counterexample. Check success and failure reachability: disabling JobDone makes the result vacuous. Map model steps to the separate implementation operations and identify the implementation revision; the model digest alone does not establish conformance. Tests provide evidence for exercised cases. Keep this review-only, with no application or CI edits. I approve the PR."
       ]
     }
   }

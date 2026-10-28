@@ -245,9 +245,11 @@ formal refinement or equivalence proof.
 A review can finish with a counterexample or an unverified claim. Keep application
 repairs, a repaired model and CI changes within the user's requested scope; a
 review-only assignment does not authorize them. For constructing or checking a
-model when that work is requested, use the separate
-[Netresearch Formal Model Checking skill](https://github.com/netresearch/formal-model-checking-skill).
-Ordinary PR reviews do not require a new formal model.
+model when that work is requested, use the
+[Netresearch Formal Model Checking skill](https://github.com/netresearch/formal-model-checking-skill)
+when it is available and installed. Otherwise, use an available project or domain
+verifier, or record the missing capability. Ordinary PR reviews do not require a
+new formal model.
 
 ### Required Conversation Resolution (Branch Protection)
 
