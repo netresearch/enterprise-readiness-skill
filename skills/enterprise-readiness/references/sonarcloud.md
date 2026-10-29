@@ -245,6 +245,34 @@ Two closed-source-analyzer behaviors verified in a live remediation
   input and truncate at the boundary with a second, simple regex in code.
   Verify byte-identical behavior against samples before shipping.
 
+Three more, from a 56-alert remediation (2026-10-28):
+
+- **`shell:S6506`** ("HTTPS should be enforced on HTTP clients following
+  redirects") is satisfied by `curl --proto '=https'` alone. `--proto`
+  already restricts every redirect hop: with curl 8.18.0, an https→http
+  redirect stopped at the 302 with `--proto '=https'`, exactly as with
+  `--proto-redir '=https'` added. Adding the second flag doubles the
+  `'=https'` literal, and a script with two such calls then trips
+  `shell:S1192` (duplicated literal). Where one file has three or more calls,
+  name the flag once (`CURL_HTTPS_ONLY=(--proto '=https')`, then
+  `curl "${CURL_HTTPS_ONLY[@]}" …`).
+- **`pythonsecurity:S2083` / `S6549` do not count a regex `fullmatch` as
+  validation.** A value checked with `re.fullmatch(r"[0-9]+(?:\.[0-9]+)*", v)`
+  before it enters a path keeps the finding open after the fix. Read the
+  flow (`api/issues/search?issues=<key>&additionalFields=_all` →
+  `.flows[].locations`), confirm the guard sits between source and sink on
+  the merged code, then mark the issue a false positive with the guard's file
+  and line in the comment. Do not contort the code to a form the engine
+  models.
+- **A PR decoration's "new issues" count can include old issues in touched
+  files.** A PR that changed six lines of a shell script was reported with 65
+  new `shell:S7688` issues, all created months earlier on lines the PR did
+  not touch, while `api/qualitygates/project_status?pullRequest=<n>` was OK.
+  Before treating the count as introduced, compare each issue's
+  `creationDate` and `line` with the PR's changed hunks
+  (`git diff -U0 "origin/$BASE...HEAD" -- <file>`, with `BASE` from
+  `gh pr view <n> --json baseRefName --jq .baseRefName`).
+
 ### Quality Gate vs Annotations vs Required Check
 
 These three concepts are independent — confusing them leads to wrong merge decisions:
