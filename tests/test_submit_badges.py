@@ -15,8 +15,8 @@ import pathlib
 import sys
 import tempfile
 import unittest
+import unittest.mock
 import urllib.parse
-from unittest import mock
 
 SCRIPT = (
     pathlib.Path(__file__).resolve().parent.parent
@@ -153,8 +153,8 @@ class OpenerTests(unittest.TestCase):
 class MainTests(unittest.TestCase):
     def run_main(self, argv, env):
         with (
-            mock.patch.object(sb.sys, "argv", ["submit-badges.py", *argv]),
-            mock.patch.dict(os.environ, env, clear=True),
+            unittest.mock.patch.object(sb.sys, "argv", ["submit-badges.py", *argv]),
+            unittest.mock.patch.dict(os.environ, env, clear=True),
             contextlib.redirect_stdout(io.StringIO()) as out,
             self.assertRaises(SystemExit) as exit_info,
         ):
