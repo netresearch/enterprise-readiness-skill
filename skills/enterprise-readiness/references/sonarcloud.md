@@ -273,6 +273,25 @@ Three more, from a 56-alert remediation (2026-10-28):
   (`git diff -U0 "origin/$BASE...HEAD" -- <file>`, with `BASE` from
   `gh pr view <n> --json baseRefName --jq .baseRefName`).
 
+A fix that follows a rule's own remediation hint is still unverified until
+the analyzer says so. Push it, wait for the pull request analysis, and read the
+issue back (`api/issues/search?issues=<key>&pullRequest=<n>`, or the rule and
+file on the PR's new issues) before calling it fixed: a plausible fix can leave
+the finding open, trip a different rule, or break behavior the rule does not
+model. Two cases to read back that way:
+
+- **`php:S2003`** ("use `require_once` instead of `require`") breaks a file
+  that *returns* a value, such as a config array. `require_once` returns the
+  array on the first inclusion and `true` on every later one in the same
+  request (PHP 8.5), so a second caller gets `true` instead of its config.
+  Keep `require` there and mark the issue won't fix with that reason.
+- **`S5443`** (publicly writable directories) is raised on a `/tmp` path
+  literal, also where the path is harmless. Replace the literal with the
+  platform's temp API and a securely created file (`tempnam(sys_get_temp_dir(),
+  ...)`, `tempfile.mkstemp()`, `fs.mkdtemp(os.tmpdir())`), or review the
+  hotspot with the reason the path is safe, and confirm in the next analysis
+  that the hotspot is gone or reviewed.
+
 ### Quality Gate vs Annotations vs Required Check
 
 These three concepts are independent — confusing them leads to wrong merge decisions:
