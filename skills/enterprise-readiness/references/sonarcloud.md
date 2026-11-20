@@ -288,7 +288,8 @@ model. Two cases to read back that way:
 - **`S5443`** (publicly writable directories) is raised on a `/tmp` path
   literal, also where the path is harmless. Replace the literal with the
   platform's temp API and a securely created file (`tempnam(sys_get_temp_dir(),
-  ...)`, `tempfile.mkstemp()`, `fs.mkdtemp(os.tmpdir())`), or review the
+  ...)`, `tempfile.mkstemp()`,
+  `fs.mkdtemp(path.join(os.tmpdir(), 'app-'))`), or review the
   hotspot with the reason the path is safe, and confirm in the next analysis
   that the hotspot is gone or reviewed.
 
