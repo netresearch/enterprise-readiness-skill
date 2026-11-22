@@ -90,10 +90,13 @@ check two things before anything else:
    that removed it.
 2. **Is the token valid?** A scanner run with an invalid or revoked token ends
    early with `Failed to query JRE metadata: GET https://api.sonarcloud.io/analysis/jres?... failed with HTTP 403 Forbidden`.
-   GitHub shows when the secret was last set
-   (`gh api orgs/ORG/actions/secrets/SONAR_TOKEN --jq .updated_at`), not
-   whether its value still works; a token you hold can be checked with
-   `api/authentication/validate`.
+   GitHub shows when a secret was last set, not whether its value still
+   works. A repository secret overrides an organization secret of the same
+   name, so read the repository one first
+   (`gh api repos/OWNER/REPO/actions/secrets/SONAR_TOKEN --jq .updated_at`),
+   then the organization one
+   (`gh api orgs/ORG/actions/secrets/SONAR_TOKEN --jq .updated_at`). A token
+   you hold can be checked with `api/authentication/validate`.
 
 Seen on `netresearch/t3x-rte_ckeditor_image`: a template adoption on
 2026-06-16 removed the inline Sonar job, the last analysis dated from
@@ -388,7 +391,7 @@ curl -s -H "Authorization: Bearer $SONAR_TOKEN" -X POST \
   --data-urlencode "pullRequest=106"      # omit for a main-branch issue
 ```
 
-Available issue transitions: `falsepositive`, `wontfix`, `confirm`, `unconfirm`, `resolve`, `reopen`; SonarQube Cloud also offers `accept` (status `ACCEPTED`). Read the transitions an issue allows instead of guessing: `api/issues/search?issues=<key>&additionalFields=transitions`. Hotspots use a different endpoint:
+Available issue transitions: `falsepositive`, `wontfix`, `confirm`, `unconfirm`, `resolve`, `reopen`; SonarQube Cloud also offers `accept` (status `ACCEPTED`). Read the transitions an issue allows instead of guessing: `api/issues/search?issues=<key>&additionalFields=transitions`, plus `&pullRequest=<n>` for an issue found only on a pull request. Hotspots use a different endpoint:
 
 ```bash
 curl -s -H "Authorization: Bearer $SONAR_TOKEN" -X POST \
