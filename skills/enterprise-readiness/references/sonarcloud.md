@@ -69,6 +69,37 @@ Aligns with:
 1. Account → Security → Generate Token
 2. Save as `SONAR_TOKEN` repository secret
 
+A token from Account → Security is a personal user token: CI runs as that
+person, and the token stops working when the person loses access or revokes
+it. Scoped Organization Tokens (prefix `sqco_`) belong to the organization
+instead, but SonarQube Cloud offers them only on the Team and Enterprise
+plans, and only an organization admin can create them. On the free plan a
+personal token is the only option; record whose it is next to the secret.
+
+### When a project stops getting analyses
+
+The project page shows the date of the last analysis
+(`api/project_analyses/search?project=<key>&ps=1`, readable without a token
+for a public project). If it is weeks old while the repository has commits,
+check two things before anything else:
+
+1. **Is there still a scan?** A CI workflow that calls the scanner, or
+   Automatic Analysis switched on. Replacing CI files from a template removes
+   a per-repository Sonar job without any check failing: the last analysis
+   simply stops. `git log -S sonar -- .github/workflows/` finds the commit
+   that removed it.
+2. **Is the token valid?** A scanner run with an invalid or revoked token ends
+   early with `Failed to query JRE metadata: GET https://api.sonarcloud.io/analysis/jres?... failed with HTTP 403 Forbidden`.
+   GitHub shows when the secret was last set
+   (`gh api orgs/ORG/actions/secrets/SONAR_TOKEN --jq .updated_at`), not
+   whether its value still works; a token you hold can be checked with
+   `api/authentication/validate`.
+
+Seen on `netresearch/t3x-rte_ckeditor_image`: a template adoption on
+2026-06-16 removed the inline Sonar job, the last analysis dated from
+2026-06-18, and once the job was back the organization secret from 2026-05-02
+answered 403. A new token restored the analysis.
+
 ### 3. Add Configuration
 
 Create `sonar-project.properties` in repository root:
@@ -357,7 +388,7 @@ curl -s -H "Authorization: Bearer $SONAR_TOKEN" -X POST \
   --data-urlencode "pullRequest=106"      # omit for a main-branch issue
 ```
 
-Available issue transitions: `falsepositive`, `wontfix`, `confirm`, `unconfirm`, `resolve`, `reopen`. Hotspots use a different endpoint:
+Available issue transitions: `falsepositive`, `wontfix`, `confirm`, `unconfirm`, `resolve`, `reopen`; SonarQube Cloud also offers `accept` (status `ACCEPTED`). Read the transitions an issue allows instead of guessing: `api/issues/search?issues=<key>&additionalFields=transitions`. Hotspots use a different endpoint:
 
 ```bash
 curl -s -H "Authorization: Bearer $SONAR_TOKEN" -X POST \
