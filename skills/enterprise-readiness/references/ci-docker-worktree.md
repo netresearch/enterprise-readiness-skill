@@ -9,14 +9,19 @@ directory structure break.
 
 ## 1. CaptainHook in Docker
 
-CaptainHook's hook-installer plugin fails in Docker containers and git
-worktrees where `.git` is a file (pointing to the bare repo) instead
-of a directory. The failure aborts Composer's `post-install-cmd`
+CaptainHook's hook-installer plugin fails in a Docker container when `.git`
+is a file whose target directory is not mounted in the container. Before
+1.0.5 it also failed on the host in a worktree of a bare repository; 1.0.5
+skips the installation there, so upgrade instead of setting a variable. The failure aborts Composer's `post-install-cmd`
 scripts, silently preventing subsequent plugins from running.
 
 ### Fix
 
-Add `CAPTAINHOOK_DISABLE=true` to every Docker-based Composer command:
+Add `CAPTAINHOOK_DISABLE=true` to every Docker-based Composer command, or,
+with hook-installer 1.0.5 or later, mount the shared git directory
+(`git rev-parse --git-common-dir`) at its identical path when `.git` is a
+file. Before 1.0.5 the mount does not help in a worktree of a bare
+repository, because the parser rejects a git directory not named `.git`:
 
 ```bash
 docker run ... -e CAPTAINHOOK_DISABLE=true ... composer install
@@ -37,8 +42,9 @@ Find Composer commands that are missing the guard:
 grep -n "composer" Build/Scripts/runTests.sh | grep -v "CAPTAINHOOK_DISABLE"
 ```
 
-Any match indicates a command that will fail when `.git` is not a
-directory (Docker, worktrees, CI shallow clones).
+Any match indicates a command that fails when it runs in a container on a
+worktree whose git directory is not mounted. A shallow clone has a `.git`
+directory and is not affected.
 
 ## 2. PHPStan Extension Installer Verification
 
@@ -74,7 +80,8 @@ another plugin) failing before extension-installer could run.
 
 ### Fix
 
-Apply the CaptainHook disable fix from Section 1, then re-run
+In a container, apply the fix from Section 1; on the host, upgrade
+`captainhook/hook-installer` to 1.0.5 or later. Then re-run
 `composer install`. Verify that `GeneratedConfig.php` now lists the
 expected extensions.
 
