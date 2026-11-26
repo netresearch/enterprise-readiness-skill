@@ -17,9 +17,11 @@ scripts, silently preventing subsequent plugins from running.
 
 ### Fix
 
-Add `CAPTAINHOOK_DISABLE=true` to every Docker-based Composer command, or
-mount the shared git directory (`git rev-parse --git-common-dir`) at its
-identical path when `.git` is a file:
+Add `CAPTAINHOOK_DISABLE=true` to every Docker-based Composer command, or,
+with hook-installer 1.0.5 or later, mount the shared git directory
+(`git rev-parse --git-common-dir`) at its identical path when `.git` is a
+file. Before 1.0.5 the mount does not help in a worktree of a bare
+repository, because the parser rejects a git directory not named `.git`:
 
 ```bash
 docker run ... -e CAPTAINHOOK_DISABLE=true ... composer install

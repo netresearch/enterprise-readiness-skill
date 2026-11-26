@@ -884,9 +884,9 @@ llm_reviews:
       or captainhook/hook-installer or captainhook/plugin-composer):
       1. Check Build/Scripts/runTests.sh and any CI scripts for `composer install`
          or `composer update` commands run inside Docker containers
-      2. Verify each such command passes CAPTAINHOOK_DISABLE=true as an env variable, or
-         the runner mounts the shared git directory (git rev-parse --git-common-dir) at
-         its identical path when .git is a file
+      2. Verify each such command passes CAPTAINHOOK_DISABLE=true as an env variable, or,
+         with hook-installer 1.0.5 or later, the runner mounts the shared git directory
+         (git rev-parse --git-common-dir) at its identical path when .git is a file
       3. Without this, CaptainHook's hook-installer fails in a container when .git is a
          file whose target is not mounted (worktree), aborting all subsequent
          post-install-cmd plugins. On the host, 1.0.5 or later skips the install
